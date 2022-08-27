@@ -1448,7 +1448,7 @@ class ChartingState extends MusicBeatState
 			{
 				_song.speed = nums.value;
 			}
-			else if (wname == 'song_mania')
+			else if (wname == 'mania')
 			{
 				_song.mania = nums.value
 				reloadGridLayer();
