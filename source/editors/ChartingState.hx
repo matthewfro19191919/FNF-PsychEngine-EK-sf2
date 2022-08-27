@@ -1448,6 +1448,11 @@ class ChartingState extends MusicBeatState
 			{
 				_song.speed = nums.value;
 			}
+			else if (wname == 'song_mania')
+			{
+				_song.mania = nums.value
+				reloadGridLayer();
+			}
 			else if (wname == 'song_bpm')
 			{
 				tempBpm = nums.value;
@@ -2105,7 +2110,7 @@ class ChartingState extends MusicBeatState
 		}
 
 		gridLayer.clear();
-		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]));
+		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, (Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom])) * 2);
 
 		#if desktop
 		if(FlxG.save.data.chart_waveformInst || FlxG.save.data.chart_waveformVoices) {
@@ -2117,7 +2122,7 @@ class ChartingState extends MusicBeatState
 		var foundNextSec:Bool = false;
 		if(sectionStartTime(1) <= FlxG.sound.music.length)
 		{
-			nextGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, Std.int(GRID_SIZE * getSectionBeats(curSec + 1) * 4 * zoomList[curZoom]));
+			nextGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, (Std.int(GRID_SIZE * getSectionBeats(curSec + 1) * 4 * zoomList[curZoom])) * 2);
 			leHeight = Std.int(gridBG.height + nextGridBG.height);
 			foundNextSec = true;
 		}
