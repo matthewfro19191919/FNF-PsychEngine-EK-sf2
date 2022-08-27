@@ -289,7 +289,6 @@ class ChartingState extends MusicBeatState
 
 		currentSongName = Paths.formatToSongPath(_song.song);
 		loadSong();
-		loadAudioBuffer();
 		reloadGridLayer();
 		Conductor.changeBPM(_song.bpm);
 		Conductor.mapBPMChanges(_song);
@@ -428,7 +427,6 @@ class ChartingState extends MusicBeatState
 		{
 			currentSongName = Paths.formatToSongPath(UI_songTitle.text);
 			loadSong();
-			loadAudioBuffer();
 			updateWaveform();
 		});
 
@@ -909,7 +907,6 @@ class ChartingState extends MusicBeatState
 
 		tab_group_section.add(new FlxText(stepperBeats.x, stepperBeats.y - 15, 0, 'Beats per Section:'));
 		tab_group_section.add(stepperBeats);
-		tab_group_section.add(stepperLength);
 		tab_group_section.add(stepperSectionBPM);
 		tab_group_section.add(check_mustHitSection);
 		tab_group_section.add(check_gfSection);
@@ -1216,7 +1213,6 @@ class ChartingState extends MusicBeatState
 			waveformUseVoices.checked = false;
 			FlxG.save.data.chart_waveformVoices = false;
 			FlxG.save.data.chart_waveformInst = waveformUseInstrumental.checked;
-			FlxG.save.data.chart_waveform = waveformEnabled.checked;
 			updateWaveform();
 		};
 
@@ -2057,6 +2053,7 @@ class ChartingState extends MusicBeatState
 		reloadGridLayer();
 	}
 
+	/*
 	function loadAudioBuffer() {
 		if(audioBuffers[0] != null) {
 			audioBuffers[0].dispose();
@@ -2094,7 +2091,7 @@ class ChartingState extends MusicBeatState
 		#if MODS_ALLOWED
 		}
 		#end
-	}
+	}*/
 	var lastSecBeats:Float = 0;
 	var lastSecBeatsNext:Float = 0;
 	function reloadGridLayer() {
