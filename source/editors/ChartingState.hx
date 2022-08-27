@@ -1596,8 +1596,6 @@ class ChartingState extends MusicBeatState
 				dummyArrow.y = Math.floor(FlxG.mouse.y / gridmult) * gridmult;
 			}
 		} else {
-				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
-		}else{
 			dummyArrow.visible = false;
 		}
 
