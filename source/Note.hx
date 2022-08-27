@@ -392,7 +392,7 @@ class Note extends FlxSprite
 	}
 
 	function loadNoteAnims() {
-		for (i in 0...gfxLetter.length - 1)
+		for (i in 0...gfxLetter.length)
 			{
 				animation.addByPrefix(gfxLetter[i], gfxLetter[i] + '0');
 	
@@ -414,12 +414,12 @@ class Note extends FlxSprite
 
 	function loadPixelNoteAnims() {
 		if(isSustainNote) {
-			for (i in 0...gfxLetter.length - 1) {
+			for (i in 0...gfxLetter.length) {
 				animation.add(gfxLetter[i] + ' hold', [i]);
 				animation.add(gfxLetter[i] + ' tail', [i + 10]);
 			}
 		} else {
-			for (i in 0...gfxLetter.length - 1) {
+			for (i in 0...gfxLetter.length) {
 				animation.add(gfxLetter[i], [i + 10]);
 			}
 		}
