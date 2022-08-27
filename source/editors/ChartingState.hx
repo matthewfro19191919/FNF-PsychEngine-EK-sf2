@@ -1567,7 +1567,7 @@ class ChartingState extends MusicBeatState
 		FlxG.mouse.visible = true;//cause reasons. trust me
 		camPos.y = strumLine.y;
 		if(!disableAutoScrolling.checked) {
-			if (Math.ceil(strumLine.y) >= (gridBG.height / 2))
+			if (Math.ceil(strumLine.y) >= (gridBG.height))
 				{
 				if (_song.notes[curSec + 1] == null)
 				{
@@ -2110,7 +2110,7 @@ class ChartingState extends MusicBeatState
 		}
 
 		gridLayer.clear();
-		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, (Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom])) * 2);
+		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]));
 
 		#if desktop
 		if(FlxG.save.data.chart_waveformInst || FlxG.save.data.chart_waveformVoices) {
@@ -2119,10 +2119,15 @@ class ChartingState extends MusicBeatState
 		#end
 
 		var leHeight:Int = Std.int(gridBG.height);
+		FlxG.watch.addQuick("Da height", leHeight);
+		FlxG.watch.addQuick("should be :", Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]))
+		FlxG.watch.addQuick("beats sec", getSectionBeats())
+		FlxG.watch.addQuick("rn zoom", zoomList[curZoom])
+		FlxG.watch.addQuick("beats*4*zoom", getSectionBeats() * 4 * zoomList[curZoom])
 		var foundNextSec:Bool = false;
 		if(sectionStartTime(1) <= FlxG.sound.music.length)
 		{
-			nextGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, (Std.int(GRID_SIZE * getSectionBeats(curSec + 1) * 4 * zoomList[curZoom])) * 2);
+			nextGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, leHeight + Std.int(GRID_SIZE * getSectionBeats(curSec + 1) * 4 * zoomList[curZoom]));
 			leHeight = Std.int(gridBG.height + nextGridBG.height);
 			foundNextSec = true;
 		}
