@@ -2120,10 +2120,10 @@ class ChartingState extends MusicBeatState
 
 		var leHeight:Int = Std.int(gridBG.height);
 		FlxG.watch.addQuick("Da height", leHeight);
-		FlxG.watch.addQuick("should be :", Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]))
-		FlxG.watch.addQuick("beats sec", getSectionBeats())
-		FlxG.watch.addQuick("rn zoom", zoomList[curZoom])
-		FlxG.watch.addQuick("beats*4*zoom", getSectionBeats() * 4 * zoomList[curZoom])
+		FlxG.watch.addQuick("should be :", Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]));
+		FlxG.watch.addQuick("beats sec", getSectionBeats());
+		FlxG.watch.addQuick("rn zoom", zoomList[curZoom]);
+		FlxG.watch.addQuick("beats*4*zoom", getSectionBeats() * 4 * zoomList[curZoom]);
 		var foundNextSec:Bool = false;
 		if(sectionStartTime(1) <= FlxG.sound.music.length)
 		{
