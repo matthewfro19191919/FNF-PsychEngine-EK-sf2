@@ -22,7 +22,7 @@ class Note extends FlxSprite
 {
 	public var extraData:Map<String,Dynamic> = [];
 
-	var gfxLetter:Array<String> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+	var gfxLetter:Array<String> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'/*, 'J'*/];
 
 	public static var scales:Array<Float> = [0.9, 0.85, 0.8, 0.7, 0.66, 0.6, 0.55, 0.50, 0.46, 0.39, 0.36];
 	public static var lessX:Array<Int> = [0, 0, 0, 0, 0, 8, 7, 8, 8, 7, 6];
@@ -46,7 +46,7 @@ class Note extends FlxSprite
 	];
 
 	public static var minMania:Int = 0;
-	public static var maxMania:Int = 9;
+	public static var maxMania:Int = 8;
 	public static var defaultMania:Int = 3;
 
 	public static var keysShit:Map<Int, Map<String, Dynamic>> = [
@@ -71,11 +71,11 @@ class Note extends FlxSprite
 			 "strumAnims" => ["LEFT", "DOWN", "UP", "RIGHT", "SPACE", "LEFT", "DOWN", "UP", "RIGHT"], "pixelAnimIndex" => [0, 1, 2, 3, 4, 5, 6, 7, 8]],
 
 		9 => ["letters" => ["A", "B", "C", "D", "E", "J", "F", "G", "H", "I"], "anims" => ["LEFT", "DOWN", "UP", "RIGHT", "UP", "UP", "LEFT", "DOWN", "UP", "RIGHT"],
-			 "strumAnims" => ["LEFT", "DOWN", "UP", "RIGHT", "SPACE", "CIRCLE", "LEFT", "DOWN", "UP", "RIGHT"], "pixelAnimIndex" => [0, 1, 2, 3, 4, 13, 5, 6, 7, 8]]
+			 "strumAnims" => ["LEFT", "DOWN", "UP", "RIGHT", "SPACE", "CIRCLE", "LEFT", "DOWN", "UP", "RIGHT"], "pixelAnimIndex" => [0, 1, 2, 3, 4, 9, 5, 6, 7, 8]]
 	];
 
 	public static var ammo:Array<Int> = [
-		1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+		1, 2, 3, 4, 5, 6, 7, 8, 9, /*10*/
 	];
 
 	public static var pixelScales:Array<Float> = [1.2, 1.15, 1.1, 1, 0.9, 0.83, 0.8, 0.74, 0.7, 0.6, 0.55];
@@ -392,7 +392,7 @@ class Note extends FlxSprite
 	}
 
 	function loadNoteAnims() {
-		for (i in 0...gfxLetter.length)
+		for (i in 0...gfxLetter.length - 1)
 			{
 				animation.addByPrefix(gfxLetter[i], gfxLetter[i] + '0');
 	
@@ -414,12 +414,12 @@ class Note extends FlxSprite
 
 	function loadPixelNoteAnims() {
 		if(isSustainNote) {
-			for (i in 0...gfxLetter.length) {
+			for (i in 0...gfxLetter.length - 1) {
 				animation.add(gfxLetter[i] + ' hold', [i]);
 				animation.add(gfxLetter[i] + ' tail', [i + 10]);
 			}
 		} else {
-			for (i in 0...gfxLetter.length) {
+			for (i in 0...gfxLetter.length - 1) {
 				animation.add(gfxLetter[i], [i + 10]);
 			}
 		}
