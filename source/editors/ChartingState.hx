@@ -1450,7 +1450,7 @@ class ChartingState extends MusicBeatState
 			}
 			else if (wname == 'mania')
 			{
-				_song.mania = nums.value;
+				_song.mania = Std.int(nums.value);
 				reloadGridLayer();
 			}
 			else if (wname == 'song_bpm')
