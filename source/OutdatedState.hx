@@ -14,6 +14,7 @@ import flixel.util.FlxTimer;
 class OutdatedState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
+	var newVersion:String = '';
 
 	var warnText:FlxText;
 	override function create()
@@ -24,11 +25,25 @@ class OutdatedState extends MusicBeatState
 		add(bg);
 
 		warnText = new FlxText(0, 0, FlxG.width,
-			"this message is to inform you that the version\nyou are using likes to svck\nif you wish to stop using it\npress ur accept\nif you dont want to then press ur back and\nthis version continues to svck",
+			"Hey! The Psych Engine version you're using
+			is currently out of date. \nTo update to the
+			latest one, wait until \nPsych Engine with
+			Extra Keys is updated. To check and
+			download\n the latest version press your ACCEPT key,
+			if you wish to ignore, press your BACK key.\n\n
+			Current version: " + MainMenuState.psychEngineVersion + " - Newest version: " + newVersion + "\n
+			\nPlease be patient until Psych Engine with
+			Extra Keys is updated.",
 			32);
 		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
+	}
+
+	public function new(newVer:String)
+	{
+		newVersion = newVer;
+		super();
 	}
 
 	override function update(elapsed:Float)

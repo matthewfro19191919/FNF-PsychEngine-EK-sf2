@@ -81,8 +81,9 @@ class CreditsState extends MusicBeatState
 		#end
 
 		var pisspoop:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
-			['Psych Engine Extra Keys +'],
-			['Actitud Positiva🙂👍', 			'tposejank',		'わかりましたので、私はfnfを憎むのをやめました. \nツイッターでフォローしないでください、あなたは私のフォロワーリストから削除されます', 								'https://twitter.com/tpose_jank', 		'4C4C4C'],	//mensajes subliminales
+			['Psych Engine Extra Keys'],
+			['tposejank', 			'tposejank',		'Actitud Positiva',			 									'https://www.youtube.com/channel/UCNdhmFe3BXu-Ff2DZ4loYvQ', 		'B9AF27'],	//mensajes subliminales
+			['srPerez', 			'perez', 			'1-9 keys art', 												'https://twitter.com/NewSrPerez', 		'FF9E00'],
 			[''],
 			['Psych Engine Team'],
 			['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',								'https://twitter.com/Shadow_Mario_',	'444444'],

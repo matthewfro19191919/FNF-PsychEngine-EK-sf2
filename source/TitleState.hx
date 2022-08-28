@@ -81,6 +81,7 @@ class TitleState extends MusicBeatState
 	#end
 
 	var mustUpdate:Bool = false;
+	public static var newVersion:String = '';
 
 	var titleJSON:TitleData;
 
@@ -140,6 +141,7 @@ class TitleState extends MusicBeatState
 
 			http.onData = function (data:String)
 			{
+				newVersion = data;
 				updateVersion = data.split('\n')[0].trim();
 				var curVersion:String = MainMenuState.psychEngineVersion.trim();
 				trace('version online: ' + updateVersion + ', your version: ' + curVersion);
@@ -506,7 +508,7 @@ class TitleState extends MusicBeatState
 				new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
 					if (mustUpdate) {
-						MusicBeatState.switchState(new OutdatedState());
+						MusicBeatState.switchState(new OutdatedState(newVersion));
 					} else {
 						MusicBeatState.switchState(new MainMenuState());
 					}
@@ -663,12 +665,16 @@ class TitleState extends MusicBeatState
 				// credTextShit.screenCenter();
 				case 6:
 					#if PSYCH_WATERMARKS
-					createCoolText(['Not associated', 'with'], -40);
+					createCoolText(['Extra Keys by'], -40);
 					#else
 					createCoolText(['In association', 'with'], -40);
 					#end
 				case 8:
+					#if PSYCH_WATERMARKS
+					addMoreText('tposejank');
+					#else
 					addMoreText('newgrounds', -40);
+					#end
 					ngSpr.visible = true;
 				// credTextShit.text += '\nNewgrounds';
 				case 9:
@@ -690,13 +696,25 @@ class TitleState extends MusicBeatState
 				// credTextShit.text = "Friday";
 				// credTextShit.screenCenter();
 				case 14:
+					#if PSYCH_WATERMARKS
+					addMoreText('Friday Night Funkin');
+					#else
 					addMoreText('Friday');
+					#end
 				// credTextShit.visible = true;
 				case 15:
+					#if PSYCH_WATERMARKS
+					addMoreText('Psych Engine');
+					#else
 					addMoreText('Night');
+					#end
 				// credTextShit.text += '\nNight';
 				case 16:
-					addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
+					#if PSYCH_WATERMARKS
+					addMoreText('Extra Keys');
+					#else
+					addMoreText('Funkin');
+					#end
 
 				case 17:
 					skipIntro();
