@@ -236,7 +236,7 @@ class ChartingState extends MusicBeatState
 		#if desktop
 		// Updating Discord Rich Presence
 		var s_termination = "s";
-		if (mania == 0) s_termination = "";
+		if (_song.mania == 0) s_termination = "";
 		DiscordClient.changePresence("EK Chart Editor", StringTools.replace(_song.song, '-', ' ') + " (" + (_song.mania + 1) + " key" + s_termination + ")");
 		#end
 
@@ -2114,7 +2114,7 @@ class ChartingState extends MusicBeatState
 		#if desktop
 		// Updating Discord Rich Presence
 		var s_termination = "s";
-		if (mania == 0) s_termination = "";
+		if (_song.mania == 0) s_termination = "";
 		DiscordClient.changePresence("EK Chart Editor", StringTools.replace(_song.song, '-', ' ') + " (" + (_song.mania + 1) + " key" + s_termination + ")");
 		#end
 
