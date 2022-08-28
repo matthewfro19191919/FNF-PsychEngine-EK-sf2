@@ -235,7 +235,9 @@ class ChartingState extends MusicBeatState
 
 		#if desktop
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("EK Chart Editor", StringTools.replace(_song.song, '-', ' ') + " (" + _song.mania + " keys)");
+		var s_termination = "s";
+		if (mania == 0) s_termination = "";
+		DiscordClient.changePresence("EK Chart Editor", StringTools.replace(_song.song, '-', ' ') + " (" + (_song.mania + 1) + " key" + s_termination + ")");
 		#end
 
 		vortex = FlxG.save.data.chart_vortex;
@@ -2109,6 +2111,13 @@ class ChartingState extends MusicBeatState
 			dummyArrow.updateHitbox();	
 		}
 
+		#if desktop
+		// Updating Discord Rich Presence
+		var s_termination = "s";
+		if (mania == 0) s_termination = "";
+		DiscordClient.changePresence("EK Chart Editor", StringTools.replace(_song.song, '-', ' ') + " (" + (_song.mania + 1) + " key" + s_termination + ")");
+		#end
+
 		gridLayer.clear();
 		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE + GRID_SIZE * Note.ammo[_song.mania] * 2, Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]));
 
@@ -2905,7 +2914,7 @@ function updateGrid():Void
 
 		if(noteData > -1)
 		{
-			_song.notes[curSec].sectionNotes.push([noteStrum, noteData, noteSus, noteTypeIntMap.get(daType)]);
+			_song.notes[curSec].sectionNotes.push([noteStrum, noteData % (Note.ammo[_song.mania] * 2), noteSus, noteTypeIntMap.get(daType)]);
 			curSelectedNote = _song.notes[curSec].sectionNotes[_song.notes[curSec].sectionNotes.length - 1];
 		}
 		else

@@ -82,8 +82,9 @@ class DiscordClient
 			details: details,
 			state: state,
 			largeImageKey: 'icon',
-			largeImageText: "Engine Version: " + MainMenuState.psychEngineVersion,
+			largeImageText: "Psych Engine Extra Keys",
 			smallImageKey : smallImageKey,
+			smallImageText: "Psych Engine " + MainMenuState.psychEngineVersion,
 			// Obtained times are in milliseconds so they are divided so Discord can use it
 			startTimestamp : Std.int(startTimestamp / 1000),
             endTimestamp : Std.int(endTimestamp / 1000)

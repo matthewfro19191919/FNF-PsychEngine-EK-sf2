@@ -47,6 +47,10 @@ class Note extends FlxSprite
 
 	public static var minMania:Int = 0;
 	public static var maxMania:Int = 9;
+
+	public static var minManiaUI_integer:Int = minMania + 1;
+	public static var maxManiaUI_integer:Int = maxMania + 1;
+
 	public static var defaultMania:Int = 3;
 
 	public static var keysShit:Map<Int, Map<String, Dynamic>> = [
@@ -257,7 +261,7 @@ class Note extends FlxSprite
 			shader = colorSwap.shader;
 
 			x += swagWidth * (noteData % Note.ammo[mania]);
-			if(!isSustainNote && noteData > -1 && noteData < Note.maxMania) { //Doing this 'if' check to fix the warnings on Senpai songs
+			if(!isSustainNote && noteData > -1 && noteData < Note.maxManiaUI_integer) { //Doing this 'if' check to fix the warnings on Senpai songs
 				var animToPlay:String = '';
 				animToPlay = Note.keysShit.get(mania).get('letters')[noteData];
 				animation.play(animToPlay);
@@ -458,6 +462,17 @@ class Note extends FlxSprite
 		super.update(elapsed);
 
 		mania = PlayState.mania;
+
+		/* im so stupid for that
+		if (noteData == 9)
+		{
+			if (animation.curAnim != null)
+				trace(animation.curAnim.name);
+			else trace("te anim is null waaaaaa");
+
+			trace(Note.keysShit.get(mania).get('letters')[noteData]);
+		}
+		*/
 
 		if (mustPress)
 		{
