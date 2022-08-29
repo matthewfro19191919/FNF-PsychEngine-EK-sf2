@@ -36,6 +36,7 @@ class NotesSubState extends MusicBeatSubstate
 	private var shaderArray:Array<ColorSwap> = [];
 	var curValue:Float = 0;
 	var holdTime:Float = 0;
+	var scrollHoldTime:Float = 0;
 	var nextAccept:Int = 5;
 
 	var blackBG:FlxSprite;
@@ -90,6 +91,7 @@ class NotesSubState extends MusicBeatSubstate
 		hsbText.x = posX + 330;
 		add(hsbText);
 
+		doMessage("Hold your UI UP key and UI DOWN key to scroll faster.\nHold your UI LEFT key and UI RIGHT key when changing a\nnote value to change it faster.\nHold your SHIFT key to skip 3.", 8);
 		changeSelection();
 	}
 
@@ -116,7 +118,6 @@ class NotesSubState extends MusicBeatSubstate
 				blackBG.x = item.x - 20;
 			}
 		}
-
 		if(changingNote) {
 			if(holdTime < 0.5) {
 				if(controls.UI_LEFT_P) {
@@ -150,12 +151,17 @@ class NotesSubState extends MusicBeatSubstate
 				}
 			}
 		} else {
+			var shiftMult:Int = 1;
+			if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
+
 			if (controls.UI_UP_P) {
-				changeSelection(-1);
+				scrollHoldTime = 0;
+				changeSelection(-shiftMult);
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 			if (controls.UI_DOWN_P) {
-				changeSelection(1);
+				scrollHoldTime = 0;
+				changeSelection(shiftMult);
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 			if (controls.UI_LEFT_P) {
@@ -165,6 +171,18 @@ class NotesSubState extends MusicBeatSubstate
 			if (controls.UI_RIGHT_P) {
 				changeType(1);
 				FlxG.sound.play(Paths.sound('scrollMenu'));
+			}
+
+			if(controls.UI_DOWN || controls.UI_UP)
+			{
+				var checkLastHold:Int = Math.floor((scrollHoldTime - 0.5) * 10);
+				scrollHoldTime += elapsed;
+				var checkNewHold:Int = Math.floor((scrollHoldTime - 0.5) * 10);
+
+				if(scrollHoldTime > 0.5 && checkNewHold - checkLastHold > 0)
+				{
+					changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
+				}
 			}
 			if(controls.RESET) {
 				for (i in 0...3) {

@@ -22,25 +22,33 @@ class FlashingState extends MusicBeatState
 	public static var leftState:Bool = false;
 
 	var warnText:FlxText;
-
+	var saveDataPath:String = '';
+	var displaySaveDataPath:String = '';
 
 	override function create()
 	{
 		super.create();
 
+		FlxG.save.data.firstTime = true;
+		FlxG.save.flush();
+
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
 
 		#if lime
-		var saveDataPath = System.applicationStorageDirectory + 'tposejank\\';
-		saveDataPath = StringTools.replace(saveDataPath, "\\", "/");
+	 	saveDataPath = System.applicationStorageDirectory + 'tposejank\\';
+		displaySaveDataPath = StringTools.replace(saveDataPath, "\\", "/");
 		#end
 
 		warnText = new FlxText(0, 0, FlxG.width,
 			"Before use:\n\nEK uses a different save data folder than normal\nPsych Engine, so you are going to have to set your\noptions to what you're using.\n" + 
 			#if lime
-			"Save data creation path:\n\n" + saveDataPath + "\n\n\n\n" +
+			"Save data creation path:\n\n" + displaySaveDataPath + "\n" +
+			#if windows
+			"Press RESET to open this folder" +
 			#end
+			#end
+			"\n\n\n" +
 			"Hey, watch out!\n
 			This Mod contains some flashing lights!\n
 			Press ENTER to disable them now or go to Options Menu.\nPress ESCAPE to ignore this message.\n
@@ -77,6 +85,13 @@ class FlashingState extends MusicBeatState
 					});
 				}
 			}
+			#if (lime && windows)
+			if (controls.RESET) {
+				var command = "explorer " + saveDataPath.toLowerCase();
+				Sys.command(command);
+				trace("doing command: " + command);
+			}
+			#end
 		}
 		super.update(elapsed);
 	}
