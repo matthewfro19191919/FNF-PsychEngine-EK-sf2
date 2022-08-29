@@ -1,5 +1,6 @@
 package;
 
+
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
@@ -10,12 +11,19 @@ import lime.app.Application;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
+#if lime
+import lime.system.System;
+#end
+
+using StringTools;
 
 class FlashingState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
 
 	var warnText:FlxText;
+
+
 	override function create()
 	{
 		super.create();
@@ -23,14 +31,22 @@ class FlashingState extends MusicBeatState
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
 
+		#if lime
+		var saveDataPath = System.applicationStorageDirectory + 'tposejank\\';
+		saveDataPath = StringTools.replace(saveDataPath, "\\", "/");
+		#end
+
 		warnText = new FlxText(0, 0, FlxG.width,
+			"Before use:\n\nEK uses a different save data folder than normal\nPsych Engine, so you are going to have to set your\noptions to what you're using.\n" + 
+			#if lime
+			"Save data creation path:\n\n" + saveDataPath + "\n\n\n\n" +
+			#end
 			"Hey, watch out!\n
 			This Mod contains some flashing lights!\n
-			Press ENTER to disable them now or go to Options Menu.\n
-			Press ESCAPE to ignore this message.\n
+			Press ENTER to disable them now or go to Options Menu.\nPress ESCAPE to ignore this message.\n
 			You've been warned!",
-			32);
-		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
+			8);
+		warnText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
 	}
