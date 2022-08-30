@@ -965,7 +965,7 @@ class EditorPlayState extends MusicBeatState
 				if(ClientPrefs.middleScroll)
 				{
 					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
+					if(i > Note.separator[songMania]) { //Up and Right
 						babyArrow.x += FlxG.width / 2 + 25;
 					}
 				}
