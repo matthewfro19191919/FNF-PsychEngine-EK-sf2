@@ -1,6 +1,5 @@
 package options;
 
-import MusicBeatSubstate.MessagePopup;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -183,7 +182,7 @@ class ControlsSubState extends MusicBeatSubstate {
 			}
 		}
 
-		add(new MessagePopup("Hold your UI UP key and UI DOWN key to scroll faster.\nHold your SHIFT key to skip 3.", FlxColor.WHITE, 5));
+		doMessage("Hold your UI UP key and UI DOWN key to scroll faster.\nHold your SHIFT key to skip 3.");
 		changeSelection();
 	}
 

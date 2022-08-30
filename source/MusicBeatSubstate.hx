@@ -1,6 +1,5 @@
 package;
 
-import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxTimer;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -73,64 +72,82 @@ class MusicBeatSubstate extends FlxSubState
 		//do literally nothing dumbass
 	}
 
-}
+	var cSize:Int = 10;
+	public function doMessage(text:String, duration:Float = 5)
+	{
+		var txt:FlxText = new FlxText(FlxG.width / 2, 10, 0, text + '\n', 16); // i hate flx text
+		txt.cameras = [FlxG.camera];
+		txt.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 
-class MessagePopup extends FlxText
-{
-    public var disableTime:Float;
-    public var messageBar:FlxSprite;
-	public var messageBarBG:FlxSprite;
-	public var fadeDuration:Float;
-	public var goingOut:Bool = false;
-    public function new(text:Dynamic, color:Int = 0xFFffffff, fadeDuration:Float = 6)
-    {
-        super(0, -25, 0, text + '\n', 16);
-		this.disableTime = fadeDuration;
-		this.fadeDuration = fadeDuration;
-		setFormat(Paths.font("vcr.ttf"), 20, color, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		var panel = new FlxSprite(0, 0);
+		makeSelectorG(panel, Std.int(txt.width) + 15, Std.int(txt.height - 24) + 15, 0xFF000000);
+		panel.cameras = [FlxG.camera];
 
-		messageBarBG = new FlxSprite(-10, -10).makeGraphic(Std.int(width)+20, Std.int(height - 24) + 20, 0x00000000);
-        FlxSpriteUtil.drawRoundRect(messageBarBG, 0, 0, Std.int(width) + 20, Std.int(height - 24) + 20, 30, 30, 0xFF000000);
-        messageBar = new FlxSprite(0, 0).makeGraphic(Std.int(width)+10, Std.int(height - 24) + 10, 0x00000000);
-        FlxSpriteUtil.drawRoundRect(messageBar, 0, 0, Std.int(width)+10, Std.int(height - 24), 30, 30, 0xFF302E2E);
-        messageBar.screenCenter(X);
-		messageBarBG.screenCenter(X);
+		var panelbg:FlxSprite = new FlxSprite(5, 5);
+		makeSelectorG(panelbg, Std.int(txt.width) + 5, Std.int(txt.height - 24) + 5, 0xFF302E2E);
+		panelbg.cameras = [FlxG.camera];
 
-		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+		txt.screenCenter(X);
+		panel.screenCenter(X);
+		panelbg.screenCenter(X);
+		txt.y = -(txt.height);
+		panel.y = -(panel.height);
+		panelbg.y = -(panelbg.height);
 
-		messageBar.y = -messageBar.height;
-		messageBarBG.y = -messageBarBG.height;
-		y = -height - 25;
+		add(panel);
+		add(panelbg);
+		add(txt);
 
-        messageBar.cameras = cameras;
-        messageBar.scrollFactor.set();
-		messageBarBG.cameras = cameras;
-		messageBarBG.scrollFactor.set();
-        screenCenter(X);
-        scrollFactor.set();
-    }
-    override function draw():Void
-    {
-		messageBarBG.draw();
-        messageBar.draw();
-		FlxTween.tween(messageBarBG, {y: 10}, 0.5);
-        FlxTween.tween(this, {y: 25}, 0.5);
-        FlxTween.tween(messageBar, {y: 20}, 0.5);
-        super.draw();
-    }
-    override function update(elapsed:Float) {
-		super.update(elapsed);
-		disableTime -= elapsed;
-		if(disableTime < 0) destroy();
-		if(disableTime < 1) {
-			goOut();
-			goingOut = true;
-		}
+		FlxTween.tween(panel, {y: 10}, 0.5);
+		FlxTween.tween(panelbg, {y: 15}, 0.5);
+		FlxTween.tween(txt, {y: 20}, 0.5, {
+			onComplete: function(twn:FlxTween)
+			{
+				new FlxTimer().start(duration, function(tmr:FlxTimer) {
+					FlxTween.tween(panel, {y: -panel.height}, 0.5);
+					FlxTween.tween(panelbg, {y: -panelbg.height - 5}, 0.5);
+					FlxTween.tween(txt, {y: -txt.height - 10}, 0.5, {
+						onComplete: function(twn:FlxTween) {
+							remove(panel);
+							remove(panelbg);
+							remove(txt);
+						}
+					});
+				});
+			}
+		});
 	}
 
-	public function goOut() {
-		messageBarBG.y -= 1;
-		messageBar.y -= 1;
-		y -= 1;
+	function makeSelectorG(panel:FlxSprite,w,h,color:FlxColor)
+	{
+		panel.makeGraphic(w, h, color);
+		panel.pixels.fillRect(new Rectangle(0, 190, panel.width, 5), 0x0);
+		
+		// Why did i do this? Because i'm a lmao stupid, of course
+		// also i wanted to understand better how fillRect works so i did this shit lol???
+		panel.pixels.fillRect(new Rectangle(0, 0, cSize, cSize), 0x0);														 //top left
+		drawCircleCorner(panel,false, false,color);
+		panel.pixels.fillRect(new Rectangle(panel.width - cSize, 0, cSize, cSize), 0x0);							 //top right
+		drawCircleCorner(panel,true, false,color);
+		panel.pixels.fillRect(new Rectangle(0, panel.height - cSize, cSize, cSize), 0x0);							 //bottom left
+		drawCircleCorner(panel,false, true,color);
+		panel.pixels.fillRect(new Rectangle(panel.width - cSize, panel.height - cSize, cSize, cSize), 0x0); //bottom right
+		drawCircleCorner(panel,true, true,color);
+	}
+
+	function drawCircleCorner(panel:FlxSprite,flipX:Bool, flipY:Bool,color:FlxColor)
+	{
+		var antiX:Float = (panel.width - cSize);
+		var antiY:Float = flipY ? (panel.height - 1) : 0;
+		if(flipY) antiY -= 2;
+		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 1), Std.int(Math.abs(antiY - 8)), 10, 3), color);
+		if(flipY) antiY += 1;
+		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 2), Std.int(Math.abs(antiY - 6)),  9, 2), color);
+		if(flipY) antiY += 1;
+		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 3), Std.int(Math.abs(antiY - 5)),  8, 1), color);
+		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 4), Std.int(Math.abs(antiY - 4)),  7, 1), color);
+		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 5), Std.int(Math.abs(antiY - 3)),  6, 1), color);
+		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 6), Std.int(Math.abs(antiY - 2)),  5, 1), color);
+		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Std.int(Math.abs(antiY - 1)),  3, 1), color);
 	}
 }
