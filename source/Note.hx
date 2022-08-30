@@ -439,16 +439,16 @@ class Note extends FlxSprite
 		if (!isSustainNote)
 		{
 			var animToPlay:String = '';
-			animToPlay = Note.keysShit.get(mania).get('letters')[noteData];
+			animToPlay = Note.keysShit.get(mania).get('letters')[noteData % Note.ammo[mania]];
 			animation.play(animToPlay);
 		}
 
 		if (isSustainNote && prevNote != null)
 		{
-			animation.play(Note.keysShit.get(mania).get('letters')[noteData] + ' tail');
-			if (prevNote.isSustainNote)
+			animation.play(Note.keysShit.get(mania).get('letters')[noteData % Note.ammo[mania]] + ' tail');
+			if (prevNote != null && prevNote.isSustainNote)
 			{
-				prevNote.animation.play(Note.keysShit.get(mania).get('letters')[noteData] + ' hold');
+				prevNote.animation.play(Note.keysShit.get(mania).get('letters')[prevNote.noteData % Note.ammo[mania]] + ' hold');
 				prevNote.updateHitbox();
 			}
 		}

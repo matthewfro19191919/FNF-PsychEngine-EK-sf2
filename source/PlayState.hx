@@ -2710,39 +2710,40 @@ class PlayState extends MusicBeatState
 	{
 		//funny dissapear transitions
 		//while new strums appear
-			for (i in 0...playerStrums.members.length) {
-				var oldStrum:FlxSprite = playerStrums.members[i].clone();
-				oldStrum.x = playerStrums.members[i].x;
-				oldStrum.y = playerStrums.members[i].y;
-				oldStrum.alpha = playerStrums.members[i].alpha;
-				oldStrum.scrollFactor.set();
-				oldStrum.cameras = [camHUD];
-				oldStrum.setGraphicSize(Std.int(oldStrum.width * Note.scales[mania]));
-				oldStrum.updateHitbox();
-				add(oldStrum);
-	
-				FlxTween.tween(oldStrum, {alpha: 0}, 1, {onComplete: function(_) {
-					remove(oldStrum);
-				}});
-			}
-	
-			for (i in 0...opponentStrums.members.length) {
-				var oldStrum:FlxSprite = opponentStrums.members[i].clone();
-				oldStrum.x = opponentStrums.members[i].x;
-				oldStrum.y = opponentStrums.members[i].y;
-				oldStrum.alpha = opponentStrums.members[i].alpha;
-				oldStrum.scrollFactor.set();
-				oldStrum.cameras = [camHUD];
-				oldStrum.setGraphicSize(Std.int(oldStrum.width * Note.scales[mania]));
-				oldStrum.updateHitbox();
-				add(oldStrum);
-	
-				FlxTween.tween(oldStrum, {alpha: 0}, 1, {onComplete: function(_) {
-					remove(oldStrum);
-				}});
-		}
-		
+		var daOldMania = mania;
+				
 		mania = newValue;
+		for (i in 0...playerStrums.members.length) {
+			var oldStrum:FlxSprite = playerStrums.members[i].clone();
+			oldStrum.x = playerStrums.members[i].x;
+			oldStrum.y = playerStrums.members[i].y;
+			oldStrum.alpha = playerStrums.members[i].alpha;
+			oldStrum.scrollFactor.set();
+			oldStrum.cameras = [camHUD];
+			oldStrum.setGraphicSize(Std.int(oldStrum.width * Note.scales[daOldMania]));
+			oldStrum.updateHitbox();
+			add(oldStrum);
+
+			FlxTween.tween(oldStrum, {alpha: 0}, 1, {onComplete: function(_) {
+				remove(oldStrum);
+			}});
+		}
+
+		for (i in 0...opponentStrums.members.length) {
+			var oldStrum:FlxSprite = opponentStrums.members[i].clone();
+			oldStrum.x = opponentStrums.members[i].x;
+			oldStrum.y = opponentStrums.members[i].y;
+			oldStrum.alpha = opponentStrums.members[i].alpha;
+			oldStrum.scrollFactor.set();
+			oldStrum.cameras = [camHUD];
+			oldStrum.setGraphicSize(Std.int(oldStrum.width * Note.scales[daOldMania]));
+			oldStrum.updateHitbox();
+			add(oldStrum);
+
+			FlxTween.tween(oldStrum, {alpha: 0}, 1, {onComplete: function(_) {
+				remove(oldStrum);
+			}});
+		}
 
 		playerStrums.clear();
 		opponentStrums.clear();
@@ -3209,7 +3210,8 @@ class PlayState extends MusicBeatState
 				var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
 				if(!daNote.mustPress) strumGroup = opponentStrums;
 
-				if (mania != SONG.mania && !daNote.isSustainNote) {
+				if (mania != SONG.mania) {
+					if (daNote.mania != mania) daNote.mania = mania;
 					daNote.applyManiaChange();
 				}
 
@@ -4484,7 +4486,7 @@ class PlayState extends MusicBeatState
 			notes.forEachAlive(function(daNote:Note)
 			{
 				// hold note functions
-				if (strumsBlocked[daNote.noteData] != true && daNote.isSustainNote && dataKeyIsPressed(daNote.noteData) && daNote.canBeHit
+				if (strumsBlocked[daNote.noteData] != true && daNote.isSustainNote && dataKeyIsPressed(daNote.noteData % Note.ammo[mania]) && daNote.canBeHit
 				&& daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit) {
 					goodNoteHit(daNote);
 				}
