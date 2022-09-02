@@ -91,6 +91,7 @@ class OptionsState extends MusicBeatState
 
 	override function closeSubState() {
 		super.closeSubState();
+		doMessage("Saved settings.", 2);
 		ClientPrefs.saveSettings();
 	}
 

@@ -84,10 +84,10 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.onChange = onChangeHitsoundVolume;
 
 		var option:Option = new Option('Antimash',
-		"If unchecked, antimash will not do anything.",
-		'antimash',
-		'bool',
-		true);
+			"If unchecked, antimash will not do anything.",
+			'antimash',
+			'bool',
+			true);
 		addOption(option);
 
 		var option:Option = new Option('Rating Offset',
@@ -143,6 +143,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.minValue = 2;
 		option.maxValue = 10;
 		option.changeValue = 0.1;
+		addOption(option);
+
+		var option:Option = new Option('Always convert non-EK charts',
+			'If unchecked, charts that are not EK will be converted.',
+			'convertEK',
+			'bool',
+			true);
 		addOption(option);
 
 		super();

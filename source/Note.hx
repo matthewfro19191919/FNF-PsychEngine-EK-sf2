@@ -443,7 +443,7 @@ class Note extends FlxSprite
 			animation.play(animToPlay);
 		}
 
-		if (isSustainNote && prevNote != null)
+		/*if (isSustainNote && prevNote != null) someone please tell me why this wont work
 		{
 			animation.play(Note.keysShit.get(mania).get('letters')[noteData % Note.ammo[mania]] + ' tail');
 			if (prevNote != null && prevNote.isSustainNote)
@@ -451,7 +451,7 @@ class Note extends FlxSprite
 				prevNote.animation.play(Note.keysShit.get(mania).get('letters')[prevNote.noteData % Note.ammo[mania]] + ' hold');
 				prevNote.updateHitbox();
 			}
-		}
+		}*/
 
 		updateHitbox();
 	}

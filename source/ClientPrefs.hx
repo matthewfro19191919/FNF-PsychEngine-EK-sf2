@@ -34,6 +34,7 @@ class ClientPrefs {
 	public static var pauseMusic:String = 'Tea Time';
 	public static var checkForUpdates:Bool = true;
 	public static var antimash:Bool = true;
+	public static var convertEK:Bool = true;
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -203,6 +204,7 @@ class ClientPrefs {
 		FlxG.save.data.pauseMusic = pauseMusic;
 		FlxG.save.data.checkForUpdates = checkForUpdates;
 		FlxG.save.data.antimash = antimash;
+		FlxG.save.data.convertEK = convertEK;
 	
 		FlxG.save.flush();
 
@@ -340,6 +342,10 @@ class ClientPrefs {
 		if (FlxG.save.data.antimash != null)
 		{
 			antimash = FlxG.save.data.antimash;
+		}
+		if (FlxG.save.data.convertEK != null)
+		{
+			convertEK = FlxG.save.data.convertEK;
 		}
 
 		var save:FlxSave = new FlxSave();

@@ -248,6 +248,7 @@ class ControlsSubState extends MusicBeatSubstate {
 
 				var opposite:Int = (curAlt ? 0 : 1);
 				if(keysArray[opposite] == keysArray[1 - opposite]) {
+					doMessage("You cannot repeat the same key.", 2);
 					keysArray[opposite] = NONE;
 				}
 				ClientPrefs.keyBinds.set(optionShit[curSelected][1], keysArray);
