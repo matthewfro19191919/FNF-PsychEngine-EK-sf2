@@ -33,6 +33,7 @@ class ControlsSubState extends MusicBeatSubstate {
 
 	private static var defaultKey:String = 'Reset to Default Keys';
 	private var bindLength:Int = 0;
+	var holdTime:Float = 0;
 
 	var optionShit:Array<Dynamic> = [
 		['NOTES'],
@@ -180,6 +181,8 @@ class ControlsSubState extends MusicBeatSubstate {
 				if(curSelected < 0) curSelected = i;
 			}
 		}
+
+		doMessage("Hold your UI UP key and UI DOWN key to scroll faster.\nHold your SHIFT key to skip 3.");
 		changeSelection();
 	}
 
@@ -187,14 +190,31 @@ class ControlsSubState extends MusicBeatSubstate {
 	var bindingTime:Float = 0;
 	override function update(elapsed:Float) {
 		if(!rebindingKey) {
+			var shiftMult:Int = 1;
+			if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
+
 			if (controls.UI_UP_P) {
-				changeSelection(-1);
+				holdTime = 0;
+				changeSelection(-shiftMult);
 			}
 			if (controls.UI_DOWN_P) {
-				changeSelection(1);
+				holdTime = 0;
+				changeSelection(shiftMult);
 			}
 			if (controls.UI_LEFT_P || controls.UI_RIGHT_P) {
 				changeAlt();
+			}
+
+			if(controls.UI_DOWN || controls.UI_UP)
+			{
+				var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
+				holdTime += elapsed;
+				var checkNewHold:Int = Math.floor((holdTime - 0.5) * 10);
+
+				if(holdTime > 0.5 && checkNewHold - checkLastHold > 0)
+				{
+					changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
+				}
 			}
 
 			if (controls.BACK) {
@@ -228,6 +248,7 @@ class ControlsSubState extends MusicBeatSubstate {
 
 				var opposite:Int = (curAlt ? 0 : 1);
 				if(keysArray[opposite] == keysArray[1 - opposite]) {
+					doMessage("You cannot repeat the same key.", 2);
 					keysArray[opposite] = NONE;
 				}
 				ClientPrefs.keyBinds.set(optionShit[curSelected][1], keysArray);
