@@ -182,7 +182,7 @@ class ControlsSubState extends MusicBeatSubstate {
 			}
 		}
 
-		doMessage("Hold UI UP and UI DOWN to go up/down faster.\nHold SHIFT to skip 3.");
+		doMessage("Hold your UI UP key and UI DOWN key to scroll faster.\nHold your SHIFT key to skip 3.");
 		changeSelection();
 	}
 
@@ -249,7 +249,6 @@ class ControlsSubState extends MusicBeatSubstate {
 				var opposite:Int = (curAlt ? 0 : 1);
 				if(keysArray[opposite] == keysArray[1 - opposite]) {
 					doMessage("You cannot repeat the same key.", 2);
-					trace("hey thats not allowed! forgive yourself right now or im taking your liver");
 					keysArray[opposite] = NONE;
 				}
 				ClientPrefs.keyBinds.set(optionShit[curSelected][1], keysArray);
