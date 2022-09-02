@@ -29,7 +29,6 @@ import DialogueBoxPsych;
 import flixel.FlxCamera;
 import flixel.group.FlxSpriteGroup;
 import lime.system.Clipboard;
-import Alphabet;
 #if sys
 import sys.io.File;
 #end
@@ -39,7 +38,7 @@ using StringTools;
 class DialogueCharacterEditorState extends MusicBeatState
 {
 	var box:FlxSprite;
-	var daText:TypedAlphabet = null;
+	var daText:Alphabet = null;
 
 	private static var TIP_TEXT_MAIN:String =
 	'JKLI - Move camera (Hold Shift to move 4x faster)
@@ -75,6 +74,8 @@ class DialogueCharacterEditorState extends MusicBeatState
 	var curAnim:Int = 0;
 
 	override function create() {
+		Alphabet.setDialogueSound();
+
 		persistentUpdate = persistentDraw = true;
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
@@ -417,13 +418,14 @@ class DialogueCharacterEditorState extends MusicBeatState
 	private static var DEFAULT_TEXT:String = 'Lorem ipsum dolor sit amet';
 	function reloadText() {
 		if(daText != null) {
+			daText.killTheTimer();
 			daText.kill();
 			hudGroup.remove(daText);
 			daText.destroy();
 		}
-		daText = new TypedAlphabet(DialogueBoxPsych.DEFAULT_TEXT_X, DialogueBoxPsych.DEFAULT_TEXT_Y, DEFAULT_TEXT, 0.05, false);
-		daText.scaleX = 0.7;
-		daText.scaleY = 0.7;
+		daText = new Alphabet(0, 0, DEFAULT_TEXT, false, true, 0.05, 0.7);
+		daText.x = DialogueBoxPsych.DEFAULT_TEXT_X;
+		daText.y = DialogueBoxPsych.DEFAULT_TEXT_Y;
 		hudGroup.add(daText);
 	}
 
