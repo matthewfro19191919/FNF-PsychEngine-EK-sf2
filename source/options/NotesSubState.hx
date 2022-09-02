@@ -92,7 +92,7 @@ class NotesSubState extends MusicBeatSubstate
 		hsbText.scaleY = 0.6;
 		add(hsbText);
 
-		doMessage("Hold your UI UP key and UI DOWN key to scroll faster.\nHold your UI LEFT key and UI RIGHT key when changing a\nnote value to change it faster.\nHold your SHIFT key to skip 3.", 8);
+		doMessage("Hold UI UP and UI DOWN to go up/down faster.\nHold UI LEFT and UI RIGHT when changing a\nnote to change it faster.\nHold SHIFT to skip 3.", 8);
 		changeSelection();
 	}
 
@@ -119,13 +119,15 @@ class NotesSubState extends MusicBeatSubstate
 				blackBG.x = item.x - 20;
 			}
 		}
+		var shiftMult:Int = 1;
+		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
 		if(changingNote) {
 			if(holdTime < 0.5) {
 				if(controls.UI_LEFT_P) {
-					updateValue(-1);
+					updateValue(-shiftMult);
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 				} else if(controls.UI_RIGHT_P) {
-					updateValue(1);
+					updateValue(shiftMult);
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 				} else if(controls.RESET) {
 					resetValue(curSelected, typeSelected);
@@ -152,9 +154,6 @@ class NotesSubState extends MusicBeatSubstate
 				}
 			}
 		} else {
-			var shiftMult:Int = 1;
-			if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
-
 			if (controls.UI_UP_P) {
 				scrollHoldTime = 0;
 				changeSelection(-shiftMult);

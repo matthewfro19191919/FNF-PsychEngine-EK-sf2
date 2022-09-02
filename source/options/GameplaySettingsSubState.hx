@@ -146,7 +146,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Always convert non-EK charts',
-			'If unchecked, charts that are not EK will be converted.',
+			'If unchecked, charts that are not EK will NOT be converted.',
 			'convertEK',
 			'bool',
 			true);
