@@ -2150,7 +2150,7 @@ class ChartingState extends MusicBeatState
 		if (curBeat % 2 == 0) {
 			var chars:Array<Character> = [enemy, boyfriend, girlfriend];
 			for (char in chars) {
-				if (char.animation.curAnim.name.startsWith("sing") && char.animation.curAnim.finished) {
+				if ((char.animation.curAnim.name.startsWith("sing") && char.animation.curAnim.finished) || char.animation.curAnim.name == "idle") {
 					char.playAnim("idle", true);
 				}
 			}
@@ -2853,6 +2853,10 @@ class ChartingState extends MusicBeatState
 	}
 
 	function setupSusNote(note:Note, beats:Float):Array<FlxSprite> {
+		var skin:String = _song.arrowSkin;
+		if(skin == null || skin.length < 1) {
+			skin = 'NOTE_assets';
+		}
 		var height:Int = Math.floor(FlxMath.remapToRange(note.sustainLength, 0, Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
 		var minHeight:Int = Std.int((GRID_SIZE * zoomList[curZoom] / 2) + GRID_SIZE / 2);
 		if(height < minHeight) height = minHeight;
@@ -2862,7 +2866,7 @@ class ChartingState extends MusicBeatState
 		
 		//Hold sprite
 		var spr:FlxSprite = new FlxSprite(0, note.y + GRID_SIZE / 2);
-		spr.frames = Paths.getSparrowAtlas(_song.arrowSkin);
+		spr.frames = Paths.getSparrowAtlas(skin);
 		for (anim in 0...sprAnims.length) {
 			spr.animation.addByPrefix('anim' + anim, sprAnims[anim] + ' hold piece');
 		}
@@ -2873,7 +2877,7 @@ class ChartingState extends MusicBeatState
 
 		//End sprite
 		var end:FlxSprite = new FlxSprite(0, (note.y + GRID_SIZE / 2) + (height - 15));
-		end.frames = Paths.getSparrowAtlas(_song.arrowSkin);
+		end.frames = Paths.getSparrowAtlas(skin);
 		end.animation.addByPrefix('anim0', 'pruple end hold'); // ?????
 		for (anim in 1...sprAnims.length) {
 			end.animation.addByPrefix('anim' + anim, sprAnims[anim] + ' hold end');
