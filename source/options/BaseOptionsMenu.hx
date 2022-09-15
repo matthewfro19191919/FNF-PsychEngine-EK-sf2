@@ -75,7 +75,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		descBox.alpha = 0.6;
 		add(descBox);
 
-		var titleText:Alphabet = new Alphabet(75, 40, title, true);
+		var titleText:Alphabet = new Alphabet(75, 40, title + ' >', true);
 		titleText.scaleX = 0.6;
 		titleText.scaleY = 0.6;
 		titleText.alpha = 0.4;
@@ -135,6 +135,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	var holdValue:Float = 0;
 	override function update(elapsed:Float)
 	{
+		FlxG.mouse.visible = true;
 		if (controls.UI_UP_P)
 		{
 			changeSelection(-1);
@@ -144,9 +145,30 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			changeSelection(1);
 		}
 
+		if (FlxG.mouse.wheel != 0) {
+			changeSelection(-FlxG.mouse.wheel);
+		}
+
 		if (controls.BACK) {
 			close();
 			FlxG.sound.play(Paths.sound('cancelMenu'));
+		}
+
+		for (i in 0...optionsArray.length) {
+			var option = optionsArray[i];
+			if (option.type == 'bool') {
+				var optionCheckbox:CheckboxThingie = null;
+				for (checkbox in checkboxGroup.members) if (checkbox.ID == i) optionCheckbox = checkbox;
+
+				if (optionCheckbox != null && FlxG.mouse.overlaps(optionCheckbox) && FlxG.mouse.justPressed) {
+					FlxG.sound.play(Paths.sound('scrollMenu'));
+					option.setValue((option.getValue() == true) ? false : true);
+					option.change();
+					reloadCheckboxes();
+					curSelected = i;
+					changeSelection(0);
+				} //else trace("da checkbox null ?");
+			}
 		}
 
 		if(nextAccept <= 0)
@@ -283,6 +305,23 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 		holdTime = 0;
+	}
+
+	function openSelectedSubstate(label:String) {
+		switch(label) {
+			case 'Note Colors':
+				openSubState(new options.NotesSubState());
+			case 'Controls':
+				openSubState(new options.ControlsSubState());
+			case 'Graphics':
+				openSubState(new options.GraphicsSettingsSubState());
+			case 'Visuals and UI':
+				openSubState(new options.VisualsUISubState());
+			case 'Gameplay':
+				openSubState(new options.GameplaySettingsSubState());
+			case 'Adjust Delay and Combo':
+				LoadingState.loadAndSwitchState(new options.NoteOffsetState());
+		}
 	}
 	
 	function changeSelection(change:Int = 0)

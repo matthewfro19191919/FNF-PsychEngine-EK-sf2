@@ -1,5 +1,8 @@
 package;
 
+import lime.utils.Bytes;
+import openfl.geom.Rectangle;
+import lime.media.AudioBuffer;
 import flixel.graphics.FlxGraphic;
 #if desktop
 import Discord.DiscordClient;
@@ -76,6 +79,9 @@ import vlc.MP4Handler;
 
 using StringTools;
 
+@:access(flixel.system.FlxSound._sound)
+@:access(openfl.media.Sound.__buffer)
+
 class PlayState extends MusicBeatState
 {
 	public static var STRUM_X = 42;
@@ -133,6 +139,8 @@ class PlayState extends MusicBeatState
 	public var songSpeedType:String = "multiplicative";
 	public var noteKillOffset:Float = 350;
 
+	var waveformSprite:FlxSprite;
+	var waveformBG:FlxSprite;
 	public var boyfriendGroup:FlxSpriteGroup;
 	public var dadGroup:FlxSpriteGroup;
 	public var gfGroup:FlxSpriteGroup;
@@ -1059,6 +1067,17 @@ class PlayState extends MusicBeatState
 		add(timeTxt);
 		timeBarBG.sprTracker = timeBar;
 
+		if (FlxG.save.data.chart_waveformInst || FlxG.save.data.chart_waveformVoices) {
+			waveformBG = new FlxSprite(0, 0).makeGraphic(Std.int(Note.swagWidth * 4), FlxG.height);
+			add(waveformBG);
+			waveformBG.alpha = 0.5;
+			//if (ClientPrefs.chartWaveformOnGame) {}
+			waveformSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0x00FFFFFF);
+			add(waveformSprite);
+			waveformBG.cameras = [camHUD];
+			waveformSprite.cameras = [camHUD];
+		}
+
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
 		add(grpNoteSplashes);
@@ -1075,6 +1094,8 @@ class PlayState extends MusicBeatState
 
 		opponentStrums = new FlxTypedGroup<StrumNote>();
 		playerStrums = new FlxTypedGroup<StrumNote>();
+
+		Subtitle.SubtitleHandler.camera = camOther;
 
 		// startCountdown();
 
@@ -2079,6 +2100,17 @@ class PlayState extends MusicBeatState
 
 			generateStaticArrows(0);
 			generateStaticArrows(1);
+			if (waveformSprite != null) {
+				waveformBG.x = playerStrums.members[0].x;
+				waveformSprite.x = playerStrums.members[0].x;
+				var strumsBottom = playerStrums.members[0].y - FlxG.height;
+				if (ClientPrefs.downScroll) {
+					waveformSprite.y = strumsBottom;
+					waveformSprite.flipY = true;
+				} else
+					waveformSprite.y = playerStrums.members[0].y + playerStrums.members[0].height;
+			}
+
 			for (i in 0...playerStrums.length) {
 				setOnLuas('defaultPlayerStrumX' + i, playerStrums.members[i].x);
 				setOnLuas('defaultPlayerStrumY' + i, playerStrums.members[i].y);
@@ -3001,6 +3033,8 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
+		updateWaveform();
+
 		setOnLuas('curDecStep', curDecStep);
 		setOnLuas('curDecBeat', curDecBeat);
 
@@ -3253,6 +3287,9 @@ class PlayState extends MusicBeatState
 						}
 					}
 				}
+
+				if (daNote.isSustainNote)
+					daNote.flipY = ClientPrefs.downScroll;
 
 				// Kill extremely late notes and cause misses
 				if (Conductor.songPosition > noteKillOffset + daNote.strumTime)
@@ -3768,6 +3805,67 @@ class PlayState extends MusicBeatState
 				} else {
 					FunkinLua.setVarInArray(this, value1, value2);
 				}
+			case 'Change Scroll Type': //resumed the script by ImaginationSuperHero52806#2485 (https://gamebanana.com/tools/8756)
+				if (FlxG.save.data.downScroll == null) FlxG.save.data.downScroll = false;
+				if (FlxG.save.data.middleScroll == null) FlxG.save.data.middleScroll = false;
+
+				var v:Array<String> = value1.split(',');	
+				var next:String = "";
+				var alt:String = "";
+				switch (v[0]) {
+					case "any":
+						next = v[1];
+						alt = value2;
+					case "player":
+						next = FlxG.save.data.downScroll ? "downscroll" : "upscroll";
+						alt = FlxG.save.data.middleScroll ? "middlescroll" : "normal";
+					case "swap current":
+						next = ClientPrefs.downScroll ? "upscroll" : "downscroll";
+						alt = ClientPrefs.middleScroll ? "normal" : "middlescroll";
+					case "swap player":
+						next = FlxG.save.data.downScroll ? "upscroll" : "downscroll";
+						alt = FlxG.save.data.middleScroll ? "normal" : "middlescroll";
+				}
+
+				switch (next) {
+					case "downscroll":
+						ClientPrefs.downScroll = true;
+						strumLine.y = FlxG.height - 150;
+					case "upscroll":
+						ClientPrefs.downScroll = false;
+						strumLine.y = 50;
+				}
+				switch (alt) {
+					case "middlescroll":
+						ClientPrefs.middleScroll = true;
+						strumLine.x = STRUM_X_MIDDLESCROLL;
+					case "normal":
+						ClientPrefs.middleScroll = false;
+						strumLine.x = STRUM_X;
+				}
+
+				for (i in 0...strumLineNotes.members.length) {
+					var strum:StrumNote = strumLineNotes.members[i];
+					strum.y = strumLine.y;
+					strum.x = strumLine.x + (Note.swagWidth * strum.ID) + 50;
+					strum.x += ((FlxG.width / 2) * strum.player);
+
+					if (strum.player == 0) {
+						var strumAlpha:Float = ClientPrefs.middleScroll ? 0.35 : 1;
+						if (ClientPrefs.middleScroll) {
+							strum.x += 310;
+							if(strum.ID > 1) { //Up and Right
+								strum.x += FlxG.width / 2 + 25;
+							}
+						}
+						strum.alpha = ClientPrefs.opponentStrums ? strumAlpha : 0;
+					}
+					strum.downScroll = ClientPrefs.downScroll;
+				}
+			case 'Add Subtitle':
+				var time:Float = Std.parseFloat(value2);
+				if (value2 == null || value2.length < 1 || value2 == "") time = 5;
+				Subtitle.SubtitleHandler.makeline(value1, time);
 		}
 		callOnLuas('onEvent', [eventName, value1, value2]);
 	}
@@ -5283,6 +5381,220 @@ class PlayState extends MusicBeatState
 		return null;
 	}
 	#end
+
+	var waveformPrinted:Bool = true;
+	var wavData:Array<Array<Array<Float>>> = [[[0], [0]], [[0], [0]]];
+	function updateWaveform() {
+		#if desktop
+		if (waveformSprite == null) return;
+		if(waveformPrinted) {
+			waveformSprite.makeGraphic(Std.int(Note.swagWidth * 4), FlxG.height, 0x00FFFFFF);
+			waveformSprite.pixels.fillRect(new Rectangle(0, 0, Note.swagWidth * 4, FlxG.height), 0x00FFFFFF);
+		}
+		waveformPrinted = false;
+
+		if(!FlxG.save.data.chart_waveformInst && !FlxG.save.data.chart_waveformVoices) {
+			//trace('Epic fail on the waveform lol');
+			return;
+		}
+
+		wavData[0][0] = [];
+		wavData[0][1] = [];
+		wavData[1][0] = [];
+		wavData[1][1] = [];
+
+		var steps:Int = Math.round(getBeatsOnSection() * 4);
+		var st:Float = FlxG.sound.music.time;
+		var et:Float = st + (Conductor.stepCrochet * steps);
+
+		if (FlxG.save.data.chart_waveformInst) {
+			var sound:FlxSound = FlxG.sound.music;
+			if (sound._sound != null && sound._sound.__buffer != null) {
+				var bytes:Bytes = sound._sound.__buffer.data.toBytes();
+
+				wavData = waveformData(
+					sound._sound.__buffer,
+					bytes,
+					st,
+					et,
+					1,
+					wavData,
+					FlxG.height
+				);
+			}
+		}
+
+		if (FlxG.save.data.chart_waveformVoices) {
+			var sound:FlxSound = vocals;
+			if (sound._sound != null && sound._sound.__buffer != null) {
+				var bytes:Bytes = sound._sound.__buffer.data.toBytes();
+
+				wavData = waveformData(
+					sound._sound.__buffer,
+					bytes,
+					st,
+					et,
+					1,
+					wavData,
+					FlxG.height
+				);
+			}
+		}
+
+		// Draws
+		var gSize:Int = Std.int(Note.swagWidth * 4);
+		var hSize:Int = Std.int(gSize / 2);
+
+		var lmin:Float = 0;
+		var lmax:Float = 0;
+
+		var rmin:Float = 0;
+		var rmax:Float = 0;
+
+		var size:Float = songSpeed * 0.7;
+
+		var leftLength:Int = (
+			wavData[0][0].length > wavData[0][1].length ? wavData[0][0].length : wavData[0][1].length
+		);
+
+		var rightLength:Int = (
+			wavData[1][0].length > wavData[1][1].length ? wavData[1][0].length : wavData[1][1].length
+		);
+
+		var length:Int = leftLength > rightLength ? leftLength : rightLength;
+
+		var index:Int;
+		for (i in 0...length) {
+			index = i;
+
+			lmin = FlxMath.bound(((index < wavData[0][0].length && index >= 0) ? wavData[0][0][index] : 0) * (gSize / 1.12), -hSize, hSize) / 2;
+			lmax = FlxMath.bound(((index < wavData[0][1].length && index >= 0) ? wavData[0][1][index] : 0) * (gSize / 1.12), -hSize, hSize) / 2;
+
+			rmin = FlxMath.bound(((index < wavData[1][0].length && index >= 0) ? wavData[1][0][index] : 0) * (gSize / 1.12), -hSize, hSize) / 2;
+			rmax = FlxMath.bound(((index < wavData[1][1].length && index >= 0) ? wavData[1][1][index] : 0) * (gSize / 1.12), -hSize, hSize) / 2;
+
+			//if (ClientPrefs.downScroll)
+				//waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), (waveformSprite.y + waveformSprite.height) - i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
+			//else 
+				waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
+		}
+
+		waveformPrinted = true;
+		#end
+	}
+
+	function waveformData(buffer:AudioBuffer, bytes:Bytes, time:Float, endTime:Float, multiply:Float = 1, ?array:Array<Array<Array<Float>>>, ?steps:Float):Array<Array<Array<Float>>>
+	{
+		#if (lime_cffi && !macro)
+		if (buffer == null || buffer.data == null) return [[[0], [0]], [[0], [0]]];
+
+		var khz:Float = (buffer.sampleRate / 1000);
+		var channels:Int = buffer.channels;
+
+		var index:Int = Std.int(time * khz);
+
+		var samples:Float = ((endTime - time) * khz);
+
+		if (steps == null) steps = 1280;
+
+		var samplesPerRow:Float = samples / steps;
+		var samplesPerRowI:Int = Std.int(samplesPerRow);
+
+		var gotIndex:Int = 0;
+
+		var lmin:Float = 0;
+		var lmax:Float = 0;
+
+		var rmin:Float = 0;
+		var rmax:Float = 0;
+
+		var rows:Float = 0;
+
+		var simpleSample:Bool = true;//samples > 17200;
+		var v1:Bool = false;
+
+		if (array == null) array = [[[0], [0]], [[0], [0]]];
+
+		while (index < (bytes.length - 1)) {
+			if (index >= 0) {
+				var byte:Int = bytes.getUInt16(index * channels * 2);
+
+				if (byte > 65535 / 2) byte -= 65535;
+
+				var sample:Float = (byte / 65535);
+
+				if (sample > 0) {
+					if (sample > lmax) lmax = sample;
+				} else if (sample < 0) {
+					if (sample < lmin) lmin = sample;
+				}
+
+				if (channels >= 2) {
+					byte = bytes.getUInt16((index * channels * 2) + 2);
+
+					if (byte > 65535 / 2) byte -= 65535;
+
+					sample = (byte / 65535);
+
+					if (sample > 0) {
+						if (sample > rmax) rmax = sample;
+					} else if (sample < 0) {
+						if (sample < rmin) rmin = sample;
+					}
+				}
+			}
+
+			v1 = samplesPerRowI > 0 ? (index % samplesPerRowI == 0) : false;
+			while (simpleSample ? v1 : rows >= samplesPerRow) {
+				v1 = false;
+				rows -= samplesPerRow;
+
+				gotIndex++;
+
+				var lRMin:Float = Math.abs(lmin) * multiply;
+				var lRMax:Float = lmax * multiply;
+
+				var rRMin:Float = Math.abs(rmin) * multiply;
+				var rRMax:Float = rmax * multiply;
+
+				if (gotIndex > array[0][0].length) array[0][0].push(lRMin);
+					else array[0][0][gotIndex - 1] = array[0][0][gotIndex - 1] + lRMin;
+
+				if (gotIndex > array[0][1].length) array[0][1].push(lRMax);
+					else array[0][1][gotIndex - 1] = array[0][1][gotIndex - 1] + lRMax;
+
+				if (channels >= 2) {
+					if (gotIndex > array[1][0].length) array[1][0].push(rRMin);
+						else array[1][0][gotIndex - 1] = array[1][0][gotIndex - 1] + rRMin;
+
+					if (gotIndex > array[1][1].length) array[1][1].push(rRMax);
+						else array[1][1][gotIndex - 1] = array[1][1][gotIndex - 1] + rRMax;
+				}
+				else {
+					if (gotIndex > array[1][0].length) array[1][0].push(lRMin);
+						else array[1][0][gotIndex - 1] = array[1][0][gotIndex - 1] + lRMin;
+
+					if (gotIndex > array[1][1].length) array[1][1].push(lRMax);
+						else array[1][1][gotIndex - 1] = array[1][1][gotIndex - 1] + lRMax;
+				}
+
+				lmin = 0;
+				lmax = 0;
+
+				rmin = 0;
+				rmax = 0;
+			}
+
+			index++;
+			rows++;
+			if(gotIndex > steps) break;
+		}
+
+		return array;
+		#else
+		return [[[0], [0]], [[0], [0]]];
+		#end
+	}
 
 	var curLight:Int = -1;
 	var curLightEvent:Int = -1;

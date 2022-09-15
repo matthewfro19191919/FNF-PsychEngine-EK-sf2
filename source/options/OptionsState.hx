@@ -29,7 +29,7 @@ using StringTools;
 
 class OptionsState extends MusicBeatState
 {
-	var options:Array<String> = ['Note Colors', 'Controls', 'Adjust Delay and Combo', 'Graphics', 'Visuals and UI', 'Gameplay'];
+	var options:Array<String> = ['Note Colors', 'Controls', 'Adjust Delay and Combo', 'Graphics', 'Visuals and UI', 'Gameplay' #if PRELOAD_ALL , 'Song Player' #end];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
 	public static var menuBG:FlxSprite;
@@ -48,13 +48,17 @@ class OptionsState extends MusicBeatState
 				openSubState(new options.GameplaySettingsSubState());
 			case 'Adjust Delay and Combo':
 				LoadingState.loadAndSwitchState(new options.NoteOffsetState());
+			case 'Song Player':
+				MusicBeatState.switchState(new options.SongPlayer());
 		}
+		persistentUpdate = false;
 	}
 
 	var selectorLeft:Alphabet;
 	var selectorRight:Alphabet;
 
 	override function create() {
+		persistentUpdate = true;
 		#if desktop
 		DiscordClient.changePresence("Options Menu", null);
 		#end
@@ -70,11 +74,14 @@ class OptionsState extends MusicBeatState
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
+		FlxG.mouse.visible = true;
 		for (i in 0...options.length)
 		{
-			var optionText:Alphabet = new Alphabet(0, 0, options[i], true);
-			optionText.screenCenter();
-			optionText.y += (100 * (i - (options.length / 2))) + 50;
+			var optionText:Alphabet = new Alphabet(150, 320, options[i], true);
+			//optionText.screenCenter();
+			//optionText.y += (100 * (i - (options.length / 2))) + 50;
+			optionText.isMenuItem = true;
+			optionText.targetY = i - curSelected;
 			grpOptions.add(optionText);
 		}
 
@@ -91,6 +98,7 @@ class OptionsState extends MusicBeatState
 
 	override function closeSubState() {
 		super.closeSubState();
+		persistentUpdate = true;
 		ClientPrefs.saveSettings();
 	}
 
@@ -111,6 +119,28 @@ class OptionsState extends MusicBeatState
 
 		if (controls.ACCEPT) {
 			openSelectedSubstate(options[curSelected]);
+		}
+
+		if (FlxG.mouse.wheel != 0) {
+			changeSelection(-FlxG.mouse.wheel);
+		}
+
+		for (item in grpOptions.members) {
+			if (item.targetY == 0) {
+				selectorLeft.x = item.x - 63;
+				selectorLeft.y = item.y;
+				selectorRight.x = item.x + item.width + 15;
+				selectorRight.y = item.y;
+			}
+
+			if (FlxG.mouse.overlaps(item)) {
+				if (item.targetY != 0) {
+					item.alpha = FlxMath.lerp(item.alpha, 1, elapsed * 3);
+				}
+				if (FlxG.mouse.justPressed) {
+					openSelectedSubstate(item.text);
+				}
+			} else if (item.targetY != 0) item.alpha = FlxMath.lerp(item.alpha, 0.6, elapsed * 3);
 		}
 	}
 	

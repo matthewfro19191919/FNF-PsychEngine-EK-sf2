@@ -33,6 +33,8 @@ class FreeplayState extends MusicBeatState
 	var curDifficulty:Int = -1;
 	private static var lastDifficultyName:String = '';
 
+	var bopIcon:Int = -1;
+
 	var scoreBG:FlxSprite;
 	var scoreText:FlxText;
 	var diffText:FlxText;
@@ -50,10 +52,16 @@ class FreeplayState extends MusicBeatState
 	var intendedColor:Int;
 	var colorTween:FlxTween;
 
+	var infScroll:Bool = true;
+
 	override function create()
 	{
 		//Paths.clearStoredMemory();
 		//Paths.clearUnusedMemory();
+
+		// IGNORE THIS!!!
+		var titleJSON = haxe.Json.parse(Paths.getTextFromFile('images/gfDanceTitle.json'));
+		Conductor.changeBPM(titleJSON.bpm);
 		
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
@@ -116,6 +124,8 @@ class FreeplayState extends MusicBeatState
 			songText.targetY = i - curSelected;
 			grpSongs.add(songText);
 
+			//if (i % 2 == 0) songText.scroll = DEFAULT_RIGHT; lol
+
 			var maxWidth = 980;
 			if (songText.width > maxWidth)
 			{
@@ -126,6 +136,12 @@ class FreeplayState extends MusicBeatState
 			Paths.currentModDirectory = songs[i].folder;
 			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
 			icon.sprTracker = songText;
+			switch (songText.scroll) {
+				case C | C_SHARP | DEFAULT_RIGHT:
+					icon.sprTrackerXOffset = -(icon.width + 24);
+				default:
+					icon.sprTrackerXOffset = songText.width;
+			}
 
 			// using a FlxGroup is too much fuss!
 			iconArray.push(icon);
@@ -242,6 +258,13 @@ class FreeplayState extends MusicBeatState
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
 
+		Conductor.songPosition = FlxG.sound.music.time;
+		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125 * 1), 0, 1));
+		for (icon in iconArray) {
+			icon.scale.x = FlxMath.lerp(1, icon.scale.x, CoolUtil.boundTo(1 - (elapsed * 3.125 * 1), 0, 1));
+			icon.scale.y = FlxMath.lerp(1, icon.scale.y, CoolUtil.boundTo(1 - (elapsed * 3.125 * 1), 0, 1));
+		}
+
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 24, 0, 1)));
 		lerpRating = FlxMath.lerp(lerpRating, intendedRating, CoolUtil.boundTo(elapsed * 12, 0, 1));
 
@@ -343,6 +366,8 @@ class FreeplayState extends MusicBeatState
 
 				FlxG.sound.list.add(vocals);
 				FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.7);
+				Conductor.changeBPM(PlayState.SONG.bpm);
+				bopIcon = curSelected;
 				vocals.play();
 				vocals.persist = true;
 				vocals.looped = true;
@@ -478,8 +503,18 @@ class FreeplayState extends MusicBeatState
 				item.alpha = 1;
 				// item.setGraphicSize(Std.int(item.width));
 			}
+
+			if (infScroll) {
+				var lastT = item.targetY;
+				var skipNum = 6;
+				if (item.targetY < (-songs.length + skipNum)) { // On the bottom
+					item.targetY = songs.length + lastT;
+				} else if (item.targetY > songs.length - skipNum) { // On the top
+					item.targetY = -songs.length + lastT;
+				}
+			}
 		}
-		
+
 		Paths.currentModDirectory = songs[curSelected].folder;
 		PlayState.storyWeek = songs[curSelected].week;
 
@@ -531,6 +566,21 @@ class FreeplayState extends MusicBeatState
 		scoreBG.x = FlxG.width - (scoreBG.scale.x / 2);
 		diffText.x = Std.int(scoreBG.x + (scoreBG.width / 2));
 		diffText.x -= diffText.width / 2;
+	}
+
+	override function beatHit() {
+		if (curBeat % 4 == 0) {
+			if (FlxG.camera.zoom < 1.35 && ClientPrefs.camZooms)
+			{
+				FlxG.camera.zoom += 0.015;
+			}
+			if (bopIcon > -1) {
+				iconArray[bopIcon].scale.x += 0.15;
+				iconArray[bopIcon].scale.y += 0.15;
+			}
+		}
+
+		super.beatHit();
 	}
 }
 

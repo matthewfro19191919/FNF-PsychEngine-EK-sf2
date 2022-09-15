@@ -198,6 +198,13 @@ class NoteOffsetState extends MusicBeatState
 		Conductor.changeBPM(128.0);
 		FlxG.sound.playMusic(Paths.music('offsetSong'), 1, true);
 
+		var titleText:Alphabet = new Alphabet(75, 40, 'Adjust Delay and Combo' + ' >', true);
+		titleText.scaleX = 0.6;
+		titleText.scaleY = 0.6;
+		titleText.alpha = 0.4;
+		add(titleText);
+		titleText.cameras = [camHUD];
+
 		super.create();
 	}
 

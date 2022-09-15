@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import flixel.FlxSprite;
 import openfl.utils.Assets as OpenFlAssets;
 
@@ -11,13 +12,17 @@ class HealthIcon extends FlxSprite
 	private var isOldIcon:Bool = false;
 	private var isPlayer:Bool = false;
 	private var char:String = '';
+	public var sprTrackerXOffset:Float = 0;
 
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
 		isOldIcon = (char == 'bf-old');
 		this.isPlayer = isPlayer;
-		changeIcon(char);
+
+		if (char != "none") changeIcon(char);
+		else makeGraphic(1, 1, FlxColor.TRANSPARENT);
+
 		scrollFactor.set();
 	}
 
@@ -25,8 +30,9 @@ class HealthIcon extends FlxSprite
 	{
 		super.update(elapsed);
 
-		if (sprTracker != null)
-			setPosition(sprTracker.x + sprTracker.width + 12, sprTracker.y - 30);
+		if (sprTracker != null) {
+			setPosition(sprTracker.x + sprTrackerXOffset + 12, sprTracker.y - 30);
+		}
 	}
 
 	public function swapOldIcon() {

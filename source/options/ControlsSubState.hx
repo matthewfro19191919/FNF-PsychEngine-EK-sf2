@@ -77,6 +77,12 @@ class ControlsSubState extends MusicBeatSubstate {
 		bg.antialiasing = ClientPrefs.globalAntialiasing;
 		add(bg);
 
+		var titleText:Alphabet = new Alphabet(75, 40, 'Controls' + ' >', true);
+		titleText.scaleX = 0.6;
+		titleText.scaleY = 0.6;
+		titleText.alpha = 0.4;
+		add(titleText);
+
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
@@ -114,16 +120,40 @@ class ControlsSubState extends MusicBeatSubstate {
 
 	var leaving:Bool = false;
 	var bindingTime:Float = 0;
+	var scrollHoldTime:Float = 0;
 	override function update(elapsed:Float) {
 		if(!rebindingKey) {
+			var shiftMult:Int = 1;
+			if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
+
 			if (controls.UI_UP_P) {
-				changeSelection(-1);
+				scrollHoldTime = 0;
+				changeSelection(-shiftMult);
 			}
 			if (controls.UI_DOWN_P) {
-				changeSelection(1);
+				scrollHoldTime = 0;
+				changeSelection(shiftMult);
 			}
+
+			if (FlxG.mouse.wheel != 0) {
+				changeSelection(-FlxG.mouse.wheel);
+			}
+
 			if (controls.UI_LEFT_P || controls.UI_RIGHT_P) {
 				changeAlt();
+			}
+
+			
+			if(controls.UI_DOWN || controls.UI_UP)
+			{
+				var checkLastHold:Int = Math.floor((scrollHoldTime - 0.5) * 10);
+				scrollHoldTime += elapsed;
+				var checkNewHold:Int = Math.floor((scrollHoldTime - 0.5) * 10);
+
+				if(scrollHoldTime > 0.5 && checkNewHold - checkLastHold > 0)
+				{
+					changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
+				}
 			}
 
 			if (controls.BACK) {

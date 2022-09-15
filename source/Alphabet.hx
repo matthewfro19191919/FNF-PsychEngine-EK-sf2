@@ -19,12 +19,25 @@ enum Alignment
 	RIGHT;
 }
 
+enum Scroll
+{
+	D_SHARP;
+	D;
+	C_SHARP;
+	C;
+	DEFAULT_LEFT;
+	DEFAULT_RIGHT;
+	ONLY_ONE;
+}
+
 class Alphabet extends FlxSpriteGroup
 {
 	public var text(default, set):String;
 
 	public var bold:Bool = false;
 	public var letters:Array<AlphaCharacter> = [];
+
+	public var scroll:Scroll = DEFAULT_LEFT;
 
 	public var isMenuItem:Bool = false;
 	public var targetY:Int = 0;
@@ -77,13 +90,13 @@ class Alphabet extends FlxSpriteGroup
 			switch(alignment)
 			{
 				case CENTERED:
-					newOffset = letter.rowWidth / 2;
+						newOffset = letter.rowWidth / 2;
 				case RIGHT:
-					newOffset = letter.rowWidth;
+						newOffset = letter.rowWidth;
 				default:
 					newOffset = 0;
 			}
-	
+
 			letter.offset.x -= letter.alignOffset;
 			letter.offset.x += newOffset;
 			letter.alignOffset = newOffset;
@@ -161,10 +174,31 @@ class Alphabet extends FlxSpriteGroup
 		if (isMenuItem)
 		{
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 9.6, 0, 1);
-			if(changeX)
-				x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
-			if(changeY)
+			if(changeX) {
+				var wuh:Int = (targetY > 0 ? -70 : 70);
+				switch (scroll) {
+					case D_SHARP:
+						x = FlxMath.lerp(x, (wuh * targetY) + distancePerItem.x + startPosition.x, lerpVal);
+					case D:
+						x = FlxMath.lerp(x, (wuh * Math.sin(targetY) * 1.2) + distancePerItem.x + startPosition.x, lerpVal);
+					case ONLY_ONE:
+						var goTo:Float = distancePerItem.x + startPosition.x;
+						goTo = targetY > 0 ? FlxG.width * 2 : targetY < 0 ? -FlxG.width * 2 : goTo;
+						x = FlxMath.lerp(x, goTo, lerpVal);
+					case C_SHARP:
+						x = FlxMath.lerp(x, (FlxG.width - (wuh * targetY) - distancePerItem.x - startPosition.x - width), lerpVal);
+					case C:
+						x = FlxMath.lerp(x, (FlxG.width - (wuh * Math.sin(targetY) * 1.2) - distancePerItem.x - startPosition.x - width), lerpVal);
+					case DEFAULT_LEFT:
+						x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
+					case DEFAULT_RIGHT:
+						x = FlxMath.lerp(x, (FlxG.width - (targetY * distancePerItem.x) - startPosition.x - width), lerpVal);
+					default:
+				}
+			}
+			if(changeY && (scroll != ONLY_ONE))
 				y = FlxMath.lerp(y, (targetY * 1.3 * distancePerItem.y) + startPosition.y, lerpVal);
+			else if (changeY) y =  distancePerItem.y + startPosition.y;
 		}
 		super.update(elapsed);
 	}
