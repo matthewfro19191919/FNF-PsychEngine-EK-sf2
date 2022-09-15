@@ -1238,6 +1238,7 @@ class EditorPlayState extends MusicBeatState
 			numScore.velocity.y -= FlxG.random.int(140, 160);
 			numScore.velocity.x = FlxG.random.float(-5, 5);
 			numScore.visible = !ClientPrefs.hideHud;
+			numScore.cameras = [camHUD];
 
 			insert(members.indexOf(strumLineNotes), numScore);
 

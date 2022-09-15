@@ -180,7 +180,7 @@ class Alphabet extends FlxSpriteGroup
 					case D_SHARP:
 						x = FlxMath.lerp(x, (wuh * targetY) + distancePerItem.x + startPosition.x, lerpVal);
 					case D:
-						x = FlxMath.lerp(x, (wuh * Math.sin(targetY) * 1.2) + distancePerItem.x + startPosition.x, lerpVal);
+						x = FlxMath.lerp(x, (wuh * FlxMath.lerp(targetY, 0, elapsed) * 1.2) + distancePerItem.x + startPosition.x, lerpVal);
 					case ONLY_ONE:
 						var goTo:Float = distancePerItem.x + startPosition.x;
 						goTo = targetY > 0 ? FlxG.width * 2 : targetY < 0 ? -FlxG.width * 2 : goTo;
@@ -188,7 +188,7 @@ class Alphabet extends FlxSpriteGroup
 					case C_SHARP:
 						x = FlxMath.lerp(x, (FlxG.width - (wuh * targetY) - distancePerItem.x - startPosition.x - width), lerpVal);
 					case C:
-						x = FlxMath.lerp(x, (FlxG.width - (wuh * Math.sin(targetY) * 1.2) - distancePerItem.x - startPosition.x - width), lerpVal);
+						x = FlxMath.lerp(x, (FlxG.width - (wuh * FlxMath.lerp(targetY, 0, elapsed) * 1.2) - distancePerItem.x - startPosition.x - width), lerpVal);
 					case DEFAULT_LEFT:
 						x = FlxMath.lerp(x, (targetY * distancePerItem.x) + startPosition.x, lerpVal);
 					case DEFAULT_RIGHT:
