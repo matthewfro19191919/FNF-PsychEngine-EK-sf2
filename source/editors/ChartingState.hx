@@ -1229,6 +1229,8 @@ class ChartingState extends MusicBeatState
 	var display_girlfriend:FlxUIInputText;
 	var display_boyfriend:FlxUIInputText;
 	var display_enemy:FlxUIInputText;
+
+	var fixSectionToScreen:FlxUICheckBox;
 	function addChartingUI() {
 		var tab_group_chart = new FlxUI(null, UI_box);
 		tab_group_chart.name = 'Charting';
@@ -1400,15 +1402,21 @@ class ChartingState extends MusicBeatState
 		if (FlxG.save.data.chart_noAutoScroll == null) FlxG.save.data.chart_noAutoScroll = false;
 		disableAutoScrolling.checked = FlxG.save.data.chart_noAutoScroll;
 
-		instVolume = new FlxUINumericStepper(metronomeStepper.x, 270, 0.1, 1, 0, 1, 1);
+		instVolume = new FlxUINumericStepper(metronomeStepper.x, apply_display_characters.y + 5, 0.1, 1, 0, 1, 1);
 		instVolume.value = FlxG.sound.music.volume;
 		instVolume.name = 'inst_volume';
 		blockPressWhileTypingOnStepper.push(instVolume);
 
-		voicesVolume = new FlxUINumericStepper(instVolume.x + 100, instVolume.y, 0.1, 1, 0, 1, 1);
+		voicesVolume = new FlxUINumericStepper(instVolume.x, instVolume.y + 40, 0.1, 1, 0, 1, 1);
 		voicesVolume.value = vocals.volume;
 		voicesVolume.name = 'voices_volume';
 		blockPressWhileTypingOnStepper.push(voicesVolume);
+
+		fixSectionToScreen = new FlxUICheckBox(display_boyfriend.x, voicesVolume.y, null, null, "Fix section to screen", 100, function() {
+			FlxG.save.data.chart_fixSection = fixSectionToScreen.checked;
+		});
+		if (FlxG.save.data.chart_fixSection == null) FlxG.save.data.chart_fixSection = false;
+		fixSectionToScreen.checked = FlxG.save.data.chart_fixSection;
 
 		tab_group_chart.add(new FlxText(metronomeStepper.x, metronomeStepper.y - 15, 0, 'BPM:'));
 		tab_group_chart.add(new FlxText(metronomeOffsetStepper.x, metronomeOffsetStepper.y - 15, 0, 'Offset (ms):'));
@@ -1438,6 +1446,7 @@ class ChartingState extends MusicBeatState
 		tab_group_chart.add(new FlxText(display_enemy.x, display_enemy.y - 15, 0, 'Display Opponent:'));
 		tab_group_chart.add(new FlxText(display_boyfriend.x, display_boyfriend.y - 15, 0, 'Display Boyfriend:'));
 		tab_group_chart.add(apply_display_characters);
+		tab_group_chart.add(fixSectionToScreen);
 		UI_box.addGroup(tab_group_chart);
 	}
 
@@ -1633,11 +1642,16 @@ class ChartingState extends MusicBeatState
 			strumLineNotes.members[i].y = strumLine.y;
 		}
 
+		FlxG.mouse.visible = true;//cause reasons. trust me
+		if (!fixSectionToScreen.checked) {
+			camPos.y = strumLine.y;
+		} else {
+			camPos.y = gridBG.height / 2;
+		}
+
 		leftIcon.setPosition(GRID_SIZE + 10, strumLine.y - 100);
 		rightIcon.setPosition(GRID_SIZE * 5.2, strumLine.y - 100);
 
-		FlxG.mouse.visible = true;//cause reasons. trust me
-		camPos.y = strumLine.y;
 		if(!disableAutoScrolling.checked) {
 			if (Math.ceil(strumLine.y) >= gridBG.height)
 			{
@@ -2054,7 +2068,11 @@ class ChartingState extends MusicBeatState
 		}
 		Conductor.songPosition = FlxG.sound.music.time;
 		strumLineUpdateY();
-		camPos.y = strumLine.y;
+		if (!fixSectionToScreen.checked) {
+			camPos.y = strumLine.y;
+		} else {
+			camPos.y = gridBG.height / 2;
+		}
 		for (i in 0...8){
 			strumLineNotes.members[i].y = strumLine.y;
 			strumLineNotes.members[i].alpha = FlxG.sound.music.playing ? 1 : 0.35;
@@ -2131,6 +2149,12 @@ class ChartingState extends MusicBeatState
 			}
 		});
 
+		if (boyfriend.animation.curAnim != null && boyfriend.holdTimer > Conductor.stepCrochet * 0.0011 * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
+		{
+			boyfriend.dance();
+			//boyfriend.animation.curAnim.finish();
+		}
+
 		if(metronome.checked && lastConductorPos != Conductor.songPosition) {
 			var metroInterval:Float = 60 / metronomeStepper.value;
 			var metroStep:Int = Math.floor(((Conductor.songPosition + metronomeOffsetStepper.value) / metroInterval) / 1000);
@@ -2139,23 +2163,20 @@ class ChartingState extends MusicBeatState
 				var tickNum:Int = 2;
 				if (curBeat % 4 == 0) tickNum = 1;
 				FlxG.sound.play(Paths.sound('charterTick' + tickNum)); 
+
+				var chars:Array<Character> = [enemy, boyfriend, girlfriend];
+				for (char in chars) {
+					if (curBeat % char.danceEveryNumBeats == 0) {
+						if (char.animation.curAnim != null && !char.animation.curAnim.name.startsWith("sing") && !char.stunned) {
+							char.dance();
+						}
+					}
+				}
 				//trace('Ticked');
 			}
 		}
 		lastConductorPos = Conductor.songPosition;
 		super.update(elapsed);
-	}
-
-	override function beatHit() {
-		if (curBeat % 2 == 0) {
-			var chars:Array<Character> = [enemy, boyfriend, girlfriend];
-			for (char in chars) {
-				if ((char.animation.curAnim.name.startsWith("sing") && char.animation.curAnim.finished) || char.animation.curAnim.name == "idle") {
-					char.playAnim("idle", true);
-				}
-			}
-		}
-		super.beatHit();
 	}
 
 	function updateZoom() {
