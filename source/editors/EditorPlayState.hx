@@ -86,6 +86,8 @@ class EditorPlayState extends MusicBeatState
 	public var camSpeed:Float = 1;
 	public var gfSpeed:Float = 1;
 
+	public var gfXY:Array<Dynamic> = [];
+
 	override function create()
 	{
 		instance = this;
@@ -93,16 +95,16 @@ class EditorPlayState extends MusicBeatState
 		cam = new FlxCamera();
 		camHUD = new FlxCamera();
 
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		bg.scrollFactor.set(0, 0);
+		bg.color = FlxColor.fromHSB(FlxG.random.int(0, 359), FlxG.random.float(0, 0.8), FlxG.random.float(0.3, 1));
+		add(bg);
+
 		FlxG.cameras.reset(cam);
 		FlxG.cameras.add(camHUD, false);
 
 		FlxG.cameras.setDefaultDrawTarget(cam, true);
 		camHUD.bgColor.alpha = 0;
-
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.scrollFactor.set(0, 0);
-		bg.color = FlxColor.fromHSB(FlxG.random.int(0, 359), FlxG.random.float(0, 0.8), FlxG.random.float(0.3, 1));
-		add(bg);
 
 		keysArray = [
 			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_left')),
@@ -254,6 +256,8 @@ class EditorPlayState extends MusicBeatState
 			PlayState.SONG.gfVersion = gfVersion;
 		}
 
+		trace(curStage);
+
 		var stageData:StageFile = StageData.getStageFile(curStage);
 		if(stageData == null) { //Stage couldn't be found, create a dummy stage for preventing a crash
 			stageData = {
@@ -275,10 +279,13 @@ class EditorPlayState extends MusicBeatState
 
 		var bfXY:Array<Dynamic> = stageData.boyfriend;
 		var dadXY:Array<Dynamic> = stageData.opponent;
-		var gfXY:Array<Dynamic> = stageData.girlfriend;
+		gfXY = stageData.girlfriend;
 		bf = new Boyfriend(bfXY[0], bfXY[1], PlayState.SONG.player1);
 		gf = new Character(gfXY[0], gfXY[1], gfVersion);
 		dad = new Character(dadXY[0],dadXY[1], PlayState.SONG.player2);
+		startCharacterPos(bf);
+		startCharacterPos(dad, true);
+		startCharacterPos(gf);
 
 		camSpeed = stageData.camera_speed;
 
@@ -319,7 +326,17 @@ class EditorPlayState extends MusicBeatState
 
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 
-		FlxG.camera.zoom = stageData.defaultZoom;
+		//FlxG.camera.zoom = stageData.defaultZoom;
+	}
+
+	function startCharacterPos(char:Character, ?gfCheck:Bool = false) {
+		if(gfCheck && char.curCharacter.startsWith('gf')) { //IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+			char.setPosition(gfXY[0], gfXY[1]);
+			char.scrollFactor.set(0.95, 0.95);
+			char.danceEveryNumBeats = 2;
+		}
+		char.x += char.positionArray[0];
+		char.y += char.positionArray[1];
 	}
 
 	function snapCamFollowToPos(x:Float, y:Float) {
@@ -522,7 +539,6 @@ class EditorPlayState extends MusicBeatState
 
 		var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * camSpeed, 0, 1);
 		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
-		FlxG.camera.focusOn(new FlxPoint(camFollowPos.x, camFollowPos.y));
 	
 		if (generatedMusic)
 		{
@@ -738,11 +754,6 @@ class EditorPlayState extends MusicBeatState
 			dad.dance();
 		}
 
-		if (PlayState.SONG.notes[curSection] != null) {
-			trace("boss i moved the section camera!");
-			moveCameraSection();
-		}
-
 		if (bf.animation.curAnim != null && bf.holdTimer > Conductor.stepCrochet * 0.0011 * bf.singDuration && bf.animation.curAnim.name.startsWith('sing') && !bf.animation.curAnim.name.endsWith('miss'))
 		{
 			bf.dance();
@@ -759,6 +770,12 @@ class EditorPlayState extends MusicBeatState
 		}
 	}
 
+	override function sectionHit()
+	{
+		super.sectionHit();
+		if (PlayState.SONG.notes[curSection] != null) moveCameraSection();
+	}
+
 	function moveCameraSection():Void {
 		if(PlayState.SONG.notes[curSection] == null) {
 			trace("boss the notes were null :(");
@@ -773,20 +790,13 @@ class EditorPlayState extends MusicBeatState
 			return;
 		}
 
-		if (!PlayState.SONG.notes[curSection].mustHitSection)
-		{
-			moveCamera(true);
-		}
-		else
-		{
-			moveCamera(false);
-		}
+		moveCamera(PlayState.SONG.notes[curSection].mustHitSection);
 	}
 
 	var cameraTwn:FlxTween;
-	public function moveCamera(isDad:Bool)
+	public function moveCamera(isBf:Bool)
 	{
-		if(isDad)
+		if(!isBf)
 		{
 			camFollow.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
 			camFollow.x += dad.cameraPosition[0] + dadCam[0];
