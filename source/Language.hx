@@ -33,7 +33,7 @@ class Language {
         return lang;
     }
 
-    public static function getAllLanguages(displayName:Bool = true):Array<String> {
+    public static function getAllLanguages(displayName:Bool = false):Array<String> {
         if (displayName) {
             var displayLanguages:Array<String> = [];
             for (lang in languages) {
@@ -47,7 +47,7 @@ class Language {
     public static function g(field:String = "no_translation") {
         var got = Reflect.getProperty(languageData, field);
         var ret = got;
-        if (got == null) ret = "No translation";
+        if (got == null) ret = "Null!";
         return ret;
     }
 

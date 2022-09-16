@@ -24,6 +24,7 @@ import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
+import Language as Lang;
 
 using StringTools;
 
@@ -32,53 +33,54 @@ class VisualsUISubState extends BaseOptionsMenu
 	public function new()
 	{
 		title = 'Visuals and UI';
+		title = Lang.g(Lang.convert(title));
 		rpcTitle = 'Visuals & UI Settings Menu'; //for Discord Rich Presence
 
-		var option:Option = new Option('Note Splashes',
-			"If unchecked, hitting \"Sick!\" notes won't show particles.",
+		var option:Option = new Option(Lang.g('options_note_splash'),
+			Lang.g('options_note_splash_desc'),
 			'noteSplashes',
 			'bool',
 			true);
 		addOption(option);
 
-		var option:Option = new Option('Hide HUD',
-			'If checked, hides most HUD elements.',
+		var option:Option = new Option(Lang.g('options_hide_hud'),
+			Lang.g('options_hide_hud_desc'),
 			'hideHud',
 			'bool',
 			false);
 		addOption(option);
 		
-		var option:Option = new Option('Time Bar:',
-			"What should the Time Bar display?",
+		var option:Option = new Option(Lang.g('options_time_bar'),
+			Lang.g('options_time_bar_desc'),
 			'timeBarType',
 			'string',
 			'Time Left',
 			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
 		addOption(option);
 
-		var option:Option = new Option('Flashing Lights',
-			"Uncheck this if you're sensitive to flashing lights!",
+		var option:Option = new Option(Lang.g('options_flashing_lights'),
+			Lang.g('options_flashing_lights_desc'),
 			'flashing',
 			'bool',
 			true);
 		addOption(option);
 
-		var option:Option = new Option('Camera Zooms',
-			"If unchecked, the camera won't zoom in on a beat hit.",
+		var option:Option = new Option(Lang.g('options_camera_zoom'),
+			Lang.g('options_camera_zoom_desc'),
 			'camZooms',
 			'bool',
 			true);
 		addOption(option);
 
-		var option:Option = new Option('Score Text Zoom on Hit',
-			"If unchecked, disables the Score text zooming\neverytime you hit a note.",
+		var option:Option = new Option(Lang.g('options_score'),
+			Lang.g('options_score_desc'),
 			'scoreZoom',
 			'bool',
 			true);
 		addOption(option);
 
-		var option:Option = new Option('Health Bar Transparency',
-			'How much transparent should the health bar and icons be.',
+		var option:Option = new Option(Lang.g('options_healthbar'),
+			Lang.g('options_healthbar_desc'),
 			'healthBarAlpha',
 			'percent',
 			1);
@@ -90,8 +92,8 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 		
 		#if !mobile
-		var option:Option = new Option('FPS Counter',
-			'If unchecked, hides FPS Counter.',
+		var option:Option = new Option(Lang.g('options_fps'),
+			Lang.g('options_fps_desc'),
 			'showFPS',
 			'bool',
 			true);
@@ -99,8 +101,8 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.onChange = onChangeFPSCounter;
 		#end
 		
-		var option:Option = new Option('Pause Screen Song:',
-			"What song do you prefer for the Pause Screen?",
+		var option:Option = new Option(Lang.g('options_pause_song'),
+			Lang.g('options_pause_song_desc'),
 			'pauseMusic',
 			'string',
 			'Tea Time',
@@ -109,23 +111,23 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.onChange = onChangePauseMusic;
 		
 		#if CHECK_FOR_UPDATES
-		var option:Option = new Option('Check for Updates',
-			'On Release builds, turn this on to check for updates when you start the game.',
+		var option:Option = new Option(Lang.g('options_check_for_updates'),
+			Lang.g('options_check_for_updates_desc'),
 			'checkForUpdates',
 			'bool',
 			true);
 		addOption(option);
 		#end
 
-		var option:Option = new Option('Combo Stacking',
-			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",
+		var option:Option = new Option(Lang.g('options_combostacking'),
+			Lang.g('options_combostacking_desc'),
 			'comboStacking',
 			'bool',
 			true);
 		addOption(option);
 
-		var option:Option = new Option('Language:',
-			'Language for the game to show. Exit to reload!',
+		var option:Option = new Option(Lang.g('options_language'),
+			Lang.g('options_language_desc'),
 			'language',
 			'string',
 			'english',

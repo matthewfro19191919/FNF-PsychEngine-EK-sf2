@@ -83,6 +83,7 @@ class OptionsState extends MusicBeatState
 			//optionText.y += (100 * (i - (options.length / 2))) + 50;
 			optionText.isMenuItem = true;
 			optionText.targetY = i - curSelected;
+			optionText.startedAs = options[i];
 			grpOptions.add(optionText);
 		}
 
@@ -101,12 +102,23 @@ class OptionsState extends MusicBeatState
 		super.closeSubState();
 		persistentUpdate = true;
 		ClientPrefs.saveSettings();
+		Language.initLanguage();
 
-		for (i in 0...grpOptions.members.length) {
-			var option:Alphabet = grpOptions.members[i];
-			option.text = Lang.g(Lang.convert(options[i]));
-			changeSelection();
+		for (member in grpOptions.members) {
+			member.kill();
+			grpOptions.remove(member);
 		}
+
+		for (i in 0...options.length) {
+			var optionText:Alphabet = new Alphabet(150, 320, Lang.g(Lang.convert(options[i])), true);
+			//optionText.screenCenter();
+			//optionText.y += (100 * (i - (options.length / 2))) + 50;
+			optionText.isMenuItem = true;
+			optionText.targetY = i - curSelected;
+			optionText.startedAs = options[i];
+			grpOptions.add(optionText);
+		}
+		changeSelection();
 	}
 
 	override function update(elapsed:Float) {
@@ -145,7 +157,7 @@ class OptionsState extends MusicBeatState
 					item.alpha = FlxMath.lerp(item.alpha, 1, elapsed * 3);
 				}
 				if (FlxG.mouse.justPressed) {
-					openSelectedSubstate(item.text);
+					openSelectedSubstate(item.startedAs);
 				}
 			} else if (item.targetY != 0) item.alpha = FlxMath.lerp(item.alpha, 0.6, elapsed * 3);
 		}

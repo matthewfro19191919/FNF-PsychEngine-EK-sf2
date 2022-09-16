@@ -24,6 +24,7 @@ import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
+import Language as Lang;
 
 using StringTools;
 
@@ -106,7 +107,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				optionText.startPosition.x -= 80;
 				//optionText.xAdd -= 80;
 				var valueStr:Dynamic = optionsArray[i].getValue();
-				if (optionsArray[i].isLanguage) valueStr = Language.getLanguageDisplayStr(optionsArray[i].getValue());
 				var valueText:AttachedText = new AttachedText('' + valueStr, optionText.width + 80);
 				valueText.sprTracker = optionText;
 				valueText.copyAlpha = true;
@@ -299,7 +299,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		var val:Dynamic = option.getValue();
 		if(option.type == 'percent') val *= 100;
 		var def:Dynamic = option.defaultValue;
-		if(option.isLanguage) val = Language.getLanguageDisplayStr(val);
 		option.text = text.replace('%v', val).replace('%d', def);
 	}
 
