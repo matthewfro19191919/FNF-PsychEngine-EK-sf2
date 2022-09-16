@@ -93,15 +93,9 @@ class ChartingState extends MusicBeatState
 		['Change Character', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
 		['Change Scroll Speed', "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds."],
 		['Set Property', "Value 1: Variable name\nValue 2: New value"],
-		['Change Scroll Type', "Value 1: Scroll type & direction\nValue 2:Middle scroll [middlescroll, normal]
-		V1 separated by commas. First:
-		'any' put anything after the comma and v2
-		'player' use player settings
-		'swap current' swap current scroll
-		'swap player' swap with player scroll.
-		Second: [upscroll, downscroll]. Example:
-		v1: 'any,upscroll' v2: 'middlescroll'
-		(toggles upscroll and middlescroll)"],
+		['Change Vertical Scroll', "Value 1: Mode [any, player, swap current, swap player]\nValue 2: Type [downscroll, upscroll]"],
+		['Change Horizontal Scroll', "Value 1: Mode [any, player, swap current, swap player]\nValue 2: Type [middlescroll, normal]"],
+		['Swap Strums', "(unusable when middlescroll is on)"],
 		['Add Subtitle', 'Value 1: Text\nValue 2: Time (in seconds)']
 	];
 

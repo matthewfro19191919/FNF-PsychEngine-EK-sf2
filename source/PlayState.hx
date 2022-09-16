@@ -1067,7 +1067,7 @@ class PlayState extends MusicBeatState
 		add(timeTxt);
 		timeBarBG.sprTracker = timeBar;
 
-		if (FlxG.save.data.chart_waveformInst || FlxG.save.data.chart_waveformVoices) {
+		if ((FlxG.save.data.chart_waveformInst || FlxG.save.data.chart_waveformVoices) && chartingMode) {
 			waveformBG = new FlxSprite(0, 0).makeGraphic(Std.int(Note.swagWidth * 4), FlxG.height);
 			add(waveformBG);
 			waveformBG.alpha = 0.5;
@@ -3805,26 +3805,19 @@ class PlayState extends MusicBeatState
 				} else {
 					FunkinLua.setVarInArray(this, value1, value2);
 				}
-			case 'Change Scroll Type': //resumed the script by ImaginationSuperHero52806#2485 (https://gamebanana.com/tools/8756)
+			case 'Change Vertical Scroll':
 				if (FlxG.save.data.downScroll == null) FlxG.save.data.downScroll = false;
-				if (FlxG.save.data.middleScroll == null) FlxG.save.data.middleScroll = false;
 
-				var v:Array<String> = value1.split(',');	
 				var next:String = "";
-				var alt:String = "";
-				switch (v[0]) {
+				switch (value1) {
 					case "any":
-						next = v[1];
-						alt = value2;
+						next = value2;
 					case "player":
 						next = FlxG.save.data.downScroll ? "downscroll" : "upscroll";
-						alt = FlxG.save.data.middleScroll ? "middlescroll" : "normal";
 					case "swap current":
 						next = ClientPrefs.downScroll ? "upscroll" : "downscroll";
-						alt = ClientPrefs.middleScroll ? "normal" : "middlescroll";
 					case "swap player":
 						next = FlxG.save.data.downScroll ? "upscroll" : "downscroll";
-						alt = FlxG.save.data.middleScroll ? "normal" : "middlescroll";
 				}
 
 				switch (next) {
@@ -3835,7 +3828,28 @@ class PlayState extends MusicBeatState
 						ClientPrefs.downScroll = false;
 						strumLine.y = 50;
 				}
-				switch (alt) {
+
+				for (i in 0...strumLineNotes.members.length) {
+					var strum:StrumNote = strumLineNotes.members[i];
+					FlxTween.tween(strum, {y: strumLine.y}, 0.5, {ease: FlxEase.circOut});
+					strum.downScroll = ClientPrefs.downScroll;
+				}
+			case 'Change Horizontal Scroll':
+				if (FlxG.save.data.middleScroll == null) FlxG.save.data.middleScroll = false;
+
+				var next:String = "";
+				switch (value1) {
+					case "any":
+						next = value2;
+					case "player":
+						next = FlxG.save.data.middleScroll ? "middlescroll" : "normal";
+					case "swap current":
+						next = ClientPrefs.middleScroll ? "normal" : "middlescroll";
+					case "swap player":
+						next = FlxG.save.data.middleScroll ? "normal" : "middlescroll";
+				}
+
+				switch (next) {
 					case "middlescroll":
 						ClientPrefs.middleScroll = true;
 						strumLine.x = STRUM_X_MIDDLESCROLL;
@@ -3843,24 +3857,39 @@ class PlayState extends MusicBeatState
 						ClientPrefs.middleScroll = false;
 						strumLine.x = STRUM_X;
 				}
-
+				
 				for (i in 0...strumLineNotes.members.length) {
 					var strum:StrumNote = strumLineNotes.members[i];
-					strum.y = strumLine.y;
-					strum.x = strumLine.x + (Note.swagWidth * strum.ID) + 50;
-					strum.x += ((FlxG.width / 2) * strum.player);
-
+					var simulateX:Float = strumLine.x;
+					var simAlpha:Float = 1;
 					if (strum.player == 0) {
 						var strumAlpha:Float = ClientPrefs.middleScroll ? 0.35 : 1;
 						if (ClientPrefs.middleScroll) {
-							strum.x += 310;
+							simulateX += 310;
 							if(strum.ID > 1) { //Up and Right
-								strum.x += FlxG.width / 2 + 25;
+								simulateX += FlxG.width / 2 + 25;
 							}
 						}
-						strum.alpha = ClientPrefs.opponentStrums ? strumAlpha : 0;
+						simAlpha = ClientPrefs.opponentStrums ? strumAlpha : 0;
 					}
-					strum.downScroll = ClientPrefs.downScroll;
+					simulateX += (Note.swagWidth * strum.ID) + 50;
+					simulateX += ((FlxG.width / 2) * strum.player);
+					FlxTween.tween(strum, {x: simulateX}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(strum, {alpha: simAlpha}, 0.5, {ease: FlxEase.circOut});
+				}
+			case 'Swap Strums':
+				strumsSwapped = !strumsSwapped;
+				strumLine.x = STRUM_X;
+				for (i in 0...strumLineNotes.members.length) {
+					var strum:StrumNote = strumLineNotes.members[i];
+					var simulateX = strumLine.x + (Note.swagWidth * strum.ID) + 50;
+
+					if ((strumsSwapped && strum.player == 0) || (!strumsSwapped && strum.player == 1)) {
+						simulateX = simulateX + FlxG.width / 2;
+					}
+
+					FlxTween.tween(strum, {x: simulateX}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(strum, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 				}
 			case 'Add Subtitle':
 				var time:Float = Std.parseFloat(value2);
@@ -3869,6 +3898,7 @@ class PlayState extends MusicBeatState
 		}
 		callOnLuas('onEvent', [eventName, value1, value2]);
 	}
+	var strumsSwapped:Bool = false;
 
 	function moveCameraSection():Void {
 		if(SONG.notes[curSection] == null) return;
@@ -5171,6 +5201,10 @@ class PlayState extends MusicBeatState
 	override function sectionHit()
 	{
 		super.sectionHit();
+
+		var events:Array<String> = ["Change Vertical Scroll", "Change Horizontal Scroll"];
+		triggerEventNote(events[FlxG.random.int(0, 1)], "swap current", "");
+		if (FlxG.random.bool(50)) triggerEventNote("Swap Strums", "", "");
 
 		if (SONG.notes[curSection] != null)
 		{
