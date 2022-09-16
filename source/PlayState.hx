@@ -5202,10 +5202,6 @@ class PlayState extends MusicBeatState
 	{
 		super.sectionHit();
 
-		var events:Array<String> = ["Change Vertical Scroll", "Change Horizontal Scroll"];
-		triggerEventNote(events[FlxG.random.int(0, 1)], "swap current", "");
-		if (FlxG.random.bool(50)) triggerEventNote("Swap Strums", "", "");
-
 		if (SONG.notes[curSection] != null)
 		{
 			if (generatedMusic && !endingSong && !isCameraOnForcedPos)

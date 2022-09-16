@@ -24,6 +24,7 @@ import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
+import Language as Lang;
 
 using StringTools;
 
@@ -77,7 +78,7 @@ class OptionsState extends MusicBeatState
 		FlxG.mouse.visible = true;
 		for (i in 0...options.length)
 		{
-			var optionText:Alphabet = new Alphabet(150, 320, options[i], true);
+			var optionText:Alphabet = new Alphabet(150, 320, Lang.g(Lang.convert(options[i])), true);
 			//optionText.screenCenter();
 			//optionText.y += (100 * (i - (options.length / 2))) + 50;
 			optionText.isMenuItem = true;
@@ -100,6 +101,12 @@ class OptionsState extends MusicBeatState
 		super.closeSubState();
 		persistentUpdate = true;
 		ClientPrefs.saveSettings();
+
+		for (i in 0...grpOptions.members.length) {
+			var option:Alphabet = grpOptions.members[i];
+			option.text = Lang.g(Lang.convert(options[i]));
+			changeSelection();
+		}
 	}
 
 	override function update(elapsed:Float) {

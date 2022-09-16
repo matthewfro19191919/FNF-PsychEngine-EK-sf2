@@ -124,6 +124,15 @@ class VisualsUISubState extends BaseOptionsMenu
 			true);
 		addOption(option);
 
+		var option:Option = new Option('Language:',
+			'Language for the game to show. Exit to reload!',
+			'language',
+			'string',
+			'english',
+			Language.getAllLanguages());
+		option.isLanguage = true;
+		addOption(option);
+
 		super();
 	}
 

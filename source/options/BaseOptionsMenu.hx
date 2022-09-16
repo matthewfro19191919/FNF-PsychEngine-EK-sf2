@@ -105,7 +105,9 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				optionText.x -= 80;
 				optionText.startPosition.x -= 80;
 				//optionText.xAdd -= 80;
-				var valueText:AttachedText = new AttachedText('' + optionsArray[i].getValue(), optionText.width + 80);
+				var valueStr:Dynamic = optionsArray[i].getValue();
+				if (optionsArray[i].isLanguage) valueStr = Language.getLanguageDisplayStr(optionsArray[i].getValue());
+				var valueText:AttachedText = new AttachedText('' + valueStr, optionText.width + 80);
 				valueText.sprTracker = optionText;
 				valueText.copyAlpha = true;
 				valueText.ID = i;
@@ -228,7 +230,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 									}
 
 									curOption.curOption = num;
-									curOption.setValue(curOption.options[num]); //lol
+									var valueStr:Dynamic = curOption.options[num];
+									curOption.setValue(valueStr); //lol
 									//trace(curOption.options[num]);
 							}
 							updateTextFrom(curOption);
@@ -296,6 +299,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		var val:Dynamic = option.getValue();
 		if(option.type == 'percent') val *= 100;
 		var def:Dynamic = option.defaultValue;
+		if(option.isLanguage) val = Language.getLanguageDisplayStr(val);
 		option.text = text.replace('%v', val).replace('%d', def);
 	}
 
@@ -305,23 +309,6 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 		holdTime = 0;
-	}
-
-	function openSelectedSubstate(label:String) {
-		switch(label) {
-			case 'Note Colors':
-				openSubState(new options.NotesSubState());
-			case 'Controls':
-				openSubState(new options.ControlsSubState());
-			case 'Graphics':
-				openSubState(new options.GraphicsSettingsSubState());
-			case 'Visuals and UI':
-				openSubState(new options.VisualsUISubState());
-			case 'Gameplay':
-				openSubState(new options.GameplaySettingsSubState());
-			case 'Adjust Delay and Combo':
-				LoadingState.loadAndSwitchState(new options.NoteOffsetState());
-		}
 	}
 	
 	function changeSelection(change:Int = 0)
