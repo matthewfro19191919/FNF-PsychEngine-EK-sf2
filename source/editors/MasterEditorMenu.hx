@@ -58,6 +58,7 @@ class MasterEditorMenu extends MusicBeatState
 			leText.targetY = i;
 			leText.scroll = D_SHARP;
 			grpTexts.add(leText);
+			leText.snapToPosition();
 		}
 		
 		#if MODS_ALLOWED
