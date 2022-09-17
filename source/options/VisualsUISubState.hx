@@ -133,12 +133,27 @@ class VisualsUISubState extends BaseOptionsMenu
 			'english',
 			Language.getAllLanguages());
 		option.isLanguage = true;
+		option.onChange = onUpdateLanguage;
 		addOption(option);
 
 		super();
+
+		onUpdateLanguage(); //At the end of super because then it will crash
+		//(the options werent added yet)
 	}
 
 	var changedMusic:Bool = false;
+	function onUpdateLanguage()
+	{
+		for (option in optionsArray){
+			if (option.isLanguage) {
+				if (option.child != null) {
+					option.child.text = Language.getLanguageDisplayStr(ClientPrefs.language);
+				}
+			}
+		}
+	}
+
 	function onChangePauseMusic()
 	{
 		if(ClientPrefs.pauseMusic == 'None')

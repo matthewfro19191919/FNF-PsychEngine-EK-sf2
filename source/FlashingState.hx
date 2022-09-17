@@ -56,6 +56,8 @@ class FlashingState extends MusicBeatState
 
 		warnText.text = Language.g('flashing_lights_warning_text');
 		languageText.text = Language.g('flashing_lights_language_text').replace('%n', '' + languages.length).replace('%s', languages.length > 1 ? "s" : "") + '\n< ' + Language.getLanguageDisplayStr(Language.currentLanguage) + ' >';
+
+		FlxG.sound.play(Paths.sound('dialogueClose'));
 	}
 
 	override function update(elapsed:Float)

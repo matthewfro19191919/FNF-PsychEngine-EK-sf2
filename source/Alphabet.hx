@@ -311,6 +311,14 @@ class AlphaCharacter extends FlxSprite
 		'm'  => null, 'n'  => null, 'o'  => null, 'p'  => null, 'q'  => null, 'r'  => null,
 		's'  => null, 't'  => null, 'u'  => null, 'v'  => null, 'w'  => null, 'x'  => null,
 		'y'  => null, 'z'  => null,
+
+		//special
+		'á'  => null,
+		'é'  => null,
+		'í'  => null,
+		'ó'  => null,
+		'ú'  => null,
+		'ñ'  => null,
 		
 		//numbers
 		'0'  => null, '1'  => null, '2'  => null, '3'  => null, '4'  => null,
@@ -420,7 +428,11 @@ class AlphaCharacter extends FlxSprite
 	public static function isTypeAlphabet(c:String) // thanks kade
 	{
 		var ascii = StringTools.fastCodeAt(c, 0);
-		return (ascii >= 65 && ascii <= 90) || (ascii >= 97 && ascii <= 122);
+
+		return (ascii >= 65 && ascii <= 90) || (ascii >= 97 && ascii <= 122) || //A-Z, a-z
+		(c == 'ñ' || c == 'Ñ') || // Ñ, ñ
+		(ascii == 160 || ascii == 130 || (ascii >= 161 && ascii <= 163)) || // á, é, í, ó, ú
+		(ascii == 181 || ascii == 144 || ascii == 214 || ascii == 224 || ascii == 233); //Á, É, Í, Ó, Ú
 	}
 
 	private function set_image(name:String)

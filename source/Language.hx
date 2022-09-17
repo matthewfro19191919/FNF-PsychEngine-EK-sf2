@@ -8,11 +8,16 @@ using StringTools;
 class Language {
     public static var currentLanguage:String = "english";
     public static var languageData:Dynamic;
-    public static var languages:Array<String> = ["english", "spanish"];
+    public static var languages:Array<String> = [];
 
     public static function initLanguage() {
         var json = Json.parse(Paths.getTextFromFile("data/localization/list.json"));
         var loadLanguage:String = ClientPrefs.language;
+
+        var list:Array<String> = Reflect.getProperty(json, "list");
+        for (lang in list) {
+            languages.push(lang);
+        }
 
         var languageJsonPath:String = Reflect.getProperty(json, loadLanguage);
         languageData = Json.parse(Paths.getTextFromFile("data/localization/" + languageJsonPath));
