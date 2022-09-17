@@ -109,6 +109,7 @@
     "credits_engine_contributors": "Engine Contributors",
     "credits_iflicky_desc": "Composer of Psync and Tea Time\nMade the Dialogue Sounds",
     "credits_squirra_desc": "Crash Handler and Base code for\nChart Editor's Waveform",
+    "credits_mastereric_desc": "Runtime Shaders support",
     "credits_poly_desc": ".MP4 Video Loader Library (hxCodec)",
     "credits_kade_desc": "Fixed some cool stuff on Chart Editor\nand other PRs",
     "credits_keoiki_desc": "Note Splash Animations",

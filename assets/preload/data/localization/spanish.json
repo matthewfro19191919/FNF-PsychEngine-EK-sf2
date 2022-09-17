@@ -109,6 +109,7 @@
     "credits_engine_contributors": "Colaboradores",
     "credits_iflicky_desc": "Compositor de Psync y Tea Time\nCreó los sonidos de dialogo",
     "credits_squirra_desc": "Ventana de crash y código base de onda de sonido del Editor de\nCharts",
+    "credits_mastereric_desc": "Soporte de Shaders Runtime",
     "credits_poly_desc": "Librería de .MP4 (hxCodec)",
     "credits_kade_desc": "Arregló cosas en el Editor de Charts\ny otras solicitudes en GitHub",
     "credits_keoiki_desc": "Animaciones de Note Splash",
