@@ -104,6 +104,32 @@ class CreditsState extends MusicBeatState
 			['evilsk8r',			'evilsk8r',			"Artist of Friday Night Funkin'",								'https://twitter.com/evilsk8r',			'5ABD4B'],
 			['kawaisprite',			'kawaisprite',		"Composer of Friday Night Funkin'",								'https://twitter.com/kawaisprite',		'378FC7']
 		];
+
+		var ass:Array<String> = [
+			"credits_pe_team", "credits_shadowmario_desc", "credits_river_desc", "credits_shubs_desc",
+			"",
+			"credits_former_members", "credits_bbpanzu_desc",
+			"",
+			"credits_engine_contributors", "credits_iflicky_desc", "credits_squirra_desc", "credits_poly_desc",
+			"credits_kade_desc", "credits_keoiki_desc", "credits_nebula_desc", "credits_smokey_desc",
+			"",
+			"credits_funkin_crew",
+			"credits_ninjamuffin_desc", "credits_phantomarcade_desc", "credits_evilskr_desc", "credits_kawaisprite_desc"
+		];
+
+		for (i in 0...ass.length) {
+			if (pisspoop[i][0].length < 1 || ass[i].length < 1) continue; // Its not selectable, skip
+			else {
+				if (pisspoop[i].length < 2) // THE ARRAY LENGTH
+					{
+						pisspoop[i][0] = Language.g(ass[i]);
+					}
+				else
+					{
+						pisspoop[i][2] = Language.g(ass[i]);
+					}
+			}
+		}
 		
 		for(i in pisspoop){
 			creditsStuff.push(i);

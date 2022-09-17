@@ -11,11 +11,11 @@ class Language {
     public static var languages:Array<String> = ["english", "spanish"];
 
     public static function initLanguage() {
-        var json = Json.parse(Assets.getText("assets/data/localization/list.json"));
+        var json = Json.parse(Paths.getTextFromFile("data/localization/list.json"));
         var loadLanguage:String = ClientPrefs.language;
 
         var languageJsonPath:String = Reflect.getProperty(json, loadLanguage);
-        languageData = Json.parse(Assets.getText("assets/data/localization/" + languageJsonPath));
+        languageData = Json.parse(Paths.getTextFromFile("data/localization/" + languageJsonPath));
         updateCurrentLanguage();
     }
 
@@ -44,10 +44,10 @@ class Language {
         return languages;
     }
 
-    public static function g(field:String = "no_translation") {
+    public static function g(field:String = "no_translation", defaultVal:String = "Null!") {
         var got = Reflect.getProperty(languageData, field);
         var ret = got;
-        if (got == null) ret = "Null!";
+        if (got == null) ret = defaultVal;
         return ret;
     }
 

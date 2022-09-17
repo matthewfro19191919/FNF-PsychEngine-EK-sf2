@@ -52,7 +52,7 @@ class FreeplayState extends MusicBeatState
 	var intendedColor:Int;
 	var colorTween:FlxTween;
 
-	var infScroll:Bool = true;
+	public static var infScroll:Bool = false;
 
 	override function create()
 	{
@@ -198,21 +198,24 @@ class FreeplayState extends MusicBeatState
 			trace(md);
 		 */
 
-		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, 26, 0xFF000000);
+		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
 		textBG.alpha = 0.6;
 		add(textBG);
 
 		#if PRELOAD_ALL
-		var leText:String = "Press SPACE to listen to the Song / Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.";
+		var leText:String = Language.g('freeplay_bottom');
 		var size:Int = 16;
 		#else
-		var leText:String = "Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.";
+		var leText:String = Language.g('freeplay_bottom_no_preload_all');
 		var size:Int = 18;
 		#end
 		var text:FlxText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, leText, size);
 		text.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, RIGHT);
 		text.scrollFactor.set();
 		add(text);
+
+		textBG.y = FlxG.height - text.height - 8;
+		text.y = FlxG.height - text.height - 4;
 		super.create();
 	}
 
@@ -282,7 +285,7 @@ class FreeplayState extends MusicBeatState
 			ratingSplit[1] += '0';
 		}
 
-		scoreText.text = 'PERSONAL BEST: ' + lerpScore + ' (' + ratingSplit.join('.') + '%)';
+		scoreText.text = Language.g('freeplay_pb').replace('%r', ': ' + lerpScore + ' (' + ratingSplit.join('.') + '%)');
 		positionHighscore();
 
 		var upP = controls.UI_UP_P;

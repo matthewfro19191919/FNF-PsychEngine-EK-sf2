@@ -37,6 +37,31 @@ class Achievements {
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 	}
 
+	public static var achievementLanguageArray:Array<String> = [
+		"friday",
+		"week1",
+		"week2",
+		"week3",
+		"week4",
+		"week5",
+		"week6",
+		"week7",
+		"disaster",
+		"perfect",
+		"roadkill",
+		"oversinging",
+		"hyperactive",
+		"two_of_us",
+		"toaster",
+		"debugger"
+	];
+	public static function updateAchievementsLocalization() {
+		for (i in 0...achievementLanguageArray.length) {
+			achievementsStuff[i][0] = Language.g('ach_' + achievementLanguageArray[i], achievementsStuff[i][0] + ' (translation not found)');
+			achievementsStuff[i][1] = Language.g('ach_' + achievementLanguageArray[i] + '_desc', achievementsStuff[i][1] + ' (translation not found)');
+		}
+	}
+
 	public static function isAchievementUnlocked(name:String) {
 		if(achievementsMap.exists(name) && achievementsMap.get(name)) {
 			return true;
@@ -61,6 +86,13 @@ class Achievements {
 			if(henchmenDeath == 0 && FlxG.save.data.henchmenDeath != null) {
 				henchmenDeath = FlxG.save.data.henchmenDeath;
 			}
+		}
+		updateAchievementsLocalization();
+	}
+
+	public static function completeAll():Void {
+		for (i in 0...achievementsStuff.length) {
+			unlockAchievement(achievementsStuff[i][2]);
 		}
 	}
 }

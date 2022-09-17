@@ -80,8 +80,8 @@ class ModsMenuState extends MusicBeatState
 		add(bg);
 		bg.screenCenter();
 
-		noModsTxt = new FlxText(0, 0, FlxG.width, "NO MODS INSTALLED\nPRESS BACK TO EXIT AND INSTALL A MOD", 48);
-		if(FlxG.random.bool(0.1)) noModsTxt.text += '\nBITCH.'; //meanie
+		noModsTxt = new FlxText(0, 0, FlxG.width, Language.g('mods_nomods'), 48);
+		if(FlxG.random.bool(0.1)) noModsTxt.text += Language.g('mods_easteregg'); //meanie
 		noModsTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		noModsTxt.scrollFactor.set();
 		noModsTxt.borderSize = 2;
@@ -128,7 +128,7 @@ class ModsMenuState extends MusicBeatState
 		visibleWhenHasMods.push(selector);
 
 		//attached buttons
-		var startX:Int = 1120;
+		var startX:Float = 1120;
 
 		buttonToggle = new FlxButton(startX, 0, "ON", function()
 		{
@@ -176,8 +176,8 @@ class ModsMenuState extends MusicBeatState
 		buttonDown.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
 		setAllLabelsOffset(buttonDown, -15, 10);
 
-		startX -= 100;
-		buttonTop = new FlxButton(startX, 0, "TOP", function() {
+		startX -= 140;
+		buttonTop = new FlxButton(startX, 0, Language.g('mods_topbtn'), function() {
 			var doRestart:Bool = (mods[0].restart || mods[curSelected].restart);
 			for (i in 0...curSelected) //so it shifts to the top instead of replacing the top one
 			{
@@ -190,17 +190,20 @@ class ModsMenuState extends MusicBeatState
 			}
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
-		buttonTop.setGraphicSize(80, 50);
-		buttonTop.updateHitbox();
 		buttonTop.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
 		setAllLabelsOffset(buttonTop, 0, 10);
 		add(buttonTop);
+		buttonTop.label.fieldWidth = 120;
+
+		buttonTop.setGraphicSize(120, 50);
+		buttonTop.updateHitbox();
 		buttonsArray.push(buttonTop);
 		visibleWhenHasMods.push(buttonTop);
 
 
-		startX -= 190;
-		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", function() {
+		startX = buttonTop.x - 190;
+
+		buttonDisableAll = new FlxButton(startX, 0, Language.g('mods_disablebtn'), function() {
 			for (i in modsList)
 			{
 				i[1] = false;
@@ -216,17 +219,20 @@ class ModsMenuState extends MusicBeatState
 			updateButtonToggle();
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
-		buttonDisableAll.setGraphicSize(170, 50);
-		buttonDisableAll.updateHitbox();
 		buttonDisableAll.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		buttonDisableAll.label.fieldWidth = 170;
+		buttonDisableAll.label.fieldWidth = 280;
 		setAllLabelsOffset(buttonDisableAll, 0, 10);
+		buttonDisableAll.setGraphicSize(280, 50);
+		buttonDisableAll.updateHitbox();
 		add(buttonDisableAll);
+
+		startX = buttonTop.x - (20 + buttonDisableAll.width);
+		buttonDisableAll.x = startX;
+
 		buttonsArray.push(buttonDisableAll);
 		visibleWhenHasMods.push(buttonDisableAll);
 
-		startX -= 190;
-		buttonEnableAll = new FlxButton(startX, 0, "ENABLE ALL", function() {
+		buttonEnableAll = new FlxButton(startX, 0, Language.g('mods_enablebtn'), function() {
 			for (i in modsList)
 			{
 				i[1] = true;
@@ -242,12 +248,17 @@ class ModsMenuState extends MusicBeatState
 			updateButtonToggle();
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
-		buttonEnableAll.setGraphicSize(170, 50);
-		buttonEnableAll.updateHitbox();
 		buttonEnableAll.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		buttonEnableAll.label.fieldWidth = 170;
+		buttonEnableAll.label.fieldWidth = 280;
+
 		setAllLabelsOffset(buttonEnableAll, 0, 10);
+		buttonEnableAll.setGraphicSize(280, 50);
+		buttonEnableAll.updateHitbox();
 		add(buttonEnableAll);
+
+		startX = buttonDisableAll.x - (20 + buttonEnableAll.width);
+		buttonEnableAll.x = startX;
+
 		buttonsArray.push(buttonEnableAll);
 		visibleWhenHasMods.push(buttonEnableAll);
 
@@ -752,7 +763,7 @@ class ModMetadata
 				}
 				if(description == 'Description')
 				{
-					this.description = "No description provided.";
+					this.description = Language.g('mods_nodescription');
 				}
 				if(colors != null && colors.length > 2)
 				{

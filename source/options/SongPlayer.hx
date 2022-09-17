@@ -94,7 +94,7 @@ class SongPlayer extends MusicBeatState
 
         //The songs from psych
         addSong("tea time", 0, "flicky", 0xFF9E29CF);
-        addSong("offset song", 0, "flicky", 0xFF9E29CF);
+        addSong("psync", 0, "flicky", 0xFF9E29CF); // its called psync, as stated by the credits
         addSong("breakfast", 0, "kawaisprite", 0xFF378FC7);
         addSong("main menu", 0, "none", 0xFF378FC7);
         //addSong("main menuuuuuuuuuuuuuuu dumb", 0, "none", 0xFF378FC7); thiss was for testing the alphabet lenght
@@ -200,7 +200,9 @@ class SongPlayer extends MusicBeatState
 		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
 
         #if cpp
-        text.text = "ENTER: play/pause | BACK: exit | LEFT/RIGHT: change time | SHIFT (hold): increases time change by 10s. | " + CoolUtil.difficultyString(curDifficulty);
+        text.text = Language.g('song_player_bottom').replace('%d', CoolUtil.difficultyString(curDifficulty));
+        #else
+        text.text = Language.g('song_player_no_cpp').replace('%d', CoolUtil.difficultyString(curDifficulty));
         #end
 
 		if (!instIsPlaying) {
@@ -514,13 +516,13 @@ class PlayerSubstate extends MusicBeatSubstate {
     
             //trace(song.songName);
             switch (song.songName) {
-                case "tea time" | "breakfast" | "offset song" | "main menu":
+                case "tea time" | "breakfast" | "psync" | "main menu":
                     var musicBpm:Float = 160; //Breakfast bpm
                     var songFile:String = song.songName;
                     switch (song.songName) {
                         case "tea time":
                             musicBpm = 105;
-                        case "offset song":
+                        case "psync":
                             musicBpm = 128;
                             songFile = "offsetSong";
                         case "main menu":
