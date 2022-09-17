@@ -111,7 +111,8 @@ class CreditsState extends MusicBeatState
 			"",
 			"credits_former_members", "credits_bbpanzu_desc",
 			"",
-			"credits_engine_contributors", "credits_iflicky_desc", "credits_squirra_desc", "credits_poly_desc",
+			"credits_engine_contributors", "credits_iflicky_desc", "credits_squirra_desc", "credits_mastereric_desc",
+			"credits_poly_desc",
 			"credits_kade_desc", "credits_keoiki_desc", "credits_nebula_desc", "credits_smokey_desc",
 			"",
 			"credits_funkin_crew",
@@ -123,11 +124,11 @@ class CreditsState extends MusicBeatState
 			else {
 				if (pisspoop[i].length < 2) // THE ARRAY LENGTH
 					{
-						pisspoop[i][0] = Language.g(ass[i]);
+						pisspoop[i][0] = Language.g(ass[i], pisspoop[i][0]);
 					}
 				else
 					{
-						pisspoop[i][2] = Language.g(ass[i]);
+						pisspoop[i][2] = Language.g(ass[i], pisspoop[i][2]);
 					}
 			}
 		}
