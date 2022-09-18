@@ -53,7 +53,7 @@ class MasterEditorMenu extends MusicBeatState
 
 		for (i in 0...options.length)
 		{
-			var leText:Alphabet = new Alphabet(90, 320, options[i], true);
+			var leText:Alphabet = new Alphabet(90, 320, Language.g("master_" + Language.convert(options[i])), true);
 			leText.isMenuItem = true;
 			leText.targetY = i;
 			leText.scroll = D_SHARP;
@@ -178,11 +178,11 @@ class MasterEditorMenu extends MusicBeatState
 	
 		WeekData.setDirectoryFromWeek();
 		if(directories[curDirectory] == null || directories[curDirectory].length < 1)
-			directoryTxt.text = '< No Mod Directory Loaded >';
+			directoryTxt.text = '< ' + Language.g('master_no_mod_dir') + ' >';
 		else
 		{
 			Paths.currentModDirectory = directories[curDirectory];
-			directoryTxt.text = '< Loaded Mod Directory: ' + Paths.currentModDirectory + ' >';
+			directoryTxt.text = '< ' + Language.g('master_mod_dir_loaded') + ' ' + Paths.currentModDirectory + ' >';
 		}
 		directoryTxt.text = directoryTxt.text.toUpperCase();
 	}

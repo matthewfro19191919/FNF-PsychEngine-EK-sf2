@@ -20,7 +20,7 @@ class HealthIcon extends FlxSprite
 		isOldIcon = (char == 'bf-old');
 		this.isPlayer = isPlayer;
 
-		if (char != "none") changeIcon(char);
+		if (char != 'none') changeIcon(char);
 		else makeGraphic(1, 1, FlxColor.TRANSPARENT);
 
 		scrollFactor.set();
@@ -43,6 +43,11 @@ class HealthIcon extends FlxSprite
 	private var iconOffsets:Array<Float> = [0, 0];
 	public function changeIcon(char:String) {
 		if(this.char != char) {
+			if (char == 'none') {
+				makeGraphic(1, 1, FlxColor.TRANSPARENT);
+				return;
+			}
+
 			var name:String = 'icons/' + char;
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-' + char; //Older versions of psych engine's support
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-face'; //Prevents crash from missing icon

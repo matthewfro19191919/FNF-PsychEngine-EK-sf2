@@ -29,6 +29,7 @@ import haxe.Json;
 #if sys
 import sys.io.File;
 #end
+import Language as Lang;
 
 using StringTools;
 
@@ -71,8 +72,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		add(txtOffsets);
 
 		var tipText:FlxText = new FlxText(0, 540, FlxG.width,
-			"Arrow Keys - Change Offset (Hold shift for 10x speed)
-			\nSpace - Play \"Start Press\" animation (Boyfriend Character Type)", 16);
+			Lang.g('menu_char_editor_tip'), 16);
 		tipText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		tipText.scrollFactor.set();
 		add(tipText);
@@ -89,7 +89,7 @@ class MenuCharacterEditorState extends MusicBeatState
 	var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
 	function addEditorBox() {
 		var tabs = [
-			{name: 'Character Type', label: 'Character Type'},
+			{name: 'Character Type', label: Lang.g(('menu_char_editor_char_type_tab'))},
 		];
 		UI_typebox = new FlxUITabMenu(null, tabs, true);
 		UI_typebox.resize(120, 180);
@@ -100,7 +100,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		add(UI_typebox);
 
 		var tabs = [
-			{name: 'Character', label: 'Character'},
+			{name: 'Character', label: Lang.g('menu_char_editor_character_tab')},
 		];
 		UI_mainbox = new FlxUITabMenu(null, tabs, true);
 		UI_mainbox.resize(240, 180);
@@ -110,14 +110,14 @@ class MenuCharacterEditorState extends MusicBeatState
 		addCharacterUI();
 		add(UI_mainbox);
 
-		var loadButton:FlxButton = new FlxButton(0, 480, "Load Character", function() {
+		var loadButton:FlxButton = new FlxButton(0, 480, Lang.g('menu_char_editor_load_character'), function() {
 			loadCharacter();
 		});
 		loadButton.screenCenter(X);
 		loadButton.x -= 60;
 		add(loadButton);
 	
-		var saveButton:FlxButton = new FlxButton(0, 480, "Save Character", function() {
+		var saveButton:FlxButton = new FlxButton(0, 480, Lang.g('menu_char_editor_save_character'), function() {
 			saveCharacter();
 		});
 		saveButton.screenCenter(X);
@@ -133,21 +133,21 @@ class MenuCharacterEditorState extends MusicBeatState
 		var tab_group = new FlxUI(null, UI_typebox);
 		tab_group.name = "Character Type";
 
-		opponentCheckbox = new FlxUICheckBox(10, 20, null, null, "Opponent", 100);
+		opponentCheckbox = new FlxUICheckBox(10, 20, null, null, Lang.g('menu_char_editor_opponent'), 100);
 		opponentCheckbox.callback = function()
 		{
 			curTypeSelected = 0;
 			updateCharTypeBox();
 		};
 
-		boyfriendCheckbox = new FlxUICheckBox(opponentCheckbox.x, opponentCheckbox.y + 40, null, null, "Boyfriend", 100);
+		boyfriendCheckbox = new FlxUICheckBox(opponentCheckbox.x, opponentCheckbox.y + 40, null, null, Lang.g('menu_char_editor_boyfriend'), 100);
 		boyfriendCheckbox.callback = function()
 		{
 			curTypeSelected = 1;
 			updateCharTypeBox();
 		};
 
-		girlfriendCheckbox = new FlxUICheckBox(boyfriendCheckbox.x, boyfriendCheckbox.y + 40, null, null, "Girlfriend", 100);
+		girlfriendCheckbox = new FlxUICheckBox(boyfriendCheckbox.x, boyfriendCheckbox.y + 40, null, null, Lang.g('menu_char_editor_girlfriend'), 100);
 		girlfriendCheckbox.callback = function()
 		{
 			curTypeSelected = 2;
@@ -177,23 +177,23 @@ class MenuCharacterEditorState extends MusicBeatState
 		confirmInputText = new FlxUIInputText(10, idleInputText.y + 35, 100, characterFile.confirm_anim, 8);
 		blockPressWhileTypingOn.push(confirmInputText);
 
-		flipXCheckbox = new FlxUICheckBox(10, confirmInputText.y + 30, null, null, "Flip X", 100);
+		flipXCheckbox = new FlxUICheckBox(10, confirmInputText.y + 30, null, null, Lang.g('menu_char_editor_flip_x'), 100);
 		flipXCheckbox.callback = function()
 		{
 			grpWeekCharacters.members[curTypeSelected].flipX = flipXCheckbox.checked;
 			characterFile.flipX = flipXCheckbox.checked;
 		};
 
-		var reloadImageButton:FlxButton = new FlxButton(140, confirmInputText.y + 30, "Reload Char", function() {
+		var reloadImageButton:FlxButton = new FlxButton(140, confirmInputText.y + 30, Lang.g('menu_char_editor_reload_char'), function() {
 			reloadSelectedCharacter();
 		});
 		
 		scaleStepper = new FlxUINumericStepper(140, imageInputText.y, 0.05, 1, 0.1, 30, 2);
 
-		confirmDescText = new FlxText(10, confirmInputText.y - 18, 0, 'Start Press animation on the .XML:');
-		tab_group.add(new FlxText(10, imageInputText.y - 18, 0, 'Image file name:'));
-		tab_group.add(new FlxText(10, idleInputText.y - 18, 0, 'Idle animation on the .XML:'));
-		tab_group.add(new FlxText(scaleStepper.x, scaleStepper.y - 18, 0, 'Scale:'));
+		confirmDescText = new FlxText(10, confirmInputText.y - 18, 0, Lang.g('menu_char_editor_press_anim'));
+		tab_group.add(new FlxText(10, imageInputText.y - 18, 0, Lang.g('menu_char_editor_image')));
+		tab_group.add(new FlxText(10, idleInputText.y - 18, 0, Lang.g('menu_char_editor_idle_anim')));
+		tab_group.add(new FlxText(scaleStepper.x, scaleStepper.y - 18, 0, Lang.g('menu_char_editor_scale')));
 		tab_group.add(flipXCheckbox);
 		tab_group.add(reloadImageButton);
 		tab_group.add(confirmDescText);
