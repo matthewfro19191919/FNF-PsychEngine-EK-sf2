@@ -1,8 +1,5 @@
 package;
 
-import lime.utils.Assets;
-import haxe.Json;
-
 using StringTools;
 
 class Language {
@@ -11,16 +8,18 @@ class Language {
     public static var languages:Array<String> = [];
 
     public static function initLanguage() {
-        var json = Json.parse(Paths.getTextFromFile("data/localization/list.json"));
+        // haxe.Json so this class is 100% free-of-imports!
+        var json = haxe.Json.parse(Paths.getTextFromFile("data/localization/list.json"));
         var loadLanguage:String = ClientPrefs.language;
 
+        languages = [];
         var list:Array<String> = Reflect.getProperty(json, "list");
         for (lang in list) {
             languages.push(lang);
         }
 
         var languageJsonPath:String = Reflect.getProperty(json, loadLanguage);
-        languageData = Json.parse(Paths.getTextFromFile("data/localization/" + languageJsonPath));
+        languageData = haxe.Json.parse(Paths.getTextFromFile("data/localization/" + languageJsonPath));
         updateCurrentLanguage();
     }
 
@@ -49,7 +48,9 @@ class Language {
         return languages;
     }
 
-    public static function g(field:String = "no_translation", defaultVal:String = "Null!") {
+    public static function g(field:String = "no_translation", defaultVal:String = "Error on language json") {
+        if (currentLanguage != ClientPrefs.language) reloadLanguages();
+
         var got = Reflect.getProperty(languageData, field);
         var ret = got;
         if (got == null) ret = defaultVal;
@@ -58,6 +59,10 @@ class Language {
 
     public static function changeLanguage(language:String = "english") {
         ClientPrefs.language = language;
+        reloadLanguages();
+    }
+
+    public static function reloadLanguages() {
         ClientPrefs.saveSettings();
         updateCurrentLanguage();
         initLanguage();

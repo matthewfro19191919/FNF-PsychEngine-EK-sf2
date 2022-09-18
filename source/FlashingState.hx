@@ -44,6 +44,8 @@ class FlashingState extends MusicBeatState
 		languageText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		add(languageText);
 		updateLanguage();
+
+		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
 	function updateLanguage(c:Int = 0) {
@@ -57,7 +59,10 @@ class FlashingState extends MusicBeatState
 		warnText.text = Language.g('flashing_lights_warning_text');
 		languageText.text = Language.g('flashing_lights_language_text').replace('%n', '' + languages.length).replace('%s', languages.length > 1 ? "s" : "") + '\n< ' + Language.getLanguageDisplayStr(Language.currentLanguage) + ' >';
 
-		FlxG.sound.play(Paths.sound('dialogueClose'));
+		//thank you ralt for the dialogue text sound suggestion
+		//also put c != 0 so that this bitch wont play when launch!
+		//also also put shared becasue it wouldnt work !! :sob:
+		if (c != 0) FlxG.sound.play(Paths.sound('dialogue', "shared"));
 	}
 
 	override function update(elapsed:Float)

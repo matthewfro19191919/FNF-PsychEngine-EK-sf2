@@ -152,6 +152,7 @@ class VisualsUISubState extends BaseOptionsMenu
 				}
 			}
 		}
+		descText.text = Language.g('options_language_desc');
 	}
 
 	function onChangePauseMusic()

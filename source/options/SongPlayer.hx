@@ -29,7 +29,7 @@ using StringTools;
 
 class SongPlayer extends MusicBeatState
 {
-	var songs:Array<SongMD> = [];
+	var songs:Array<FreeplayState.SongMetadata> = [];
 
 	var selector:FlxText;
 	private static var curSelected:Int = 0;
@@ -168,7 +168,7 @@ class SongPlayer extends MusicBeatState
 
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int)
 	{
-		songs.push(new SongMD(songName, weekNum, songCharacter, color));
+		songs.push(new FreeplayState.SongMetadata(songName, weekNum, songCharacter, color));
 	}
 
 	function weekIsLocked(name:String):Bool {
@@ -418,7 +418,7 @@ class PlayerSubstate extends MusicBeatSubstate {
 
     var pauseIcon:FlxSprite;
 
-    public function new(song:SongMD, diff:Int, alreadyPlayingMusic:Bool = false) {
+    public function new(song:FreeplayState.SongMetadata, diff:Int, alreadyPlayingMusic:Bool = false) {
         super();
 
         background = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -647,7 +647,7 @@ class PlayerSubstate extends MusicBeatSubstate {
             holdTime = 0;
         }
 
-        var curTime:Float = Conductor.songPosition;
+        var curTime:Float = FlxG.sound.music.time;
         if(curTime < 0) curTime = 0;
         songPercent = (curTime / FlxG.sound.music.length);
 
@@ -715,24 +715,5 @@ class PlayerSubstate extends MusicBeatSubstate {
 			vocals.destroy();
 		}
 		vocals = null;
-	}
-}
-
-class SongMD
-{
-	public var songName:String = "";
-	public var week:Int = 0;
-	public var songCharacter:String = "";
-	public var color:Int = -7179779;
-	public var folder:String = "";
-
-	public function new(song:String, week:Int, songCharacter:String, color:Int)
-	{
-		this.songName = song;
-		this.week = week;
-		this.songCharacter = songCharacter;
-		this.color = color;
-		this.folder = Paths.currentModDirectory;
-		if(this.folder == null) this.folder = '';
 	}
 }

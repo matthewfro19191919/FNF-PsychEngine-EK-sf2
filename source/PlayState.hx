@@ -4306,7 +4306,7 @@ class PlayState extends MusicBeatState
 		seperatedScore.push(Math.floor(combo / 10) % 10);
 		seperatedScore.push(combo % 10);
 
-		var daLoop:Int = 0;
+		var daLoop:Int = ClientPrefs.comboStacking ? 0 : seperatedScore.length;
 		var xThing:Float = 0;
 		if (showCombo)
 		{
@@ -4325,9 +4325,11 @@ class PlayState extends MusicBeatState
 				lastScore.remove(lastScore[0]);
 			}
 		}
-		for (i in seperatedScore)
+		var iterateOn:Int = ClientPrefs.comboStacking ? seperatedScore.length : Std.string(combo).length;
+		for (i in 0...iterateOn) // only render those of the combo num length
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+			var arrayEnd:Int = (seperatedScore.length - 1) - i;
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + seperatedScore[ClientPrefs.comboStacking ? i : arrayEnd] + pixelShitPart2));
 			numScore.cameras = [camHUD];
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
@@ -4367,7 +4369,8 @@ class PlayState extends MusicBeatState
 				startDelay: Conductor.crochet * 0.002
 			});
 
-			daLoop++;
+			if (ClientPrefs.comboStacking) daLoop++;
+			else daLoop--;
 			if(numScore.x > xThing) xThing = numScore.x;
 		}
 		comboSpr.x = xThing + 50;

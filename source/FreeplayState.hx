@@ -357,25 +357,8 @@ class FreeplayState extends MusicBeatState
 			if(instPlaying != curSelected)
 			{
 				#if PRELOAD_ALL
-				destroyFreeplayVocals();
-				FlxG.sound.music.volume = 0;
-				Paths.currentModDirectory = songs[curSelected].folder;
-				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
-				if (PlayState.SONG.needsVoices)
-					vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
-				else
-					vocals = new FlxSound();
-
-				FlxG.sound.list.add(vocals);
-				FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.7);
-				Conductor.changeBPM(PlayState.SONG.bpm);
-				bopIcon = curSelected;
-				vocals.play();
-				vocals.persist = true;
-				vocals.looped = true;
-				vocals.volume = 0.7;
-				instPlaying = curSelected;
+				openSubState(new options.SongPlayer.PlayerSubstate(songs[curSelected], curDifficulty, true));
+				persistentUpdate = false;
 				#end
 			}
 		}
@@ -414,6 +397,7 @@ class FreeplayState extends MusicBeatState
 			FlxG.sound.music.volume = 0;
 					
 			destroyFreeplayVocals();
+			options.SongPlayer.PlayerSubstate.destroyFreeplayVocals();
 		}
 		else if(controls.RESET)
 		{
