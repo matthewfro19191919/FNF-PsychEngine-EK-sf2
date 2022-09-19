@@ -88,6 +88,7 @@
     "gc_instakill_miss": "Muerte automatica en fallo",
     "gc_practice": "Modo de practica",
     "gc_bot": "Bot",
+    "gc_song_speed": "Velocidad",
 
     "resetscore_reset": "Restablecer puntuacion de",
     "resetscore_yes": "Si",

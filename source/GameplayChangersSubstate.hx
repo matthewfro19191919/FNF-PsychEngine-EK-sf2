@@ -58,6 +58,13 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		}
 		optionsArray.push(option);
 
+		var option:GameplayOption = new GameplayOption(Language.g('gc_song_speed'), 'songmultiplier', 'float', 1);
+		option.scrollSpeed = 1.5;
+		option.minValue = 0.1;
+		option.maxValue = 5;
+		option.changeValue = 0.1;
+		optionsArray.push(option);
+		
 		/*var option:GameplayOption = new GameplayOption('Playback Rate', 'songspeed', 'float', 1);
 		option.scrollSpeed = 1;
 		option.minValue = 0.5;

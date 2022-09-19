@@ -88,6 +88,7 @@
     "gc_instakill_miss": "Instakill on Miss",
     "gc_practice": "Practice Mode",
     "gc_bot": "Botplay",
+    "gc_song_speed": "Song Speed",
 
     "resetscore_reset": "Reset the score of",
     "resetscore_yes": "Yes",

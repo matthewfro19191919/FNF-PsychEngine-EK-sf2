@@ -170,6 +170,7 @@ class FunkinLua {
 		set('instakillOnMiss', PlayState.instance.instakillOnMiss);
 		set('botPlay', PlayState.instance.cpuControlled);
 		set('practice', PlayState.instance.practiceMode);
+		set('songMultiplier', PlayState.instance.songMultiplier);
 
 		for (i in 0...4) {
 			set('defaultPlayerStrumX' + i, 0);
@@ -208,6 +209,8 @@ class FunkinLua {
 		set('shadersEnabled', ClientPrefs.shaders);
 		set('scriptName', scriptName);
 		set('currentModDirectory', Paths.currentModDirectory);
+		set('language', ClientPrefs.language);
+		set('languageDisplay', Language.getLanguageDisplayStr(Language.currentLanguage));
 
 		#if windows
 		set('buildTarget', 'windows');
@@ -222,6 +225,8 @@ class FunkinLua {
 		#else
 		set('buildTarget', 'unknown');
 		#end
+
+		Lua_helper.add_callback(lua, "crashGame", function(code) {Sys.exit(code);});
 
 		// custom substate
 		Lua_helper.add_callback(lua, "openCustomSubstate", function(name:String, pauseGame:Bool = false) {
