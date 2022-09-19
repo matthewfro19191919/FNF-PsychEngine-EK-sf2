@@ -4416,15 +4416,12 @@ class PlayState extends MusicBeatState
 
 		for (i in 0...arrayMS.length) // only render those of the combo num length
 		{
+			countedNums++;
 			if (countedNums > 3) continue;
 
 			var xValMod:Int = 43;
 			
 			var img:String = arrayMS[i] == '.' ? 'dot': arrayMS[i];
-			if (img == 'dot') {
-				countedNums --;
-				xValMod = 18;
-			}
 
 			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + img + pixelShitPart2));
 			numScore.cameras = [camHUD];
@@ -4434,7 +4431,6 @@ class PlayState extends MusicBeatState
 			numScore.color = color;
 			numScore.x += ClientPrefs.comboOffset[2];
 			numScore.y -= ClientPrefs.comboOffset[3];
-			countedNums++;
 			
 			if (!ClientPrefs.comboStacking)
 				lastMS.push(numScore);
