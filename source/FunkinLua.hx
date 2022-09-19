@@ -170,7 +170,6 @@ class FunkinLua {
 		set('instakillOnMiss', PlayState.instance.instakillOnMiss);
 		set('botPlay', PlayState.instance.cpuControlled);
 		set('practice', PlayState.instance.practiceMode);
-		set('songMultiplier', PlayState.instance.songMultiplier);
 
 		for (i in 0...4) {
 			set('defaultPlayerStrumX' + i, 0);
