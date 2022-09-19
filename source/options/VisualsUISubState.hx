@@ -36,6 +36,13 @@ class VisualsUISubState extends BaseOptionsMenu
 		title = Lang.g(Lang.convert(title));
 		rpcTitle = 'Visuals & UI Settings Menu'; //for Discord Rich Presence
 
+		var option:Option = new Option(Lang.g('options_opp_note_splash'),
+			Lang.g('options_opp_note_splash_desc'),
+			'opponentNoteSplashes',
+			'bool',
+			true);
+		addOption(option);
+
 		var option:Option = new Option(Lang.g('options_note_splash'),
 			Lang.g('options_note_splash_desc'),
 			'noteSplashes',

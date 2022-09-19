@@ -220,5 +220,8 @@
     "options_note_splash": "Note Splash",
     "options_note_splash_desc": "Si no está encendido, pulsar notas con \"*Sick!*\", no mostrará partículas.",
 
+    "options_opp_note_splash": "Note Splash (enemigo)",
+    "options_opp_note_splash_desc": "Si no está encendido, cuando el enemigo presione una nota, no mostrará partículas.",
+
     "no_translation": "No traducido"
 }

@@ -164,12 +164,18 @@ class Rating
 	public var ratingMod:Float = 1;
 	public var score:Int = 350;
 	public var noteSplash:Bool = true;
+	public var termination(default, set):String = 's';
+
+	public function set_termination(t) {
+		counter = name + t;
+		return t;
+	}
 
 	public function new(name:String)
 	{
 		this.name = name;
 		this.image = name;
-		this.counter = name + 's';
+		this.counter = name + termination;
 		this.hitWindow = Reflect.field(ClientPrefs, name + 'Window');
 		if(hitWindow == null)
 		{

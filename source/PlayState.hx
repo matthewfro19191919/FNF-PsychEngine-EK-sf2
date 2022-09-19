@@ -179,8 +179,11 @@ class PlayState extends MusicBeatState
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
 	public var camZooming:Bool = false;
+	public var returnZoom:Bool = false;
 	public var camZoomingMult:Float = 1;
 	public var camZoomingDecay:Float = 1;
+	public var cameraNoteMove:Float = 30;
+	public var waveformAmplitudeCam:Bool = false;
 	private var curSong:String = "";
 
 	public var gfSpeed:Int = 1;
@@ -199,7 +202,7 @@ class PlayState extends MusicBeatState
 	public var goods:Int = 0;
 	public var bads:Int = 0;
 	public var shits:Int = 0;
-	public var marvelouss:Int = 0; // +s moment
+	public var marvelouses:Int = 0; // +s moment
 
 	private var generatedMusic:Bool = false;
 	public var endingSong:Bool = false;
@@ -363,6 +366,7 @@ class PlayState extends MusicBeatState
 		var rating:Rating = new Rating('marvelous');
 		rating.ratingMod = 1.1;
 		rating.score = 500;
+		rating.termination = 'es';
 		ratingsData.push(rating);
 
 		ratingsData.push(new Rating('sick')); //default rating
@@ -2166,6 +2170,7 @@ class PlayState extends MusicBeatState
 				{
 					dad.dance();
 				}
+				FlxG.camera.zoom += 0.05;
 
 				var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
 				introAssets.set('default', ['ready', 'set', 'go']);
@@ -2254,6 +2259,7 @@ class PlayState extends MusicBeatState
 							}
 						});
 						FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6);
+						if (Paths.formatToSongPath(SONG.song) != 'tutorial') returnZoom = true; //reset cam zoom to normal
 					case 4:
 				}
 
@@ -3147,7 +3153,7 @@ class PlayState extends MusicBeatState
 			// Conductor.lastSongPos = FlxG.sound.music.time;
 		}
 
-		if (camZooming)
+		if (camZooming || returnZoom)
 		{
 			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125 * camZoomingDecay), 0, 1));
 			camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125 * camZoomingDecay), 0, 1));
@@ -3189,6 +3195,7 @@ class PlayState extends MusicBeatState
 				if(!cpuControlled) {
 					keyShit();
 				} else if(boyfriend.animation.curAnim != null && boyfriend.holdTimer > Conductor.stepCrochet * 0.0011 * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')) {
+					onHitCam(0, true);
 					boyfriend.dance();
 					//boyfriend.animation.curAnim.finish();
 				}
@@ -3304,7 +3311,16 @@ class PlayState extends MusicBeatState
 				if (Conductor.songPosition > noteKillOffset + daNote.strumTime)
 				{
 					if (daNote.mustPress && !cpuControlled &&!daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit)) {
-						noteMiss(daNote);
+						if (ClientPrefs.input == 'Kade Engine') {
+							if (daNote.isSustainNote && daNote.parent != null && daNote.parent.tooLate) {
+								daNote.tooLate = true;
+								daNote.canBeHit = false;
+								daNote.ignoreNote =	true;
+								daNote.multAlpha = 0.3; //KE!!
+							}
+						}
+						if (!daNote.ignoreNote)
+							noteMiss(daNote);
 					}
 
 					daNote.active = false;
@@ -4522,7 +4538,7 @@ class PlayState extends MusicBeatState
 							sortedNotesList.push(daNote);
 							//notesDatas.push(daNote.noteData);
 						}
-						canMiss = true;
+						canMiss = (ClientPrefs.input != "Antimash OFF");
 					}
 				});
 				sortedNotesList.sort(sortHitNotes);
@@ -4664,6 +4680,7 @@ class PlayState extends MusicBeatState
 			}
 			else if (boyfriend.animation.curAnim != null && boyfriend.holdTimer > Conductor.stepCrochet * 0.0011 * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
 			{
+				onHitCam(0, true);
 				boyfriend.dance();
 				//boyfriend.animation.curAnim.finish();
 			}
@@ -4806,6 +4823,8 @@ class PlayState extends MusicBeatState
 				char = gf;
 			}
 
+			onHitCam(note.noteData);
+
 			if(char != null)
 			{
 				char.playAnim(animToPlay, true);
@@ -4821,6 +4840,9 @@ class PlayState extends MusicBeatState
 			time += 0.15;
 		}
 		StrumPlayAnim(true, Std.int(Math.abs(note.noteData)), time);
+		if(!note.noteSplashDisabled && !note.isSustainNote) {
+			spawnNoteSplashOnNote(note);
+		}
 		note.hitByOpponent = true;
 
 		callOnLuas('opponentNoteHit', [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
@@ -4909,6 +4931,8 @@ class PlayState extends MusicBeatState
 						gf.heyTimer = 0.6;
 					}
 				}
+
+				onHitCam(note.noteData);
 			}
 
 			if(cpuControlled) {
@@ -4941,9 +4965,23 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	public function onHitCam(data:Int = 0, reset:Bool = false) {
+		if (!ClientPrefs.camMovement) return;
+
+		if (!reset) {
+			var c = cameraNoteMove;
+			var pos:Array<Dynamic> = [[-c, 0], [0, c], [0, -c], [c, 0]];
+			moveCameraSection();
+
+			camFollow.x += pos[data][0];
+			camFollow.y += pos[data][1];
+		} else moveCameraSection();
+	}
+
 	public function spawnNoteSplashOnNote(note:Note) {
-		if(ClientPrefs.noteSplashes && note != null) {
+		if(note.mustPress ? ClientPrefs.noteSplashes : ClientPrefs.opponentNoteSplashes && note != null) {
 			var strum:StrumNote = playerStrums.members[note.noteData];
+			if (!note.mustPress) strum = opponentStrums.members[note.noteData];
 			if(strum != null) {
 				spawnNoteSplash(strum.x, strum.y, note.noteData, note);
 			}
@@ -4990,6 +5028,7 @@ class PlayState extends MusicBeatState
 	{
 		//trace('Car drive');
 		FlxG.sound.play(Paths.soundRandom('carPass', 0, 1), 0.7);
+		camFollow.x -= 30;
 
 		fastCar.velocity.x = (FlxG.random.int(170, 220) / FlxG.elapsed) * 3;
 		fastCarCanDrive = false;
@@ -5024,6 +5063,11 @@ class PlayState extends MusicBeatState
 			if (gf != null)
 			{
 				gf.playAnim('hairBlow');
+
+				// do wind effect
+				moveCameraSection();
+				camFollow.x += FlxG.random.int(50, 80);
+
 				gf.specialAnim = true;
 			}
 		}
@@ -5588,7 +5632,6 @@ class PlayState extends MusicBeatState
 		);
 
 		var length:Int = leftLength > rightLength ? leftLength : rightLength;
-		var waveCamZoom:Bool = true;
 
 		var index:Int;
 		for (i in 0...length) {
@@ -5604,7 +5647,7 @@ class PlayState extends MusicBeatState
 				//waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), (waveformSprite.y + waveformSprite.height) - i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
 			//else 
 				waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
-			if (i == 0 && waveCamZoom) {
+			if (i == 0 && waveformAmplitudeCam) {
 				var newZoom:Float = 1 + ((FlxMath.remapToRange((lmin + rmin) + (lmax + rmax), 0, 1, 0, 0.2)) / 100);
 				if (newZoom > 1.1) camHUD.zoom = newZoom;
 			}

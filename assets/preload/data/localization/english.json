@@ -220,5 +220,8 @@
     "options_note_splash": "Note Splashes",
     "options_note_splash_desc": "If unchecked, hitting \"Sick!\" notes won't show particles.",
 
+    "options_opp_note_splash": "Opponent Note Splashes",
+    "options_opp_note_splash_desc": "If unchecked, when the enemy hits notes, they won't show particles.",
+
     "no_translation": "No translation"
 }

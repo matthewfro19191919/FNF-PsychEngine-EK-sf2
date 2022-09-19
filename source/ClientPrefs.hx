@@ -14,6 +14,7 @@ class ClientPrefs {
 	public static var flashing:Bool = true;
 	public static var globalAntialiasing:Bool = true;
 	public static var noteSplashes:Bool = true;
+	public static var opponentNoteSplashes:Bool = true;
 	public static var lowQuality:Bool = false;
 	public static var shaders:Bool = true;
 	public static var framerate:Int = 60;
@@ -34,6 +35,8 @@ class ClientPrefs {
 	public static var checkForUpdates:Bool = true;
 	public static var comboStacking = true;
 	public static var language:String = "english";
+	public static var camMovement:Bool = true;
+	public static var input:String = 'Normal';
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -132,6 +135,9 @@ class ClientPrefs {
 		FlxG.save.data.pauseMusic = pauseMusic;
 		FlxG.save.data.checkForUpdates = checkForUpdates;
 		FlxG.save.data.comboStacking = comboStacking;
+		FlxG.save.data.camMovement = camMovement;
+		FlxG.save.data.opponentNoteSplashes = opponentNoteSplashes;
+		FlxG.save.data.input = input;
 
 		FlxG.save.data.language = language;
 	
@@ -272,6 +278,12 @@ class ClientPrefs {
 			comboStacking = FlxG.save.data.comboStacking;
 		if (FlxG.save.data.language != null)
 			language = FlxG.save.data.language;
+		if (FlxG.save.data.camMovement != null)
+			camMovement = FlxG.save.data.camMovement;
+		if (FlxG.save.data.opponentNoteSplashes != null)
+			opponentNoteSplashes = FlxG.save.data.opponentNoteSplashes;
+		if (FlxG.save.data.input != null)
+			input = FlxG.save.data.input;
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99');

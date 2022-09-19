@@ -302,6 +302,7 @@ class Character extends FlxSprite
 				{
 					dance();
 					holdTimer = 0;
+					PlayState.instance.onHitCam(0, true);
 				}
 			}
 

@@ -63,6 +63,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			true);
 		addOption(option);
 
+		var option:Option = new Option('Camera Movement',
+			"If checked, when you/the enemy press notes, the camera will slightly move to the note's direction.",
+			'camMovement',
+			'bool',
+			true);
+		addOption(option);
+
 		var option:Option = new Option('Ghost Tapping',
 			"If checked, you won't get misses from pressing keys\nwhile there are no notes able to be hit.",
 			'ghostTapping',
@@ -99,6 +106,14 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.scrollSpeed = 20;
 		option.minValue = -30;
 		option.maxValue = 30;
+		addOption(option);
+
+		var option:Option = new Option('Input',
+			'Changes the input to use.',
+			'input',
+			'string',
+			'Kade Engine',
+			['Normal', 'Kade Engine', 'Antimash OFF']);
 		addOption(option);
 
 		var option:Option = new Option('Marvelous! Hit Window',
