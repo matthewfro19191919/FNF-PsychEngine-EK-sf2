@@ -15,6 +15,7 @@ import flixel.system.FlxSound;
 #if MODS_ALLOWED
 import sys.FileSystem;
 #end
+import options.SongPlayer.PlayerSubstate;
 
 using StringTools;
 
@@ -129,6 +130,7 @@ class MasterEditorMenu extends MusicBeatState
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 			}
 			FlxG.sound.music.volume = 0;
+			PlayerSubstate.destroyFreeplayVocals();
 			#if PRELOAD_ALL
 			FreeplayState.destroyFreeplayVocals();
 			#end

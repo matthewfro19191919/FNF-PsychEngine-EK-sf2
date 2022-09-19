@@ -199,6 +199,7 @@ class PlayState extends MusicBeatState
 	public var goods:Int = 0;
 	public var bads:Int = 0;
 	public var shits:Int = 0;
+	public var marvelouss:Int = 0; // +s moment
 
 	private var generatedMusic:Bool = false;
 	public var endingSong:Bool = false;
@@ -359,6 +360,11 @@ class PlayState extends MusicBeatState
 		];
 
 		//Ratings
+		var rating:Rating = new Rating('marvelous');
+		rating.ratingMod = 1.1;
+		rating.score = 500;
+		ratingsData.push(rating);
+
 		ratingsData.push(new Rating('sick')); //default rating
 
 		var rating:Rating = new Rating('good');
@@ -4398,35 +4404,36 @@ class PlayState extends MusicBeatState
 		var countedNums:Int = 0;
 		var color:FlxColor = FlxColor.RED;
 
-		switch (daRating.image) {
-			case "sick":
-				color = 0xFF0074C7;
-			case "good":
-				color = 0xFF00B412;
-			case "bad":
-				color = 0xFFCB5602;
-			case "shit":
-				color = 0xFFC20000;
+		switch (daRating.name) {
+			case "marvelous": color = 0xFF00D9FF;
+			case "sick": color = 0xFF0074C7;
+			case "good": color = 0xFF00B412;
+			case "bad": color = 0xFFCB5602;
+			case "shit": color = 0xFFC20000;
 		}
 
 		if (!exactDiff.startsWith('-')) 
 			msLoop++;
 		else countedNums--;
-		
+		var lastImg:String = "";
 
 		for (i in 0...arrayMS.length) // only render those of the combo num length
 		{
+			if (countedNums > 2) continue; //Cannot have over 3 numbers (except - and .)
 			countedNums++;
-			if (countedNums > 3) continue;
 
-			var xValMod:Int = 43;
-			
+			var xValMod:Int = 39;
+			/*if (lastImg == "dot") xValMod = 13;
+			else xValMod = 39;*/
+
 			var img:String = arrayMS[i] == '.' ? 'dot': arrayMS[i];
+			if (img == 'dot') countedNums--;
+			lastImg = img;
 
 			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + img + pixelShitPart2));
 			numScore.cameras = [camHUD];
 			numScore.screenCenter();
-			numScore.x = coolText.x + 140 + (xValMod * msLoop);
+			numScore.x = coolText.x + 130 + (xValMod * msLoop);
 			numScore.y += 80;
 			numScore.color = color;
 			numScore.x += ClientPrefs.comboOffset[2];
@@ -4438,11 +4445,11 @@ class PlayState extends MusicBeatState
 			if (!PlayState.isPixelStage)
 			{
 				numScore.antialiasing = ClientPrefs.globalAntialiasing;
-				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+				numScore.setGraphicSize(Std.int(numScore.width * 0.4));
 			}
 			else
 			{
-				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom * 0.9));
 			}
 			numScore.updateHitbox();
 
@@ -4460,7 +4467,7 @@ class PlayState extends MusicBeatState
 				{
 					numScore.destroy();
 				},
-				startDelay: Conductor.crochet * 0.002
+				startDelay: 0.25
 			});
 
 			msLoop++;
@@ -5581,6 +5588,7 @@ class PlayState extends MusicBeatState
 		);
 
 		var length:Int = leftLength > rightLength ? leftLength : rightLength;
+		var waveCamZoom:Bool = true;
 
 		var index:Int;
 		for (i in 0...length) {
@@ -5596,10 +5604,10 @@ class PlayState extends MusicBeatState
 				//waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), (waveformSprite.y + waveformSprite.height) - i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
 			//else 
 				waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
-			/*if (i == 0) { amplitude test
+			if (i == 0 && waveCamZoom) {
 				var newZoom:Float = 1 + ((FlxMath.remapToRange((lmin + rmin) + (lmax + rmax), 0, 1, 0, 0.2)) / 100);
-				if (newZoom > 1.1) FlxG.camera.zoom = newZoom;
-			}*/
+				if (newZoom > 1.1) camHUD.zoom = newZoom;
+			}
 		}
 
 		waveformPrinted = true;
