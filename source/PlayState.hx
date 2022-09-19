@@ -330,6 +330,8 @@ class PlayState extends MusicBeatState
 	public static var lastCombo:FlxSprite;
 	// stores the last combo score objects in an array
 	public static var lastScore:Array<FlxSprite> = [];
+	// stores the last ms judgement objects in an array
+	public static var lastMS:Array<FlxSprite> = [];
 
 	override public function create()
 	{
@@ -4325,6 +4327,14 @@ class PlayState extends MusicBeatState
 				lastScore.remove(lastScore[0]);
 			}
 		}
+		if (lastMS != null)
+		{
+			while (lastMS.length > 0)
+			{
+				lastMS[0].kill();
+				lastMS.remove(lastMS[0]);
+			}
+		}
 		var iterateOn:Int = ClientPrefs.comboStacking ? seperatedScore.length : Std.string(combo).length;
 		for (i in 0...iterateOn) // only render those of the combo num length
 		{
@@ -4381,6 +4391,85 @@ class PlayState extends MusicBeatState
 
 		coolText.text = Std.string(seperatedScore);
 		// add(coolText);
+
+		var exactDiff:String = Std.string(note.strumTime - Conductor.songPosition + ClientPrefs.ratingOffset);
+		var arrayMS:Array<String> = exactDiff.split("");
+		var msLoop:Int = 0;
+		var countedNums:Int = 0;
+		var color:FlxColor = FlxColor.RED;
+
+		switch (daRating.image) {
+			case "sick":
+				color = 0xFF0074C7;
+			case "good":
+				color = 0xFF00B412;
+			case "bad":
+				color = 0xFFCB5602;
+			case "shit":
+				color = 0xFFC20000;
+		}
+
+		if (!exactDiff.startsWith('-')) 
+			msLoop++;
+		else countedNums--;
+		
+
+		for (i in 0...arrayMS.length) // only render those of the combo num length
+		{
+			if (countedNums > 3) continue;
+
+			var xValMod:Int = 43;
+			
+			var img:String = arrayMS[i] == '.' ? 'dot': arrayMS[i];
+			if (img == 'dot') {
+				countedNums --;
+				xValMod = 18;
+			}
+
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + img + pixelShitPart2));
+			numScore.cameras = [camHUD];
+			numScore.screenCenter();
+			numScore.x = coolText.x + 140 + (xValMod * msLoop);
+			numScore.y += 80;
+			numScore.color = color;
+			numScore.x += ClientPrefs.comboOffset[2];
+			numScore.y -= ClientPrefs.comboOffset[3];
+			countedNums++;
+			
+			if (!ClientPrefs.comboStacking)
+				lastMS.push(numScore);
+
+			if (!PlayState.isPixelStage)
+			{
+				numScore.antialiasing = ClientPrefs.globalAntialiasing;
+				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+			}
+			else
+			{
+				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+			}
+			numScore.updateHitbox();
+
+			numScore.acceleration.y = FlxG.random.int(200, 300);
+			numScore.velocity.y -= FlxG.random.int(140, 160);
+			numScore.velocity.x = FlxG.random.float(-5, 5);
+			numScore.visible = !ClientPrefs.hideHud;
+
+			//if (combo >= 10 || combo == 0)
+			if(showComboNum)
+				insert(members.indexOf(strumLineNotes), numScore);
+
+			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
+				onComplete: function(tween:FlxTween)
+				{
+					numScore.destroy();
+				},
+				startDelay: Conductor.crochet * 0.002
+			});
+
+			msLoop++;
+			if(numScore.x > xThing) xThing = numScore.x;
+		}
 
 		FlxTween.tween(rating, {alpha: 0}, 0.2, {
 			startDelay: Conductor.crochet * 0.001
@@ -5511,6 +5600,10 @@ class PlayState extends MusicBeatState
 				//waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), (waveformSprite.y + waveformSprite.height) - i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
 			//else 
 				waveformSprite.pixels.fillRect(new Rectangle(hSize - (lmin + rmin), i * size, (lmin + rmin) + (lmax + rmax), size), FlxColor.BLUE);
+			/*if (i == 0) { amplitude test
+				var newZoom:Float = 1 + ((FlxMath.remapToRange((lmin + rmin) + (lmax + rmax), 0, 1, 0, 0.2)) / 100);
+				if (newZoom > 1.1) FlxG.camera.zoom = newZoom;
+			}*/
 		}
 
 		waveformPrinted = true;
