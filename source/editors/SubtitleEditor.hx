@@ -229,30 +229,33 @@ class SubtitleEditor extends MusicBeatState
 		UI_box.y = 20;
 		UI_box.scrollFactor.set();
 
+		add(UI_box);
+		
+		zoomTxt = new FlxText(UI_box.x + UI_box.width + 10, UI_box.y + 10, 0, "Zoom: 1 / 1\nSection: 0\nBeat: \nStep: ", 16);
+		zoomTxt.scrollFactor.set();
+		add(zoomTxt);
+
 		text =
-		"W/S or Mouse Wheel - Change Conductor's strum time
-		\nA/D - Go to the previous/next section
-		\nLeft/Right - Change Snap
-		\nUp/Down - Change Conductor's Strum Time with Snapping
+		"W/S - Change time
+		\nA/D - Switch sections
 		\nHold Shift to move 4x faster
-		\nHold Control and click on an arrow to select it
+		\nHold Control and click on a subtitle to select it
 		\nZ/X - Zoom in/out
+		\nHold Shift+Drag subtitle to move the selected subtitle
 		\n
-		\nEsc - Test your chart inside Chart Editor
-		\nEnter - Play your chart
-		\nQ/E - Decrease/Increase Note Sustain Length
+		\nQ/E - Decrease/Increase subtitle length
+		\nClick - Delete or add subtitle
 		\nSpace - Stop/Resume song";
 
 		var tipTextArray:Array<String> = text.split('\n');
 		for (i in 0...tipTextArray.length) {
-			var tipText:FlxText = new FlxText(UI_box.x + UI_box.width + 10, UI_box.y + 30, 0, tipTextArray[i], 16);
+			var tipText:FlxText = new FlxText(UI_box.x + UI_box.width + 10, UI_box.y + zoomTxt.height + 10, 0, tipTextArray[i], 16);
 			tipText.y += i * 12;
 			tipText.setFormat(Paths.font("vcr.ttf"), 14, FlxColor.WHITE, LEFT/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
 			//tipText.borderSize = 2;
 			tipText.scrollFactor.set();
 			add(tipText);
 		}
-		add(UI_box);
 
 		addSubtitleUI();
 		//UI_box.selected_tab = 4;
@@ -265,10 +268,7 @@ class SubtitleEditor extends MusicBeatState
 		}
 		lastSong = currentSongName;
 
-		zoomTxt = new FlxText(UI_box.x + UI_box.width + 10, UI_box.y + 10, 0, "Zoom: 1 / 1", 16);
-		zoomTxt.scrollFactor.set();
-		add(zoomTxt);
-
+		updateZoom();
 		updateGrid();
 		super.create();
 	}
@@ -562,72 +562,30 @@ class SubtitleEditor extends MusicBeatState
 
 	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>)
 	{
-		if (id == FlxUICheckBox.CLICK_EVENT)
-		{
-			var check:FlxUICheckBox = cast sender;
-			var label = check.getLabel().text;
-			switch (label)
-			{
-				case 'Must hit section':
-					_song.notes[curSec].mustHitSection = check.checked;
-
-					updateGrid();
-				case 'GF section':
-					_song.notes[curSec].gfSection = check.checked;
-
-					updateGrid();
-				case 'Change BPM':
-					_song.notes[curSec].changeBPM = check.checked;
-					FlxG.log.add('changed bpm shit');
-				case "Alt Animation":
-					_song.notes[curSec].altAnim = check.checked;
-			}
-		}
-		else if (id == FlxUINumericStepper.CHANGE_EVENT && (sender is FlxUINumericStepper))
+		if (id == FlxUINumericStepper.CHANGE_EVENT && (sender is FlxUINumericStepper))
 		{
 			var nums:FlxUINumericStepper = cast sender;
 			var wname = nums.name;
-			FlxG.log.add(wname);
-			if (wname == 'section_beats')
+			if (wname == 'stepperSubLength')
 			{
-				_song.notes[curSec].sectionBeats = nums.value;
-				reloadGridLayer();
-			}
-			else if (wname == 'song_speed')
-			{
-				_song.speed = nums.value;
-			}
-			else if (wname == 'song_bpm')
-			{
-				tempBpm = nums.value;
-				Conductor.mapBPMChanges(_song);
-				Conductor.changeBPM(nums.value);
-			}
-			else if (wname == 'note_susLength')
-			{
-				if(curSelected != null && curSelected[1] > -1) {
-					curSelected[2] = nums.value;
+				if(curSelected != null) {
+					curSelected[1][0][2] = '' + nums.value;
 					updateGrid();
 				} else {
 					sender.value = 0;
 				}
 			}
-			else if (wname == 'section_bpm')
-			{
-				_song.notes[curSec].bpm = nums.value;
-				updateGrid();
-			}
-			else if (wname == 'inst_volume')
-			{
-				FlxG.sound.music.volume = nums.value;
-			}
-			else if (wname == 'voices_volume')
-			{
-				vocals.volume = nums.value;
-			}
 		}
 		else if(id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText)) {
-			
+			if(sender == strumTimeInputText && curSelected != null) {
+				var value:Float = Std.parseFloat(strumTimeInputText.text);
+				if(Math.isNaN(value)) value = 0;
+				curSelected[0] = value;
+				updateGrid();
+			} else if (sender == subTextInput && curSelected != null) {
+				curSelected[1][0][1] = subTextInput.text;
+				updateGrid();
+			}
 		}
 
 		// FlxG.log.add(id + " WEED " + sender + " WEED " + data + " WEED " + params);
@@ -679,9 +637,9 @@ class SubtitleEditor extends MusicBeatState
 		FlxG.watch.addQuick('daStep', curStep);
 
 		if (FlxG.mouse.x > gridBG.x
-			&& FlxG.mouse.x < gridBG.x + gridBG.width
+			&& FlxG.mouse.x < gridBG.x + (GRID_SIZE * getSectionBeats() * 4) * zoomList[curZoom]
 			&& FlxG.mouse.y > gridBG.y
-			&& FlxG.mouse.y < gridBG.y + (GRID_SIZE * getSectionBeats() * 4) * zoomList[curZoom])
+			&& FlxG.mouse.y < gridBG.y + gridBG.height)
 		{
 			dummyArrow.visible = true;
 			dummyArrow.x = Math.floor(FlxG.mouse.x / GRID_SIZE) * GRID_SIZE;
@@ -690,37 +648,46 @@ class SubtitleEditor extends MusicBeatState
 			else
 			{
 				var gridmult = GRID_SIZE;
-				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
+				dummyArrow.y = -10 + Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
 			}
 		} else {
 			dummyArrow.visible = false;
 		}
 
-        if (FlxG.mouse.justPressed)
-        {
-            if (FlxG.mouse.overlaps(curRenderedSubs))
-            {
-                curRenderedSubs.forEachAlive(function(spr:StoredSubData)
-                {
-                    if (FlxG.mouse.overlaps(spr))
-                    {
-                        if (FlxG.keys.pressed.CONTROL) selectNote(spr);
-                        else deleteNote(spr);
-                    }
-                });
-            }
-            else
-            {
-                if (FlxG.mouse.x > gridBG.x
-                    && FlxG.mouse.x < gridBG.x + gridBG.width
-                    && FlxG.mouse.y > gridBG.y
-                    && FlxG.mouse.y < gridBG.y + (GRID_SIZE * getSectionBeats() * 4) * zoomList[curZoom])
-                {
-                    FlxG.log.add('added note');
-                    addNote();
-                }
-            }
-        }
+		if (FlxG.mouse.overlaps(curRenderedSubs))
+		{
+			curRenderedSubs.forEachAlive(function(spr:StoredSubData)
+			{
+				if (FlxG.mouse.overlaps(spr))
+				{
+					if (FlxG.mouse.pressed && FlxG.keys.pressed.SHIFT) { //drag subtitle code
+						if (FlxG.mouse.y > gridBG.y &&
+							FlxG.mouse.y < gridBG.y + gridBG.height) {
+								if (curSelected != null) {
+									curSelected[1][0][3] = FlxG.mouse.y - (GRID_SIZE / 2);
+								}
+								updateGrid();
+							}
+					} else if (FlxG.mouse.justPressed) {
+						if (FlxG.keys.pressed.CONTROL) selectNote(spr);
+						else deleteNote(spr);
+					}
+				}
+			});
+		}
+		else
+		{
+			if (FlxG.mouse.x > gridBG.x
+				&& FlxG.mouse.x < gridBG.x + (GRID_SIZE * getSectionBeats() * 4) * zoomList[curZoom]
+				&& FlxG.mouse.y > gridBG.y
+				&& FlxG.mouse.y < gridBG.y + gridBG.height
+				&& FlxG.mouse.justPressed)
+			{
+				trace("added note !!!");
+				FlxG.log.add('added note');
+				addNote();
+			}
+		}
 
         var blockInput:Bool = false;
 		for (inputText in blockPressWhileTypingOn) {
@@ -771,6 +738,8 @@ class SubtitleEditor extends MusicBeatState
         } else if(strumLine.x < -10) {
             changeSection(curSec - 1, false);
         }
+
+		zoomTxt.text = zoom + '\nSection: $curSec\nBeat: $curBeat\nStep: $curStep';
 
         if (!blockInput) {
             var shiftThing:Int = FlxG.keys.pressed.SHIFT ? 4 : 1;
@@ -833,58 +802,69 @@ class SubtitleEditor extends MusicBeatState
                 else
                     resetSection();
             }
-        }
+
+			if(FlxG.keys.justPressed.Z && curZoom > 0 && !FlxG.keys.pressed.CONTROL) {
+				--curZoom;
+				updateZoom();
+			}
+			if(FlxG.keys.justPressed.X && curZoom < zoomList.length-1) {
+				curZoom++;
+				updateZoom();
+			}
+	
+			if(curSelected != null) {
+				if (FlxG.keys.justPressed.E)
+				{
+					changeNoteSustain(Conductor.stepCrochet);
+				}
+				if (FlxG.keys.justPressed.Q)
+				{
+					changeNoteSustain(-Conductor.stepCrochet);
+				}
+			}
+
+			if (FlxG.keys.justPressed.ESCAPE) {
+				//if(onMasterEditor) {
+					MusicBeatState.switchState(new editors.MasterEditorMenu());
+					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				//}
+				//FlxG.mouse.visible = false;
+				return;
+			}
+        } else if (FlxG.keys.justPressed.ENTER) {
+			for (i in 0...blockPressWhileTypingOn.length) {
+				if(blockPressWhileTypingOn[i].hasFocus) {
+					blockPressWhileTypingOn[i].hasFocus = false;
+				}
+			}
+		}
+
+		curRenderedSubs.forEachAlive(function(spr:StoredSubData) {
+			spr.alpha = 1;
+			if(curSelected != null) {
+				if (curSelected[0] == spr.time)
+				{
+					colorSine += elapsed;
+					var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
+					spr.color = FlxColor.fromRGBFloat(colorVal, colorVal, colorVal, 0.999); //Alpha can't be 100% or the color won't be updated for some reason, guess i will die
+				}
+			}
+
+			if(spr.time <= Conductor.songPosition) {
+				spr.alpha = 0.4;
+			}
+		});
 		super.update(elapsed);
 	}
 
+	var zoom:String = "";
 	function updateZoom() {
 		var daZoom:Float = zoomList[curZoom];
 		var zoomThing:String = '1 / ' + daZoom;
 		if(daZoom < 1) zoomThing = Math.round(1 / daZoom) + ' / 1';
-		zoomTxt.text = 'Zoom: ' + zoomThing;
+		zoom = 'Zoom: ' + zoomThing;
 		reloadGridLayer();
 	}
-
-	/*
-	function loadAudioBuffer() {
-		if(audioBuffers[0] != null) {
-			audioBuffers[0].dispose();
-		}
-		audioBuffers[0] = null;
-		#if MODS_ALLOWED
-		if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'))) {
-			audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'));
-			//trace('Custom vocals found');
-		}
-		else { #end
-			var leVocals:String = Paths.getPath(currentSongName + '/Inst.' + Paths.SOUND_EXT, SOUND, 'songs');
-			if (OpenFlAssets.exists(leVocals)) { //Vanilla inst
-				audioBuffers[0] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-				//trace('Inst found');
-			}
-		#if MODS_ALLOWED
-		}
-		#end
-
-		if(audioBuffers[1] != null) {
-			audioBuffers[1].dispose();
-		}
-		audioBuffers[1] = null;
-		#if MODS_ALLOWED
-		if(FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'))) {
-			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'));
-			//trace('Custom vocals found');
-		} else { #end
-			var leVocals:String = Paths.getPath(currentSongName + '/Voices.' + Paths.SOUND_EXT, SOUND, 'songs');
-			if (OpenFlAssets.exists(leVocals)) { //Vanilla voices
-				audioBuffers[1] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-				//trace('Voices found, LETS FUCKING GOOOO');
-			}
-		#if MODS_ALLOWED
-		}
-		#end
-	}
-	*/
 
 	var lastSecBeats:Float = 0;
 	var lastSecBeatsNext:Float = 0;
@@ -949,10 +929,12 @@ class SubtitleEditor extends MusicBeatState
 	{
 		if (curSelected != null)
 		{
-			if (curSelected[2] != null)
+			if (curSelected[1][0][2] != null)
 			{
-				curSelected[2] += value;
-				curSelected[2] = Math.max(curSelected[2], 0);
+				var curVal = Std.parseFloat(curSelected[1][0][2]);
+				curVal += value;
+				curVal = Math.max(curSelected[2], 0);
+				curSelected[1][0][2] = ''+curVal;
 			}
 		}
 
@@ -1031,6 +1013,7 @@ class SubtitleEditor extends MusicBeatState
 			{
 				updateGrid();
 			}
+			updateGrid();
 		}
 		else
 		{
@@ -1067,29 +1050,13 @@ class SubtitleEditor extends MusicBeatState
 	}
 
 	function updateNoteUI():Void
-	{/*
-		if (curSelectedNote != null) {
-			if(curSelectedNote[2] != null) {
-				stepperSusLength.value = curSelectedNote[2];
-				if(curSelectedNote[3] != null) {
-					currentType = noteTypeMap.get(curSelectedNote[3]);
-					if(currentType <= 0) {
-						noteTypeDropDown.selectedLabel = '';
-					} else {
-						noteTypeDropDown.selectedLabel = currentType + '. ' + curSelectedNote[3];
-					}
-				}
-			} else {
-				eventDropDown.selectedLabel = curSelectedNote[1][curEventSelected][0];
-				var selected:Int = Std.parseInt(eventDropDown.selectedId);
-				if(selected > 0 && selected < eventStuff.length) {
-					descText.text = eventStuff[selected][1];
-				}
-				value1InputText.text = curSelectedNote[1][curEventSelected][1];
-				value2InputText.text = curSelectedNote[1][curEventSelected][2];
+	{
+		if (curSelected != null) {
+			if(curSelected[1][0][2] != null) {
+				stepperSusLength.value = Std.parseFloat(curSelected[1][0][2]);
 			}
-			strumTimeInputText.text = '' + curSelectedNote[0];
-		}*/
+			strumTimeInputText.text = '' + curSelected[0];
+		}
 	}
 
 	function updateGrid():Void
@@ -1118,72 +1085,32 @@ class SubtitleEditor extends MusicBeatState
 		for (i in _song.events)
 		{
             var strumTime:Float = i[0];
-            var name:String = i[1][0];
+            var name:String = i[1][0][0];
             var eventValues:Array<String> = [i[1][0][1], i[1][0][2]];
+			var storeY:Float = i[1][0][3];
 			if(endThing > i[0] && i[0] >= startThing && name == "Add Subtitle")
 			{
-                var eventValue1:Array<String> = eventValues[0].split(',');
-                var eventValue2:Array<String> = eventValues[1].split(',');
-
-                var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(eventValue1[1]), 0, 
+                var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(eventValues[1]), 0, 
                     Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
 
-                var editorLane:String = eventValue1[2];
-                if (editorLane == null || editorLane.length < 1) editorLane = "0";
-				var spr:StoredSubData = new StoredSubData(getYfromStrumNotes(strumTime - sectionStartTime(), 0), 430 + (Std.parseInt(editorLane) * GRID_SIZE));
+                //var editorLane:String = eventValue1[2];
+                //if (editorLane == null || editorLane.length < 1) editorLane = "0";
+				var spr:StoredSubData = new StoredSubData(getYfromStrumNotes(strumTime - sectionStartTime(), 1), storeY);
+				trace(spr.x + ' ' + spr.y, 'expectedX: ' + getYfromStrumNotes(strumTime - sectionStartTime(), 1));
                 spr.makeGraphic(width, GRID_SIZE, FlxColor.BLACK);
-                spr.alpha = 0.4;
                 spr.time = strumTime;
-                spr.length = Std.parseFloat(eventValue1[1]);
+                spr.length = Std.parseFloat(eventValues[1]);
 
 				curRenderedSubs.add(spr);
 
-				var text:String = eventValue1[0];
+				var text:String = eventValues[0];
 				var daText:FlxText = new FlxText(0, 0, width, text, 12);
 				daText.setFormat(Paths.font("vcr.ttf"), 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
-                daText.x = spr.x + (spr.width / 2) - (daText.width / 2);
+                daText.x = (spr.x + (spr.width / 2)) - (daText.width / 2);
                 daText.y = spr.y + (spr.height / 2) - (daText.height / 2);
 				curRenderedTexts.add(daText);
-				//trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
 			}
-		}
-
-		// NEXT EVENTS
-		var startThing:Float = sectionStartTime(1);
-		var endThing:Float = sectionStartTime(2);
-		for (i in _song.events)
-		{
-			if(endThing > i[0] && i[0] >= startThing)
-			{
-                var strumTime:Float = i[0];
-                var name:String = i[1][0];
-                var eventValues:Array<String> = [i[1][0][1], i[1][0][2]];
-                if(endThing > i[0] && i[0] >= startThing && name == "Add Subtitle")
-                {
-                    var eventValue1:Array<String> = eventValues[0].split(',');
-                    var eventValue2:Array<String> = eventValues[1].split(',');
-    
-                    var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(eventValue1[1]), 0, 
-                        Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
-    
-                    var editorLane:String = eventValue1[2];
-                    if (editorLane == null || editorLane.length < 1) editorLane = "0";
-                    var spr:StoredSubData = new StoredSubData(getYfromStrumNotes(strumTime - sectionStartTime(), 1), 430 + (Std.parseInt(editorLane) * GRID_SIZE));
-                    spr.makeGraphic(width, GRID_SIZE, FlxColor.BLACK);
-                    spr.alpha = 0.4;
-    
-    
-                    curRenderedSubs.add(spr);
-    
-                    var text:String = eventValue1[0];
-                    var daText:FlxText = new FlxText(0, 0, width, text, 12);
-                    daText.setFormat(Paths.font("vcr.ttf"), 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
-                    daText.x = spr.x + (spr.width / 2) - (daText.width / 2);
-                    daText.y = spr.y + (spr.height / 2) - (daText.height / 2);
-                    curRenderedTexts.add(daText);
-                    //trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing);
-                }
-			}
+			trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing, 'event: ' + name);
 		}
 	}
 
@@ -1310,6 +1237,7 @@ class SubtitleEditor extends MusicBeatState
             if(i != curSelected && i[0] == spr.time)
             {
                 curSelected = i;
+
                 break;
             }
         }
@@ -1369,17 +1297,19 @@ class SubtitleEditor extends MusicBeatState
 
 	private function addNote(strum:Null<Float> = null, data:Null<Int> = null, type:Null<Int> = null):Void
 	{
-		//curUndoIndex++;
-		//var newsong = _song.notes;
-		//	undos.push(newsong);
+		trace('added');
 		var noteStrum = getStrumTime(dummyArrow.x, false) + sectionStartTime();
-		var noteSus = 5;
+		var noteSus = stepperSusLength.value;
 
 		var event = 'Add Subtitle';
-		var text1 = subTextInput.text + ',' + noteSus + ',1';
-		var text2 = "";
-		_song.events.push([noteStrum, [[event, text1, text2]]]);
+		var text1 = subTextInput.text;
+		var text2 = '' + noteSus;
+		var presetY = 430;
+		_song.events.push([noteStrum, [[event, text1, text2, presetY]]]);
 		curSelected = _song.events[_song.events.length - 1];
+
+		var width:Int = Math.floor(FlxMath.remapToRange(noteSus, 0, 
+            Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
 
 		//trace(noteData + ', ' + noteStrum + ', ' + curSec);
 		strumTimeInputText.text = '' + curSelected[0];
@@ -1393,11 +1323,11 @@ class SubtitleEditor extends MusicBeatState
 		//_song = redos[curRedoIndex];
 	}
 
-	function getStrumTime(yPos:Float, doZoomCalc:Bool = true):Float
+	function getStrumTime(xPos:Float, doZoomCalc:Bool = true):Float
 	{
 		var leZoom:Float = zoomList[curZoom];
 		if(!doZoomCalc) leZoom = 1;
-		return FlxMath.remapToRange(yPos, gridBG.x, gridBG.x + gridBG.width * leZoom, 0, 16 * Conductor.stepCrochet);
+		return FlxMath.remapToRange(xPos, gridBG.x, gridBG.x + gridBG.width * leZoom, 0, 16 * Conductor.stepCrochet);
 	}
 
 	function getYfromStrum(strumTime:Float, doZoomCalc:Bool = true):Float
