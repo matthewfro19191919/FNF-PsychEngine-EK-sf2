@@ -12,6 +12,16 @@ import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 
+typedef SubProperties = {
+	var deletePrevious:Bool;
+	var fadeOut:Bool;
+	var fadeIn:Bool;
+	var subText:String;
+	var typeIn:Bool;
+	var typeOut:Bool;
+	var raisesLast:Bool;
+}
+
 class SubtitleHandler
 {
 	public static var camera = null;
