@@ -3201,6 +3201,11 @@ class PlayState extends MusicBeatState
 					boyfriend.dance();
 					//boyfriend.animation.curAnim.finish();
 				}
+
+				if ((dad.holdTimer > Conductor.stepCrochet * 0.0011 * dad.singDuration) || (gf.holdTimer > Conductor.stepCrochet * 0.0011 * gf.singDuration)) {
+					//Camera resets!!
+					onHitCam(0, true);
+				}
 			}
 
 			var fakeCrochet:Float = (60 / SONG.bpm) * 1000;
