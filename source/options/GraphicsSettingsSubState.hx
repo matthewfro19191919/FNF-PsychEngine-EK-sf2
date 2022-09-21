@@ -69,9 +69,10 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		option.minValue = 60;
-		option.maxValue = 240;
+		option.maxValue = 241;
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
+		option.isFps = true;
 		#end
 
 		super();
@@ -91,6 +92,20 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeFramerate()
 	{
+		if(ClientPrefs.framerate == 241) // its unlimited!!!
+		{
+			for (option in optionsArray){
+				if (option.isFps) {
+					if (option.child != null) {
+						option.child.text = "Unlimited";
+					}
+				}
+			}
+			FlxG.updateFramerate = 999; // FUCK YEAH!
+			FlxG.drawFramerate = 999;
+			return;
+		}
+
 		if(ClientPrefs.framerate > FlxG.drawFramerate)
 		{
 			FlxG.updateFramerate = ClientPrefs.framerate;

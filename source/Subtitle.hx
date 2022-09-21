@@ -35,10 +35,10 @@ typedef SubExam = {
 	var colorArray:Array<Int>;
 }
 
-/*
+/**
 Heavily modified class of https://github.com/EyeDaleHim/FNF-Mechanics/blob/main/source/SubtitleHandler.hx
 all credit goes to EyeDaleHim#8508
-*/
+**/
 class SubtitleHandler
 {
 	public static var camera = null;
