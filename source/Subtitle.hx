@@ -22,6 +22,14 @@ typedef SubProperties = {
 	var raisesLast:Bool;
 }
 
+typedef SubExam = {
+	var font:String;
+	var size:Int;
+	var border:Bool;
+	var alignment:String;
+	var length:String;
+}
+
 class SubtitleHandler
 {
 	public static var camera = null;
@@ -64,6 +72,38 @@ class SubtitleHandler
 		camera = null;
 		FlxDestroyUtil.destroyArray(list);
 		list = [];
+	}
+
+	public static function examinateEventValue(evalue:String = ""):SubExam {
+		var subExam:SubExam = null;
+		subExam = {
+			size: 12,
+			font: "vcr.ttf",
+			border: true,
+			alignment: "LEFT",
+			length: "50" // Dumbass got his thin null !!! lol lets make it small !!! fu!
+		};
+
+		var exam1:Array<String> = evalue.split(",");
+		for (i in exam1) {
+			var exam2:Array<String> = i.split(':');
+			var v1:String = exam2[0];
+			var v2:String = exam2[1];
+			switch (v1) {
+				case "length":
+					subExam.length = v2;
+				case "size":
+					subExam.size = Std.parseInt(v2);
+				case "font":
+					subExam.font = v2;
+				case "border":
+					subExam.border = v2 == "true" ? true : false;
+				case "alignment":
+					subExam.alignment = v2;
+			}
+		}
+
+		return subExam;
 	}
 }
 

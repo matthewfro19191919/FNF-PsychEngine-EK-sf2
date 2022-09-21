@@ -1,5 +1,7 @@
 package editors;
 
+import Subtitle.SubExam;
+import Subtitle.SubtitleHandler;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -281,6 +283,11 @@ class SubtitleEditor extends MusicBeatState
 	var stepperSusLength:FlxUINumericStepper;
 	var strumTimeInputText:FlxUIInputText; //I wanted to use a stepper but we can't scale these as far as i know :(
 
+	var stepperSubSize:FlxUINumericStepper;
+	var fontInputText:FlxUIInputText;
+	var borderCheckbox:FlxUICheckBox;
+	var alignmentDrop:FlxUIDropDownMenuCustom;
+
 	function addSubtitleUI():Void
 	{
         FlxG.camera.follow(camPos);
@@ -369,6 +376,30 @@ class SubtitleEditor extends MusicBeatState
 		blockPressWhileTypingOn.push(subTextInput);
         var text:FlxText = new FlxText(10, subTextInput.y - 15, 0, "Text:");
 		tab_group_event.add(text);
+
+		stepperSubSize = new FlxUINumericStepper(10, subTextInput.y + 30, 1, 12, 1, 108, 3);
+		stepperSubSize.name = 'stepperSubSize';
+		blockPressWhileTypingOnStepper.push(stepperBPM);
+        tab_group_event.add(new FlxText(stepperSubSize.x, stepperSubSize.y - 15, 0, "Size:"));
+
+		fontInputText = new FlxUIInputText(stepperSubSize.x + stepperSubSize.width + 10, stepperSubSize.y, 180, "vcr.ttf");
+		blockPressWhileTypingOn.push(fontInputText);
+        fontInputText.x = (UI_box.width - 10) - fontInputText.width;
+        tab_group_event.add(new FlxText(fontInputText.x, fontInputText.y - 15, 0, "Font:"));
+
+		borderCheckbox = new FlxUICheckBox(stepperSubSize.x, fontInputText.y + 30, null, null, "Has border", 100);
+
+		var alignments:Array<String> = ["LEFT", "RIGHT", "CENTER"];
+		alignmentDrop = new FlxUIDropDownMenuCustom(fontInputText.x, borderCheckbox.y, FlxUIDropDownMenuCustom.makeStrIdLabelArray(alignments, true), function(alignment:String)
+		{
+			trace('alignment is ' + alignments[Std.parseInt(alignment)]);
+			if(curSelected != null) {
+				curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+				updateGrid();
+			}
+		});
+		blockPressWhileScrolling.push(alignmentDrop);
+		tab_group_event.add(new FlxText(alignmentDrop.x, alignmentDrop.y - 15, 0, "Alignment:"));
 
         ///////////////////////////////////////////////////////
         /////////// SECTION
@@ -490,9 +521,15 @@ class SubtitleEditor extends MusicBeatState
         tab_group_event.add(loadEventJson);
         tab_group_event.add(stepperBPM);
         tab_group_event.add(clear_events);
+
         tab_group_event.add(stepperSusLength);
         tab_group_event.add(strumTimeInputText);
         tab_group_event.add(subTextInput);
+		tab_group_event.add(stepperSubSize);
+		tab_group_event.add(fontInputText);
+		tab_group_event.add(borderCheckbox);
+		tab_group_event.add(alignmentDrop);
+
         tab_group_event.add(copyButton);
         tab_group_event.add(pasteButton);
         tab_group_event.add(clearSectionButton);
@@ -569,10 +606,19 @@ class SubtitleEditor extends MusicBeatState
 			if (wname == 'stepperSubLength')
 			{
 				if(curSelected != null) {
-					curSelected[1][0][2] = '' + nums.value;
+					curSelected[1][0][2] = 'length:' + nums.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
 					updateGrid();
 				} else {
 					sender.value = 0;
+				}
+			}
+			else if (wname == 'stepperSubSize')
+			{
+				if(curSelected != null) {
+					curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + nums.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+					updateGrid();
+				} else {
+					sender.value = 12;
 				}
 			}
 		}
@@ -585,6 +631,19 @@ class SubtitleEditor extends MusicBeatState
 			} else if (sender == subTextInput && curSelected != null) {
 				curSelected[1][0][1] = subTextInput.text;
 				updateGrid();
+			} else if (sender == fontInputText && curSelected != null) {
+				if(curSelected != null) {
+					curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+					updateGrid();
+				}
+			}
+		}
+		else if(id == FlxUICheckBox.CLICK_EVENT && (sender is FlxUICheckBox)) {
+			if (sender == borderCheckbox && curSelected != null) {
+				if(curSelected != null) {
+					curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+					updateGrid();
+				}
 			}
 		}
 
@@ -1086,17 +1145,21 @@ class SubtitleEditor extends MusicBeatState
 		{
             var strumTime:Float = i[0];
             var name:String = i[1][0][0];
-            var eventValues:Array<String> = [i[1][0][1], i[1][0][2]];
-			var storeY:Float = i[1][0][3];
 			if(endThing > i[0] && i[0] >= startThing && name == "Add Subtitle")
 			{
-                var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(eventValues[1]), 0, 
+				var eventValues:Array<String> = [i[1][0][1], i[1][0][2]];
+				var storeY:Float = i[1][0][3];
+
+				var exam:SubExam = SubtitleHandler.examinateEventValue(eventValues[1]);
+
+                var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(exam.length), 0, 
                     Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
 
                 //var editorLane:String = eventValue1[2];
                 //if (editorLane == null || editorLane.length < 1) editorLane = "0";
+
 				var spr:StoredSubData = new StoredSubData(getYfromStrumNotes(strumTime - sectionStartTime(), 1), storeY);
-				trace(spr.x + ' ' + spr.y, 'expectedX: ' + getYfromStrumNotes(strumTime - sectionStartTime(), 1));
+				//trace(spr.x + ' ' + spr.y, 'expectedX: ' + getYfromStrumNotes(strumTime - sectionStartTime(), 1));
                 spr.makeGraphic(width, GRID_SIZE, FlxColor.BLACK);
                 spr.time = strumTime;
                 spr.length = Std.parseFloat(eventValues[1]);
@@ -1105,12 +1168,21 @@ class SubtitleEditor extends MusicBeatState
 
 				var text:String = eventValues[0];
 				var daText:FlxText = new FlxText(0, 0, width, text, 12);
-				daText.setFormat(Paths.font("vcr.ttf"), 12, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
+				daText.setFormat(Paths.font(exam.font), exam.size, FlxColor.WHITE);
+
+				if (exam.border) daText.setFormat(Paths.font(exam.font), exam.size, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
+
+				switch(exam.alignment) {
+					case "LEFT": daText.alignment = LEFT;
+					case "RIGHT": daText.alignment = RIGHT;
+					case "CENTER": daText.alignment = CENTER;
+				}
+				
                 daText.x = (spr.x + (spr.width / 2)) - (daText.width / 2);
                 daText.y = spr.y + (spr.height / 2) - (daText.height / 2);
 				curRenderedTexts.add(daText);
 			}
-			trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing, 'event: ' + name);
+			//trace('test: ' + i[0], 'startThing: ' + startThing, 'endThing: ' + endThing, 'event: ' + name);
 		}
 	}
 
@@ -1300,16 +1372,17 @@ class SubtitleEditor extends MusicBeatState
 		trace('added');
 		var noteStrum = getStrumTime(dummyArrow.x, false) + sectionStartTime();
 		var noteSus = stepperSusLength.value;
+		var size = stepperSubSize.value;
+		var font = fontInputText.text;
+		var border = borderCheckbox.checked;
+		var alignment = alignmentDrop.selectedLabel;
 
 		var event = 'Add Subtitle';
 		var text1 = subTextInput.text;
-		var text2 = '' + noteSus;
+		var text2 = 'length:$noteSus,size:$size,font:$font,border:$border,alignment:$alignment';
 		var presetY = 430;
 		_song.events.push([noteStrum, [[event, text1, text2, presetY]]]);
 		curSelected = _song.events[_song.events.length - 1];
-
-		var width:Int = Math.floor(FlxMath.remapToRange(noteSus, 0, 
-            Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
 
 		//trace(noteData + ', ' + noteStrum + ', ' + curSec);
 		strumTimeInputText.text = '' + curSelected[0];
