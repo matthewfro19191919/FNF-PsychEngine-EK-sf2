@@ -1,5 +1,7 @@
 package editors;
 
+import flixel.FlxCamera;
+import Subtitle.SubProperties;
 import Subtitle.SubExam;
 import Subtitle.SubtitleHandler;
 #if desktop
@@ -123,6 +125,8 @@ class SubtitleEditor extends MusicBeatState
 	var waveformSprite:FlxSprite;
 	var gridLayer:FlxTypedGroup<FlxSprite>;
 
+	var stupidCam:FlxCamera;
+
 	public var quantizations:Array<Int> = [
 		4,
 		8,
@@ -222,6 +226,7 @@ class SubtitleEditor extends MusicBeatState
 
 		var tabs = [
             {name: "Subtitle", label: "Subtitle"},
+			{name: "Other", label: "Other"}
 		];
 
 		UI_box = new FlxUITabMenu(null, tabs, true);
@@ -260,6 +265,7 @@ class SubtitleEditor extends MusicBeatState
 		}
 
 		addSubtitleUI();
+		addOtherUI();
 		//UI_box.selected_tab = 4;
 
 		add(curRenderedSubs);
@@ -272,6 +278,12 @@ class SubtitleEditor extends MusicBeatState
 
 		updateZoom();
 		updateGrid();
+
+		stupidCam = new FlxCamera();
+		stupidCam.bgColor.alpha = 0;
+		FlxG.cameras.add(stupidCam, false);
+		SubtitleHandler.camera = stupidCam;
+
 		super.create();
 	}
 
@@ -287,6 +299,13 @@ class SubtitleEditor extends MusicBeatState
 	var fontInputText:FlxUIInputText;
 	var borderCheckbox:FlxUICheckBox;
 	var alignmentDrop:FlxUIDropDownMenuCustom;
+
+	var deletePrevCheckbox:FlxUICheckBox;
+	var fadeOut:FlxUICheckBox;
+	var fadeIn:FlxUICheckBox;
+	var typeIn:FlxUICheckBox;
+	var typeOut:FlxUICheckBox;
+	var raisesLast:FlxUICheckBox;
 
 	function addSubtitleUI():Void
 	{
@@ -359,7 +378,9 @@ class SubtitleEditor extends MusicBeatState
         //////////////////////////////////////////////////////////
         /////// SUBITLE
 
-        tab_group_event.add(new FlxSprite(10, loadEventJson.y + 35).makeGraphic(Std.int(UI_box.width - 20), 5));
+		var assSeparatorLine:FlxSprite = new FlxSprite(10, loadEventJson.y + 35).makeGraphic(Std.int(UI_box.width - 20), 5);
+		assSeparatorLine.alpha = 0.6;
+        tab_group_event.add(assSeparatorLine);
 
         stepperSusLength = new FlxUINumericStepper(10, loadEventJson.y + 60, Conductor.stepCrochet / 2, 0, 0, Conductor.stepCrochet * 64);
 		stepperSusLength.value = 0;
@@ -377,7 +398,7 @@ class SubtitleEditor extends MusicBeatState
         var text:FlxText = new FlxText(10, subTextInput.y - 15, 0, "Text:");
 		tab_group_event.add(text);
 
-		stepperSubSize = new FlxUINumericStepper(10, subTextInput.y + 30, 1, 12, 1, 108, 3);
+		stepperSubSize = new FlxUINumericStepper(10, subTextInput.y + 30, 1, 24, 1, 108, 3);
 		stepperSubSize.name = 'stepperSubSize';
 		blockPressWhileTypingOnStepper.push(stepperBPM);
         tab_group_event.add(new FlxText(stepperSubSize.x, stepperSubSize.y - 15, 0, "Size:"));
@@ -394,17 +415,26 @@ class SubtitleEditor extends MusicBeatState
 		{
 			trace('alignment is ' + alignments[Std.parseInt(alignment)]);
 			if(curSelected != null) {
-				curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+				updateCurShit();
 				updateGrid();
 			}
 		});
 		blockPressWhileScrolling.push(alignmentDrop);
 		tab_group_event.add(new FlxText(alignmentDrop.x, alignmentDrop.y - 15, 0, "Alignment:"));
 
+		deletePrevCheckbox = new FlxUICheckBox(stepperSubSize.x, borderCheckbox.y + 30, null, null, "Delete previous", 90);
+		fadeOut = new FlxUICheckBox(deletePrevCheckbox.x + deletePrevCheckbox.width + 5, deletePrevCheckbox.y, null, null, "Fade out", 90);
+		fadeIn = new FlxUICheckBox(fadeOut.x + fadeOut.width + 5, deletePrevCheckbox.y, null, null, "Fade in", 90);
+		typeIn = new FlxUICheckBox(deletePrevCheckbox.x, deletePrevCheckbox.y + 30, null, null, "Type in", 90);
+		typeOut = new FlxUICheckBox(typeIn.x + typeIn.width + 5, typeIn.y, null, null, "Type out", 90);
+		raisesLast = new FlxUICheckBox(typeOut.x + typeOut.width + 5, typeOut.y, null, null, "Raise last", 90);
+
         ///////////////////////////////////////////////////////
         /////////// SECTION
-
-        tab_group_event.add(new FlxSprite(10, clear_events.y - 10).makeGraphic(Std.int(UI_box.width - 20), 5));
+		
+		var assSeparatorLine:FlxSprite = new FlxSprite(10, clear_events.y - 10).makeGraphic(Std.int(UI_box.width - 20), 5);
+		assSeparatorLine.alpha = 0.6;
+        tab_group_event.add(assSeparatorLine);
 
         var copyButton:FlxButton = new FlxButton(10, clear_events.y, "Copy Section", function()
         {
@@ -528,7 +558,15 @@ class SubtitleEditor extends MusicBeatState
 		tab_group_event.add(stepperSubSize);
 		tab_group_event.add(fontInputText);
 		tab_group_event.add(borderCheckbox);
-		tab_group_event.add(alignmentDrop);
+
+		tab_group_event.add(deletePrevCheckbox);
+		tab_group_event.add(fadeOut);
+		tab_group_event.add(fadeIn);
+		tab_group_event.add(typeIn);
+		tab_group_event.add(typeOut);
+		tab_group_event.add(raisesLast);
+
+		tab_group_event.add(alignmentDrop); // it would look weird ngl
 
         tab_group_event.add(copyButton);
         tab_group_event.add(pasteButton);
@@ -536,6 +574,52 @@ class SubtitleEditor extends MusicBeatState
         tab_group_event.add(stepperCopy);
         tab_group_event.add(copyLastButton);
 
+		UI_box.addGroup(tab_group_event);
+	}
+
+	var stepperRColor:FlxUINumericStepper;
+	var stepperGColor:FlxUINumericStepper;
+	var stepperBColor:FlxUINumericStepper;
+	var italicCheckbox:FlxUICheckBox;
+	var boldCheckbox:FlxUICheckBox;
+	var colorVisualizer:FlxSprite;
+	function addOtherUI()
+	{
+		var tab_group_event = new FlxUI(null, UI_box);
+		tab_group_event.name = 'Other';
+
+		stepperRColor = new FlxUINumericStepper(10, 40, 20, 255, 0, 255, 0);
+		stepperGColor = new FlxUINumericStepper(80, 40, 20, 255, 0, 255, 0);
+		stepperBColor = new FlxUINumericStepper(150, 40, 20, 255, 0, 255, 0);
+
+		stepperRColor.name = 'colorStepper';
+		stepperGColor.name = 'colorStepper';
+		stepperBColor.name = 'colorStepper';
+
+		colorVisualizer = new FlxSprite(stepperBColor.x + stepperBColor.width + 10, stepperBColor.y);
+		colorVisualizer.makeGraphic(Std.int(stepperBColor.height), Std.int(stepperBColor.height), FlxColor.fromRGB(Math.floor(stepperRColor.value), Math.floor(stepperGColor.value), Math.floor(stepperBColor.value)));
+
+		blockPressWhileTypingOnStepper.push(stepperRColor);
+		blockPressWhileTypingOnStepper.push(stepperGColor);
+		blockPressWhileTypingOnStepper.push(stepperBColor);
+
+		tab_group_event.add(new FlxText(stepperRColor.x, stepperRColor.y - 15, "<color> Tag's colors:"));
+
+		tab_group_event.add(new FlxText(stepperRColor.x, stepperRColor.y + 40, "How to add a <color> tag:
+		If your text is 'YOU MUST DIE NOW!' and you want
+		to add a red color to 'DIE NOW!'
+		Write 'YOU MUST <color>DIE NOW!<color>' and
+		change the steppers to the color you want."));
+
+		italicCheckbox = new FlxUICheckBox(10, 200, null, null, "Italic", 100);
+		boldCheckbox = new FlxUICheckBox(110, 200, null, null, "Bold", 100);
+
+		tab_group_event.add(stepperRColor);
+		tab_group_event.add(stepperGColor);
+		tab_group_event.add(stepperBColor);
+		tab_group_event.add(colorVisualizer);
+		tab_group_event.add(italicCheckbox);
+		tab_group_event.add(boldCheckbox);
 		UI_box.addGroup(tab_group_event);
 	}
 
@@ -606,7 +690,7 @@ class SubtitleEditor extends MusicBeatState
 			if (wname == 'stepperSubLength')
 			{
 				if(curSelected != null) {
-					curSelected[1][0][2] = 'length:' + nums.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+					updateCurShit();
 					updateGrid();
 				} else {
 					sender.value = 0;
@@ -615,39 +699,57 @@ class SubtitleEditor extends MusicBeatState
 			else if (wname == 'stepperSubSize')
 			{
 				if(curSelected != null) {
-					curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + nums.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+					updateCurShit();
 					updateGrid();
 				} else {
 					sender.value = 12;
 				}
 			}
+			else if (wname == 'colorStepper')
+			{
+				if(curSelected != null) {
+					updateCurShit();
+					updateColorSpr();
+					updateGrid();
+				}
+			}
 		}
 		else if(id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText)) {
+			//sender.text = sender.text.replace('=', '').replace('|', '');
 			if(sender == strumTimeInputText && curSelected != null) {
 				var value:Float = Std.parseFloat(strumTimeInputText.text);
 				if(Math.isNaN(value)) value = 0;
 				curSelected[0] = value;
 				updateGrid();
 			} else if (sender == subTextInput && curSelected != null) {
-				curSelected[1][0][1] = subTextInput.text;
+				updateCurShit();
 				updateGrid();
 			} else if (sender == fontInputText && curSelected != null) {
 				if(curSelected != null) {
-					curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
+					updateCurShit();
 					updateGrid();
 				}
 			}
 		}
 		else if(id == FlxUICheckBox.CLICK_EVENT && (sender is FlxUICheckBox)) {
-			if (sender == borderCheckbox && curSelected != null) {
-				if(curSelected != null) {
-					curSelected[1][0][2] = 'length:' + stepperSusLength.value + ',size:' + stepperSubSize.value + ',font:' + fontInputText.text + ',border:' + borderCheckbox.checked + ',alignment:' + alignmentDrop.selectedLabel;
-					updateGrid();
-				}
+			if (curSelected != null) {
+				updateCurShit();
+				updateGrid();
 			}
 		}
 
 		// FlxG.log.add(id + " WEED " + sender + " WEED " + data + " WEED " + params);
+	}
+
+	function updateCurShit() {
+		if (curSelected != null) {
+			curSelected[1][0][1] = 'subText=' + subTextInput.text +'|fadeOut='+fadeOut.checked +',fadeIn:'+fadeIn.checked+'|deletePrevious='+deletePrevCheckbox.checked+'|typeIn='+typeIn.checked +'|typeOut='+typeOut.checked+'|raisesLast='+raisesLast.checked+'|bold='+boldCheckbox.checked+'|italic='+italicCheckbox.checked;
+			curSelected[1][0][2] = 'length=' + stepperSusLength.value + '|size=' + stepperSubSize.value + '|font=' + fontInputText.text + '|border=' + borderCheckbox.checked + '|alignment=' + alignmentDrop.selectedLabel + '|rc='+stepperRColor.value+'|gc='+stepperGColor.value+'|bc='+stepperBColor.value;
+		}
+	}
+
+	function updateColorSpr() {
+		colorVisualizer.color = FlxColor.fromRGB(Math.floor(stepperRColor.value), Math.floor(stepperGColor.value), Math.floor(stepperBColor.value));
 	}
 
 	var updatedSection:Bool = false;
@@ -728,7 +830,10 @@ class SubtitleEditor extends MusicBeatState
 								updateGrid();
 							}
 					} else if (FlxG.mouse.justPressed) {
-						if (FlxG.keys.pressed.CONTROL) selectNote(spr);
+						if (FlxG.keys.pressed.CONTROL) {
+							selectNote(spr);
+							trace('selected note');
+						}
 						else deleteNote(spr);
 					}
 				}
@@ -841,6 +946,7 @@ class SubtitleEditor extends MusicBeatState
                 {
                     FlxG.sound.music.pause();
                     if(vocals != null) vocals.pause();
+					SubtitleHandler.destroy(false);
                 }
                 else
                 {
@@ -885,6 +991,7 @@ class SubtitleEditor extends MusicBeatState
 			if (FlxG.keys.justPressed.ESCAPE) {
 				//if(onMasterEditor) {
 					MusicBeatState.switchState(new editors.MasterEditorMenu());
+					SubtitleHandler.destroy(); //actually destroy
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				//}
 				//FlxG.mouse.visible = false;
@@ -911,8 +1018,12 @@ class SubtitleEditor extends MusicBeatState
 
 			if(spr.time <= Conductor.songPosition) {
 				spr.alpha = 0.4;
+				if(spr.time > lastConductorPos && FlxG.sound.music.playing) {
+					SubtitleHandler.makeline(spr.value1, spr.value2);
+				}
 			}
 		});
+		lastConductorPos = Conductor.songPosition;
 		super.update(elapsed);
 	}
 
@@ -990,10 +1101,10 @@ class SubtitleEditor extends MusicBeatState
 		{
 			if (curSelected[1][0][2] != null)
 			{
-				var curVal = Std.parseFloat(curSelected[1][0][2]);
+				var curVal:Float = Std.parseFloat(SubtitleHandler.examinateEventValue(curSelected[1][0][2]).length);
 				curVal += value;
 				curVal = Math.max(curSelected[2], 0);
-				curSelected[1][0][2] = ''+curVal;
+				curSelected[1][0][2] = 'length=' + curVal + '|size=' + stepperSubSize.value + '|font=' + fontInputText.text + '|border=' + borderCheckbox.checked + '|alignment=' + alignmentDrop.selectedLabel + '|rc='+stepperRColor.value+'|gc='+stepperGColor.value+'|bc='+stepperBColor.value;
 			}
 		}
 
@@ -1112,7 +1223,7 @@ class SubtitleEditor extends MusicBeatState
 	{
 		if (curSelected != null) {
 			if(curSelected[1][0][2] != null) {
-				stepperSusLength.value = Std.parseFloat(curSelected[1][0][2]);
+				stepperSusLength.value = Std.parseFloat(SubtitleHandler.examinateEventValue(curSelected[1][0][2]).length);
 			}
 			strumTimeInputText.text = '' + curSelected[0];
 		}
@@ -1150,6 +1261,7 @@ class SubtitleEditor extends MusicBeatState
 				var eventValues:Array<String> = [i[1][0][1], i[1][0][2]];
 				var storeY:Float = i[1][0][3];
 
+				var examv1:SubProperties = SubtitleHandler.examinateSubProperties(eventValues[0]);
 				var exam:SubExam = SubtitleHandler.examinateEventValue(eventValues[1]);
 
                 var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(exam.length), 0, 
@@ -1163,10 +1275,12 @@ class SubtitleEditor extends MusicBeatState
                 spr.makeGraphic(width, GRID_SIZE, FlxColor.BLACK);
                 spr.time = strumTime;
                 spr.length = Std.parseFloat(eventValues[1]);
+				spr.value1 = eventValues[0];
+				spr.value2 = eventValues[1];
 
 				curRenderedSubs.add(spr);
 
-				var text:String = eventValues[0];
+				var text:String = examv1.subText;
 				var daText:FlxText = new FlxText(0, 0, width, text, 12);
 				daText.setFormat(Paths.font(exam.font), exam.size, FlxColor.WHITE);
 
@@ -1376,10 +1490,13 @@ class SubtitleEditor extends MusicBeatState
 		var font = fontInputText.text;
 		var border = borderCheckbox.checked;
 		var alignment = alignmentDrop.selectedLabel;
+		var rColor = stepperRColor.value;
+		var gColor = stepperGColor.value;
+		var bColor = stepperGColor.value;
 
 		var event = 'Add Subtitle';
-		var text1 = subTextInput.text;
-		var text2 = 'length:$noteSus,size:$size,font:$font,border:$border,alignment:$alignment';
+		var text1 = 'subText=' + subTextInput.text +'|fadeOut='+fadeOut.checked +'|fadeIn='+fadeIn.checked+'|deletePrevious='+deletePrevCheckbox.checked+'|typeIn='+typeIn.checked +'|typeOut='+typeOut.checked+'|raisesLast='+raisesLast.checked;
+		var text2 = 'length=$noteSus|size=$size|font=$font|border=$border|alignment=$alignment|rc=$rColor|gc=$gColor|bc=$bColor';
 		var presetY = 430;
 		_song.events.push([noteStrum, [[event, text1, text2, presetY]]]);
 		curSelected = _song.events[_song.events.length - 1];
@@ -1548,6 +1665,8 @@ class SubtitleEditor extends MusicBeatState
 class StoredSubData extends FlxSprite {
     public var time:Float = 0;
     public var length:Float = 0;
+	public var value1:String = "";
+	public var value2:String = "";
     public function new(x,y) {
         super(x, y);
     }

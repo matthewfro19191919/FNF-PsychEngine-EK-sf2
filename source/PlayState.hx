@@ -1,5 +1,6 @@
 package;
 
+import Subtitle.SubtitleHandler;
 import lime.utils.Bytes;
 import openfl.geom.Rectangle;
 import lime.media.AudioBuffer;
@@ -3918,9 +3919,7 @@ class PlayState extends MusicBeatState
 					FlxTween.tween(strum, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 				}
 			case 'Add Subtitle':
-				var time:Float = Std.parseFloat(value2);
-				if (value2 == null || value2.length < 1 || value2 == "") time = 5;
-				Subtitle.SubtitleHandler.makeline(value1, time);
+				SubtitleHandler.makeline(value1,value2);
 		}
 		callOnLuas('onEvent', [eventName, value1, value2]);
 	}
