@@ -28,7 +28,10 @@ class Alphabet extends FlxSpriteGroup
 	public var isMenuItem:Bool = false;
 	public var textSize:Float = 1.0;
 
-	public var text:String = "";
+	public var alignment(default, set):Alignment = LEFT;
+	public var scaleX(default, set):Float = 1;
+	public var scaleY(default, set):Float = 1;
+	public var rows:Int = 0;
 
 	var _finalText:String = "";
 	var yMulti:Float = 1;
@@ -60,7 +63,61 @@ class Alphabet extends FlxSpriteGroup
 
 		if (text != "")
 		{
-			if (typed)
+			case 'right':
+				alignment = RIGHT;
+			case 'center' | 'centered':
+				alignment = CENTERED;
+			default:
+				alignment = LEFT;
+		}
+	}
+
+	private function set_alignment(align:Alignment)
+	{
+		alignment = align;
+		updateAlignment();
+		return align;
+	}
+
+	private function updateAlignment()
+	{
+		for (letter in letters)
+		{
+			var newOffset:Float = 0;
+			switch(alignment)
+			{
+				case CENTERED:
+					newOffset = letter.rowWidth / 2;
+				case RIGHT:
+					newOffset = letter.rowWidth;
+				default:
+					newOffset = 0;
+			}
+	
+			letter.offset.x -= letter.alignOffset;
+			letter.offset.x += newOffset;
+			letter.alignOffset = newOffset;
+		}
+	}
+
+	private function set_text(newText:String)
+	{
+		newText = newText.replace('\\n', '\n');
+		clearLetters();
+		createLetters(newText);
+		updateAlignment();
+		this.text = newText;
+		return newText;
+	}
+
+	public function clearLetters()
+	{
+		var i:Int = letters.length;
+		while (i > 0)
+		{
+			--i;
+			var letter:AlphaCharacter = letters[i];
+			if(letter != null)
 			{
 				startTypedText(typingSpeed);
 			}
@@ -331,6 +388,9 @@ class Alphabet extends FlxSpriteGroup
 				lastSprite = letter;
 			}
 		}
+		letters = [];
+		rows = 0;
+	}
 
 		loopNum++;
 		if(loopNum >= splitWords.length) {
@@ -368,6 +428,85 @@ class Alphabet extends FlxSpriteGroup
 		}
 		typeTimer = null;
 	}
+
+	private static var Y_PER_ROW:Float = 85;
+
+	private function createLetters(newText:String)
+	{
+		var consecutiveSpaces:Int = 0;
+
+		var xPos:Float = 0;
+		var rowData:Array<Float> = [];
+		rows = 0;
+		for (character in newText.split(''))
+		{
+			
+			if(character != '\n')
+			{
+				var spaceChar:Bool = (character == " " || (bold && character == "_"));
+				if (spaceChar) consecutiveSpaces++;
+
+				var isAlphabet:Bool = AlphaCharacter.isTypeAlphabet(character.toLowerCase());
+				if (AlphaCharacter.allLetters.exists(character.toLowerCase()) && (!bold || !spaceChar))
+				{
+					if (consecutiveSpaces > 0)
+					{
+						xPos += 28 * consecutiveSpaces * scaleX;
+						if(!bold && xPos >= FlxG.width * 0.65)
+						{
+							xPos = 0;
+							rows++;
+						}
+					}
+					consecutiveSpaces = 0;
+
+					var letter:AlphaCharacter = new AlphaCharacter(xPos, rows * Y_PER_ROW * scaleY, character, bold, this);
+					letter.x += letter.letterOffset[0] * scaleX;
+					letter.y -= letter.letterOffset[1] * scaleY;
+					letter.row = rows;
+
+					var off:Float = 0;
+					if(!bold) off = 2;
+					xPos += letter.width + (letter.letterOffset[0] + off) * scaleX;
+					rowData[rows] = xPos;
+
+					add(letter);
+					letters.push(letter);
+				}
+			}
+			else
+			{
+				xPos = 0;
+				rows++;
+			}
+		}
+
+		for (letter in letters)
+		{
+			letter.spawnPos.set(letter.x, letter.y);
+			letter.spawnScale.set(scaleX, scaleY);
+			letter.rowWidth = rowData[letter.row];
+		}
+
+		if(letters.length > 0) rows++;
+	}
+}
+
+
+///////////////////////////////////////////
+// ALPHABET LETTERS, SYMBOLS AND NUMBERS //
+///////////////////////////////////////////
+
+/*enum LetterType
+{
+	ALPHABET;
+	NUMBER_OR_SYMBOL;
+}*/
+
+typedef Letter = {
+	?anim:Null<String>,
+	?offsets:Array<Float>,
+	?offsetsBold:Array<Float>
 }
 
 class AlphaCharacter extends FlxSprite
@@ -382,7 +521,15 @@ class AlphaCharacter extends FlxSprite
 
 	private var textSize:Float = 1;
 
-	public function new(x:Float, y:Float, textSize:Float)
+	var parent:Alphabet;
+	public var alignOffset:Float = 0; //Don't change this
+	public var letterOffset:Array<Float> = [0, 0];
+	public var spawnPos:FlxPoint = new FlxPoint();
+	public var spawnScale:FlxPoint = new FlxPoint();
+
+	public var row:Int = 0;
+	public var rowWidth:Float = 0;
+	public function new(x:Float, y:Float, character:String, bold:Bool, parent:Alphabet)
 	{
 		super(x, y);
 		var tex = Paths.getSparrowAtlas('alphabet');
