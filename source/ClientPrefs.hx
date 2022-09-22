@@ -183,12 +183,17 @@ class ClientPrefs {
 		}
 		if(FlxG.save.data.framerate != null) {
 			framerate = FlxG.save.data.framerate;
-			if(framerate > FlxG.drawFramerate) {
-				FlxG.updateFramerate = framerate;
-				FlxG.drawFramerate = framerate;
+			if (framerate != 241) {
+				if(framerate > FlxG.drawFramerate) {
+					FlxG.updateFramerate = framerate;
+					FlxG.drawFramerate = framerate;
+				} else {
+					FlxG.drawFramerate = framerate;
+					FlxG.updateFramerate = framerate;
+				}
 			} else {
-				FlxG.drawFramerate = framerate;
-				FlxG.updateFramerate = framerate;
+				FlxG.updateFramerate = 999;
+				FlxG.drawFramerate = 999;
 			}
 		}
 		/*if(FlxG.save.data.cursing != null) {
