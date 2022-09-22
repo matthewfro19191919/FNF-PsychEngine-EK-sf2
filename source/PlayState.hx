@@ -3838,6 +3838,9 @@ class PlayState extends MusicBeatState
 					FunkinLua.setVarInArray(this, value1, value2);
 				}
 			case 'Change Vertical Scroll':
+				var healthBarY:Float = FlxG.height * 0.89;
+				var timeBarY:Float = 19;
+
 				if (FlxG.save.data.downScroll == null) FlxG.save.data.downScroll = false;
 
 				var next:String = "";
@@ -3856,6 +3859,8 @@ class PlayState extends MusicBeatState
 					case "downscroll":
 						ClientPrefs.downScroll = true;
 						strumLine.y = FlxG.height - 150;
+						healthBarY = 0.11 * FlxG.height;
+						timeBarY = FlxG.height - 44;
 					case "upscroll":
 						ClientPrefs.downScroll = false;
 						strumLine.y = 50;
@@ -3865,6 +3870,19 @@ class PlayState extends MusicBeatState
 					var strum:StrumNote = strumLineNotes.members[i];
 					FlxTween.tween(strum, {y: strumLine.y}, 0.5, {ease: FlxEase.circOut});
 					strum.downScroll = ClientPrefs.downScroll;
+
+					FlxTween.tween(healthBarBG, {y: healthBarY}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(healthBar, {y: healthBarY + 4}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(iconP1, {y: healthBarY - 71}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(iconP2, {y: healthBarY - 71}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(scoreTxt, {y: healthBarY + 36}, 0.5, {ease: FlxEase.circOut});
+
+					var timeBarBGY:Float = timeBarY + (timeTxt.height / 4);
+					FlxTween.tween(timeTxt, {y: timeBarY}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(timeBarBG, {y: timeBarBGY}, 0.5, {ease: FlxEase.circOut});
+					FlxTween.tween(timeBar, {y: timeBarBGY + 4}, 0.5, {ease: FlxEase.circOut});
+
+					FlxTween.tween(botplayTxt, {y: timeBarBGY + (ClientPrefs.downScroll ? -78 : 55)}, 0.5, {ease: FlxEase.circOut});
 				}
 			case 'Change Horizontal Scroll':
 				if (FlxG.save.data.middleScroll == null) FlxG.save.data.middleScroll = false;
@@ -4247,6 +4265,11 @@ class PlayState extends MusicBeatState
 
 		//tryna do MS based judgment due to popular demand
 		var daRating:Rating = Conductor.judgeNote(note, noteDiff);
+		if (daRating.ratingMod < 1 && cpuControlled) { // bot will never get past sick
+			for (rating in ratingsData) {
+				if (rating.name == "sick") daRating = rating;
+			}
+		}
 
 		totalNotesHit += daRating.ratingMod;
 		note.ratingMod = daRating.ratingMod;

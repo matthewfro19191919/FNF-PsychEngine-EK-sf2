@@ -95,6 +95,7 @@ class FPS extends TextField
 	public var memOverloaded:Bool = false;
 	public var _ms:Float;
 	public var updateMemTimer:Float = 0.0;
+	public var textUpdates:Int = 0;
 
 	// Event Handlers
 	@:noCompletion
@@ -120,6 +121,7 @@ class FPS extends TextField
 
 		if (currentCount != cacheCount || updateMemTimer >= 1 /*&& visible*/)
 		{
+			textUpdates++;
 			stupidFuckingShit();
 		}
 
@@ -172,6 +174,7 @@ class FPS extends TextField
 		_ms = FlxMath.lerp(_ms, 1 / Math.round(currentFPS) * 1000, CoolUtil.boundTo(FlxG.elapsed * 3.75 * ((Math.abs(_ms - 1 / Math.round(currentFPS) * 1000) < 0.45) ? 2.5 : 1.0), 0, 1));
 		text += '\nMs: ${FlxMath.roundDecimal(_ms, 2)}';
 		text += '\nRuntime: ${FlxStringUtil.formatTime(currentTime / 1000)}';
+		text += '\nText updates: $textUpdates';
 		text += '\nState: ${Type.getClassName(Type.getClass(FlxG.state))}';
 		if (FlxG.state.subState != null)
 			text += '\nSubstate: ${Type.getClassName(Type.getClass(FlxG.state.subState))}';

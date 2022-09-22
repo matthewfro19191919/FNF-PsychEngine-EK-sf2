@@ -125,7 +125,7 @@ class ChartingState extends MusicBeatState
 	var highlight:FlxSprite;
 
 	public static var GRID_SIZE:Int = 40;
-	var CAM_OFFSET:Int = 360;
+	var CAM_OFFSET:Int = 480;
 
 	var dummyArrow:FlxSprite;
 

@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxPoint;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -111,15 +112,24 @@ class MainMenuState extends MusicBeatState
 		{
 			var offset:Float = 108 - (Math.max(optionShit.length, 4) - 4) * 80;
 			var menuItem:MainMenuItem = new MainMenuItem(0, (i * 140)  + offset);
+
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
+
 			menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_' + optionShit[i]);
 			menuItem.animation.addByPrefix('idle', optionShit[i] + " basic", 24);
 			menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);
 			menuItem.animation.play('idle');
+
 			menuItem.ID = i;
 			menuItem.id = optionShit[i];
 			menuItem.screenCenter(X);
+
+			menuItem.startPosition.x = menuItem.x;
+			menuItem.distancePerItem.x = 200;
+			menuItem.distancePerItem.y = 140 + offset;
+			//menuItem.origin.x = 0;
+
 			menuItems.add(menuItem);
 			var scr:Float = (optionShit.length - 4) * 0.135;
 			if(optionShit.length < 6) scr = 0;
@@ -296,10 +306,14 @@ class MainMenuState extends MusicBeatState
 		if (curSelected < 0)
 			curSelected = menuItems.length - 1;
 
-		menuItems.forEach(function(spr:FlxSprite)
+		var bs:Int = 0;
+		menuItems.forEach(function(spr:MainMenuItem)
 		{
 			spr.animation.play('idle');
 			spr.updateHitbox();
+
+			spr.targetY = bs - curSelected;
+			bs++;
 
 			if (spr.ID == curSelected)
 			{
@@ -318,7 +332,12 @@ class MainMenuState extends MusicBeatState
 class MainMenuItem extends FlxSprite
 {
 	public var id:String = '';
+	public var distancePerItem:FlxPoint;
+	public var startPosition:FlxPoint;
+	public var targetY:Int = 0;
 	public function new(x,y) {
+		distancePerItem = new FlxPoint(20, 120);
+		startPosition = new FlxPoint(0, 0);
 		super(x,y);
 	}
 }

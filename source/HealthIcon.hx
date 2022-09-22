@@ -20,7 +20,7 @@ class HealthIcon extends FlxSprite
 		isOldIcon = (char == 'bf-old');
 		this.isPlayer = isPlayer;
 
-		if (char != 'none') changeIcon(char);
+		if (char != 'none' || char.length > 0) changeIcon(char);
 		else makeGraphic(1, 1, FlxColor.TRANSPARENT);
 
 		scrollFactor.set();
@@ -43,7 +43,7 @@ class HealthIcon extends FlxSprite
 	private var iconOffsets:Array<Float> = [0, 0];
 	public function changeIcon(char:String) {
 		if(this.char != char) {
-			if (char == 'none') {
+			if (char == 'none' || char.length < 1) {
 				makeGraphic(1, 1, FlxColor.TRANSPARENT);
 				return;
 			}
