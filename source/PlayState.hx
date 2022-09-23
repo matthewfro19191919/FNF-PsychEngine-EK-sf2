@@ -2804,11 +2804,6 @@ class PlayState extends MusicBeatState
 
 			note.offsetX -= note.width / 2;
 
-			if (isPixelStage) {
-				note.scale.y *= daPixelZoom * Note.pixelScales[mania];
-				note.updateHitbox();
-			}
-
 			if (note != null && prevNote != null && prevNote.isSustainNote && prevNote.animation != null) { // haxe flixel
 				prevNote.animation.play(Note.keysShit.get(mania).get('letters')[noteData % tMania] + ' hold');
 
@@ -2821,7 +2816,12 @@ class PlayState extends MusicBeatState
 				}
 
 				prevNote.updateHitbox();
-				trace(prevNote.scale.y);
+				//trace(prevNote.scale.y);
+			}
+			
+			if (isPixelStage){
+				prevNote.scale.y *= daPixelZoom * (Note.pixelScales[mania]); //Fuck urself
+				prevNote.updateHitbox();
 			}
 		} else if (!note.isSustainNote && noteData > - 1 && noteData < tMania) {
 			if (note.changeAnim) {
