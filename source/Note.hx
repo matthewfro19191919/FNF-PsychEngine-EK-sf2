@@ -159,6 +159,8 @@ class Note extends FlxSprite
 	public var distance:Float = 2000; //plan on doing scroll directions soon -bb
 
 	public var hitsoundDisabled:Bool = false;
+	public var changeAnim:Bool = true;
+	public var changeColSwap:Bool = true;
 	
 	public function resizeByRatio(ratio:Float) //haha funny twitter shit
 		{
@@ -429,7 +431,7 @@ class Note extends FlxSprite
 		}
 	}
 
-	public function applyManiaChange()
+	/*public function applyManiaChange()
 	{
 		if (isSustainNote) 
 			scale.y = 1;
@@ -451,10 +453,10 @@ class Note extends FlxSprite
 				prevNote.animation.play(Note.keysShit.get(mania).get('letters')[prevNote.noteData % Note.ammo[mania]] + ' hold');
 				prevNote.updateHitbox();
 			}
-		}*/
+		}
 
 		updateHitbox();
-	}
+	}*/
 
 
 	override function update(elapsed:Float)

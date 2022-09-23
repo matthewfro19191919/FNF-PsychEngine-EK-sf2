@@ -35,6 +35,7 @@ class ClientPrefs {
 	public static var checkForUpdates:Bool = true;
 	public static var antimash:Bool = true;
 	public static var convertEK:Bool = true;
+	public static var showKeybindsOnStart:Bool = true;
 	public static var comboStacking = true;
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
@@ -207,6 +208,7 @@ class ClientPrefs {
 		FlxG.save.data.antimash = antimash;
 		FlxG.save.data.convertEK = convertEK;
 		FlxG.save.data.comboStacking = comboStacking;
+		FlxG.save.data.showKeybindsOnStart = showKeybindsOnStart;
 	
 		FlxG.save.flush();
 
@@ -351,6 +353,8 @@ class ClientPrefs {
 		}
 		if (FlxG.save.data.comboStacking != null)
 			comboStacking = FlxG.save.data.comboStacking;
+		if (FlxG.save.data.showKeybindsOnStart != null)
+			showKeybindsOnStart = FlxG.save.data.showKeybindsOnStart;
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'tposejank');

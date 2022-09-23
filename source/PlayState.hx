@@ -2074,6 +2074,17 @@ class PlayState extends MusicBeatState
 		Paths.sound('introGo' + introSoundsSuffix);
 	}
 	
+	public function updateLuaDefaultPos() {
+		for (i in 0...playerStrums.length) {
+			setOnLuas('defaultPlayerStrumX' + i, playerStrums.members[i].x);
+			setOnLuas('defaultPlayerStrumY' + i, playerStrums.members[i].y);
+		}
+		for (i in 0...opponentStrums.length) {
+			setOnLuas('defaultOpponentStrumX' + i, opponentStrums.members[i].x);
+			setOnLuas('defaultOpponentStrumY' + i, opponentStrums.members[i].y);
+			//if(ClientPrefs.middleScroll) opponentStrums.members[i].visible = false;
+		}
+	}
 
 	public function startCountdown():Void
 	{
@@ -2089,15 +2100,7 @@ class PlayState extends MusicBeatState
 
 			generateStaticArrows(0);
 			generateStaticArrows(1);
-			for (i in 0...playerStrums.length) {
-				setOnLuas('defaultPlayerStrumX' + i, playerStrums.members[i].x);
-				setOnLuas('defaultPlayerStrumY' + i, playerStrums.members[i].y);
-			}
-			for (i in 0...opponentStrums.length) {
-				setOnLuas('defaultOpponentStrumX' + i, opponentStrums.members[i].x);
-				setOnLuas('defaultOpponentStrumY' + i, opponentStrums.members[i].y);
-				//if(ClientPrefs.middleScroll) opponentStrums.members[i].visible = false;
-			}
+			updateLuaDefaultPos();
 
 			startedCountdown = true;
 			Conductor.songPosition = 0;
@@ -2677,6 +2680,8 @@ class PlayState extends MusicBeatState
 	{
 		for (i in 0...Note.ammo[mania])
 		{
+			var twnDuration:Float = 4 / mania;
+			var twnStart:Float = 0.5 + ((0.8 / mania) * i);
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
 			if (player < 1)
@@ -2687,11 +2692,11 @@ class PlayState extends MusicBeatState
 
 			var babyArrow:StrumNote = new StrumNote(ClientPrefs.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
 			babyArrow.downScroll = ClientPrefs.downScroll;
-			if (!isStoryMode && !skipArrowStartTween)
+			if (!isStoryMode && !skipArrowStartTween && mania > 1)
 			{
 				//babyArrow.y -= 10;
 				babyArrow.alpha = 0;
-				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, twnDuration, {ease: FlxEase.circOut, startDelay: twnStart});
 			}
 			else
 			{
@@ -2718,54 +2723,171 @@ class PlayState extends MusicBeatState
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
+
+			if (ClientPrefs.showKeybindsOnStart && player == 1) {
+				for (j in 0...keysArray[mania][i].length) {
+					var daKeyTxt:FlxText = new FlxText(babyArrow.x, babyArrow.y - 10, 0, InputFormatter.getKeyName(keysArray[mania][i][j]), 32);
+					daKeyTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+					daKeyTxt.borderSize = 1.25;
+					daKeyTxt.alpha = 0;
+					daKeyTxt.size = 32 - mania; //essentially if i ever add 0k!?!?
+					daKeyTxt.x = babyArrow.x+(babyArrow.width / 2);
+					daKeyTxt.x -= daKeyTxt.width / 2;
+					add(daKeyTxt);
+					daKeyTxt.cameras = [camHUD];
+					var textY:Float = (j == 0 ? babyArrow.y - 32 : ((babyArrow.y - 32) + babyArrow.height) - daKeyTxt.height);
+					daKeyTxt.y = textY;
+
+					if (mania > 1) {
+						FlxTween.tween(daKeyTxt, {y: textY + 32, alpha: 1}, twnDuration, {ease: FlxEase.circOut, startDelay: twnStart});
+					} else {
+						daKeyTxt.y += 16;
+						daKeyTxt.alpha = 1;
+					}
+					new FlxTimer().start(Conductor.crochet * 0.001 * 12, function(_) {
+						FlxTween.tween(daKeyTxt, {alpha: 0}, 1, {ease: FlxEase.circOut, onComplete:
+						function(t) {
+							remove(daKeyTxt);
+						}});
+					});
+				}
+			}
 		}
 	}
 
-	function changeMania(newValue:Int)
+	function updateNote(note:Note)
+	{
+		var tMania:Int = mania + 1;
+		var noteData:Int = note.noteData;
+
+		note.scale.set(1, 1);
+		note.updateHitbox();
+
+		/*
+		if (!isPixelStage) {
+			note.setGraphicSize(Std.int(note.width * Note.noteScales[mania]));
+			note.updateHitbox();
+		} else {
+			note.setGraphicSize(Std.int(note.width * daPixelZoom * (Note.noteScales[mania] + 0.3)));
+			note.updateHitbox();
+		}
+		*/
+
+		// Like reloadNote()
+
+		var lastScaleY:Float = note.scale.y;
+		if (isPixelStage) {
+			if (note.isSustainNote) {note.originalHeightForCalcs = note.height;}
+
+			note.setGraphicSize(Std.int(note.width * daPixelZoom * Note.pixelScales[mania]));
+		} else {
+			// Like loadNoteAnims()
+
+			note.setGraphicSize(Std.int(note.width * Note.scales[mania]));
+			note.updateHitbox();
+		}
+
+		//if (note.isSustainNote) {note.scale.y = lastScaleY;}
+		note.updateHitbox();
+
+		// Like new()
+
+		var prevNote:Note = note.prevNote;
+		
+		if (note.isSustainNote && prevNote != null) {
+			
+			note.offsetX += note.width / 2;
+
+			note.animation.play(Note.keysShit.get(mania).get('letters')[noteData] + ' tail');
+
+			note.updateHitbox();
+
+			note.offsetX -= note.width / 2;
+
+			if (isPixelStage) {
+				note.scale.y *= daPixelZoom * Note.pixelScales[mania];
+				note.updateHitbox();
+			}
+
+			if (note != null && prevNote != null && prevNote.isSustainNote && prevNote.animation != null) { // haxe flixel
+				prevNote.animation.play(Note.keysShit.get(mania).get('letters')[noteData % tMania] + ' hold');
+
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
+				prevNote.scale.y *= songSpeed;
+
+				if(isPixelStage) {
+					prevNote.scale.y *= 1.19;
+					prevNote.scale.y *= (6 / note.height);
+				}
+
+				prevNote.updateHitbox();
+				trace(prevNote.scale.y);
+			}
+		} else if (!note.isSustainNote && noteData > - 1 && noteData < tMania) {
+			if (note.changeAnim) {
+				var animToPlay:String = '';
+
+				animToPlay = Note.keysShit.get(mania).get('letters')[noteData % tMania];
+				
+				note.animation.play(animToPlay);
+			}
+		}
+
+		// Like set_noteType()
+
+		if (note.changeColSwap) {
+			var hsvNumThing = Std.int(Note.keysShit.get(mania).get('pixelAnimIndex')[noteData % tMania]);
+			var colSwap = note.colorSwap;
+
+			colSwap.hue = ClientPrefs.arrowHSV[hsvNumThing][0] / 360;
+			colSwap.saturation = ClientPrefs.arrowHSV[hsvNumThing][1] / 100;
+			colSwap.brightness = ClientPrefs.arrowHSV[hsvNumThing][2] / 100;
+		}
+	}
+
+	public function changeMania(newValue:Int, skipStrumFadeOut:Bool = false)
 	{
 		//funny dissapear transitions
 		//while new strums appear
 		var daOldMania = mania;
 				
 		mania = newValue;
-		for (i in 0...playerStrums.members.length) {
-			var oldStrum:FlxSprite = playerStrums.members[i].clone();
-			oldStrum.x = playerStrums.members[i].x;
-			oldStrum.y = playerStrums.members[i].y;
-			oldStrum.alpha = playerStrums.members[i].alpha;
-			oldStrum.scrollFactor.set();
-			oldStrum.cameras = [camHUD];
-			oldStrum.setGraphicSize(Std.int(oldStrum.width * Note.scales[daOldMania]));
-			oldStrum.updateHitbox();
-			add(oldStrum);
-
-			FlxTween.tween(oldStrum, {alpha: 0}, 1, {onComplete: function(_) {
-				remove(oldStrum);
-			}});
-		}
-
-		for (i in 0...opponentStrums.members.length) {
-			var oldStrum:FlxSprite = opponentStrums.members[i].clone();
-			oldStrum.x = opponentStrums.members[i].x;
-			oldStrum.y = opponentStrums.members[i].y;
-			oldStrum.alpha = opponentStrums.members[i].alpha;
-			oldStrum.scrollFactor.set();
-			oldStrum.cameras = [camHUD];
-			oldStrum.setGraphicSize(Std.int(oldStrum.width * Note.scales[daOldMania]));
-			oldStrum.updateHitbox();
-			add(oldStrum);
-
-			FlxTween.tween(oldStrum, {alpha: 0}, 1, {onComplete: function(_) {
-				remove(oldStrum);
-			}});
+		if (!skipStrumFadeOut) {
+			for (i in 0...strumLineNotes.members.length) {
+				var oldStrum:FlxSprite = strumLineNotes.members[i].clone();
+				oldStrum.x = strumLineNotes.members[i].x;
+				oldStrum.y = strumLineNotes.members[i].y;
+				oldStrum.alpha = strumLineNotes.members[i].alpha;
+				oldStrum.scrollFactor.set();
+				oldStrum.cameras = [camHUD];
+				oldStrum.setGraphicSize(Std.int(oldStrum.width * Note.scales[daOldMania]));
+				oldStrum.updateHitbox();
+				add(oldStrum);
+	
+				FlxTween.tween(oldStrum, {alpha: 0}, 0.3, {onComplete: function(_) {
+					remove(oldStrum);
+				}});
+			}
 		}
 
 		playerStrums.clear();
 		opponentStrums.clear();
 		strumLineNotes.clear();
+		setOnLuas('mania', mania);
+
+		notes.forEachAlive(function(note:Note) {updateNote(note);});
+
+		for (noteI in 0...unspawnNotes.length) {
+			var note:Note = unspawnNotes[noteI];
+
+			updateNote(note);
+		}
+
+		callOnLuas('onChangeMania', [mania, daOldMania]);
 
 		generateStaticArrows(0);
 		generateStaticArrows(1);
+		updateLuaDefaultPos();
 	}
 
 	override function openSubState(SubState:FlxSubState)
@@ -3224,11 +3346,6 @@ class PlayState extends MusicBeatState
 			{
 				var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
 				if(!daNote.mustPress) strumGroup = opponentStrums;
-
-				if (mania != SONG.mania) {
-					if (daNote.mania != mania) daNote.mania = mania;
-					daNote.applyManiaChange();
-				}
 
 				if (strumGroup.members[daNote.noteData] == null) daNote.noteData = mania;
 
@@ -3743,11 +3860,12 @@ class PlayState extends MusicBeatState
 				}
 			case 'Change Mania':
 				var newMania:Int = 0;
+				var skipTween:Bool = value2 == "true" ? true : false;
 
 				newMania = Std.parseInt(value1);
 				if(Math.isNaN(newMania) && newMania < 0 && newMania > 9)
 					newMania = 0;
-				changeMania(newMania);
+				changeMania(newMania, skipTween);
 
 			case 'Change Character':
 				var charType:Int = 0;
