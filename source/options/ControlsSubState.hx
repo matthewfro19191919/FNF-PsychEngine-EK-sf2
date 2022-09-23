@@ -28,16 +28,13 @@ import Controls;
 using StringTools;
 
 class ControlsSubState extends MusicBeatSubstate {
-	private static var curSelected:Int = -1;
+	private static var curSelected:Int = 1;
 	private static var curAlt:Bool = false;
 
 	private static var defaultKey:String = 'Reset to Default Keys';
 	private var bindLength:Int = 0;
-	var holdTime:Float = 0;
 
 	var optionShit:Array<Dynamic> = [
-		['NOTES'],
-		[''],
 		['1 KEY'],
 		['Center', 'note_one1'],
 		[''],
@@ -140,6 +137,9 @@ class ControlsSubState extends MusicBeatSubstate {
 	var rebindingKey:Bool = false;
 	var nextAccept:Int = 5;
 
+	var pages:Array<Dynamic> = [];
+	var curPage:Int = 0;
+
 	public function new() {
 		super();
 
@@ -152,8 +152,54 @@ class ControlsSubState extends MusicBeatSubstate {
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
-		optionShit.push(['']);
-		optionShit.push([defaultKey]);
+		var currentPage:String = "";
+		var generatedPage:Dynamic = [];
+		for (i in 0...optionShit.length) {
+			if (optionShit[i][0] != "" && optionShit[i].length < 2 && currentPage == "") { //It's the first page title
+				generatedPage.push(optionShit[i]);
+				currentPage = optionShit[i][0];
+			} else if (optionShit[i][0] != "" && optionShit[i].length < 2 && currentPage != "") { // It's a new page title.
+				generatedPage.push(['']);
+				generatedPage.push([defaultKey]);
+				pages.push(generatedPage);
+
+				generatedPage = [];
+
+				generatedPage.push(optionShit[i]);
+				currentPage = optionShit[i][0];
+			} else if (optionShit[i].length > 1) { // It's an input
+				generatedPage.push(optionShit[i]);
+			} else if (optionShit[i][0] != "" && optionShit[i].length < 2) { // It's blank!
+				generatedPage.push(optionShit[i]);
+			}
+		}
+
+		optionShit = pages[curPage];
+		reloadTexts();
+		changeSelection();
+	}
+
+	function reloadTexts() {
+		for (i in 0...grpOptions.members.length) {
+			var obj = grpOptions.members[0];
+			obj.kill();
+			grpOptions.remove(obj, true);
+			obj.destroy();
+		}
+
+		for (text in grpInputs) {
+			text.kill();
+			remove(text);
+		}
+		grpInputs = [];
+
+		for (text in grpInputsAlt) {
+			text.kill();
+			remove(text);
+		}
+		grpInputsAlt = [];
+
+		//trace(grpInputs.length, '\n' + grpInputsAlt.length);
 
 		for (i in 0...optionShit.length) {
 			var isCentered:Bool = false;
@@ -162,17 +208,23 @@ class ControlsSubState extends MusicBeatSubstate {
 				isCentered = true;
 			}
 
-			var optionText:Alphabet = new Alphabet(0, (10 * i), optionShit[i][0], (!isCentered || isDefaultKey), false);
+			var isFirst:Bool = i == 0;
+			var text:String = optionShit[i][0];
+			if (isFirst) text = '< ' + text + ' >';
+
+			var optionText:Alphabet = new Alphabet(200, 300, text, (!isCentered || isDefaultKey));
 			optionText.isMenuItem = true;
 			if(isCentered) {
 				optionText.screenCenter(X);
-				optionText.forceX = optionText.x;
-				optionText.yAdd = -55;
-			} else {
-				optionText.forceX = 200;
+				optionText.y -= 55;
+				optionText.startPosition.y -= 55;
 			}
-			optionText.yMult = 60;
-			optionText.targetY = i;
+			optionText.changeX = false;
+			optionText.distancePerItem.y = 60;
+			optionText.targetY = i - curSelected;
+			optionText.snapToPosition();
+			optionText.ID = 0;
+			if (isFirst) optionText.ID = 1;
 			grpOptions.add(optionText);
 
 			if(!isCentered) {
@@ -181,29 +233,14 @@ class ControlsSubState extends MusicBeatSubstate {
 				if(curSelected < 0) curSelected = i;
 			}
 		}
-
-		doMessage("Hold your UI UP key and UI DOWN key to scroll faster.\nHold your SHIFT key to skip 3.");
-		changeSelection();
 	}
 
 	var leaving:Bool = false;
 	var bindingTime:Float = 0;
+	var holdTime:Float = 0;
 	override function update(elapsed:Float) {
 		if(!rebindingKey) {
-			var shiftMult:Int = 1;
-			if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
-
-			if (controls.UI_UP_P) {
-				holdTime = 0;
-				changeSelection(-shiftMult);
-			}
-			if (controls.UI_DOWN_P) {
-				holdTime = 0;
-				changeSelection(shiftMult);
-			}
-			if (controls.UI_LEFT_P || controls.UI_RIGHT_P) {
-				changeAlt();
-			}
+			var shiftMult:Int = FlxG.keys.pressed.SHIFT ? 3 : 1;
 
 			if(controls.UI_DOWN || controls.UI_UP)
 			{
@@ -216,6 +253,19 @@ class ControlsSubState extends MusicBeatSubstate {
 					changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
 				}
 			}
+			if (controls.UI_UP_P) {
+				changeSelection(-shiftMult);
+				holdTime = 0;
+			}
+			if (controls.UI_DOWN_P) {
+				changeSelection(shiftMult);
+				holdTime = 0;
+			}
+			if (controls.UI_LEFT_P || controls.UI_RIGHT_P) {
+				if (grpOptions.members[curSelected].ID == 1) {
+					changePage(controls.UI_LEFT_P ? -1 : 1);
+				} else changeAlt();
+			}
 
 			if (controls.BACK) {
 				ClientPrefs.reloadControls();
@@ -227,6 +277,7 @@ class ControlsSubState extends MusicBeatSubstate {
 				if(optionShit[curSelected][0] == defaultKey) {
 					ClientPrefs.keyBinds = ClientPrefs.defaultKeys.copy();
 					reloadKeys();
+					reloadTexts();
 					changeSelection();
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 				} else if(!unselectableCheck(curSelected)) {
@@ -248,7 +299,6 @@ class ControlsSubState extends MusicBeatSubstate {
 
 				var opposite:Int = (curAlt ? 0 : 1);
 				if(keysArray[opposite] == keysArray[1 - opposite]) {
-					doMessage("You cannot repeat the same key.", 2);
 					keysArray[opposite] = NONE;
 				}
 				ClientPrefs.keyBinds.set(optionShit[curSelected][1], keysArray);
@@ -286,15 +336,35 @@ class ControlsSubState extends MusicBeatSubstate {
 		}
 		return num;
 	}
+
+	function changePage(change:Int = 0) {
+		curPage += change;
+
+		if (curPage < 0)
+			curPage = pages.length - 1;
+		if (curPage >= pages.length)
+			curPage = 0;
+
+		optionShit = pages[curPage];
+
+		reloadTexts();
+		changeSelection();
+	}
 	
 	function changeSelection(change:Int = 0) {
-		do {
-			curSelected += change;
-			if (curSelected < 0)
-				curSelected = optionShit.length - 1;
-			if (curSelected >= optionShit.length)
-				curSelected = 0;
-		} while(unselectableCheck(curSelected));
+		curSelected += change;
+
+		if (curSelected < 0)
+			curSelected = optionShit.length - 1;
+		if (curSelected >= optionShit.length)
+			curSelected = 0;
+
+		if ((unselectableCheck(curSelected) && grpOptions.members[curSelected].ID != 1) && change != 0) {
+			changeSelection(change);
+			return;
+		}
+
+		//trace(grpOptions.members[curSelected].ID);
 
 		var bullShit:Int = 0;
 
@@ -309,22 +379,24 @@ class ControlsSubState extends MusicBeatSubstate {
 			item.targetY = bullShit - curSelected;
 			bullShit++;
 
-			if(!unselectableCheck(bullShit-1)) {
+			if(!unselectableCheck(bullShit-1) || item.ID == 1) {
 				item.alpha = 0.6;
 				if (item.targetY == 0) {
 					item.alpha = 1;
-					if(curAlt) {
-						for (i in 0...grpInputsAlt.length) {
-							if(grpInputsAlt[i].sprTracker == item) {
-								grpInputsAlt[i].alpha = 1;
-								break;
+					if (item.ID != 1) {
+						if(curAlt) {
+							for (i in 0...grpInputsAlt.length) {
+								if(grpInputsAlt[i].sprTracker == item) {
+									grpInputsAlt[i].alpha = 1;
+									break;
+								}
 							}
-						}
-					} else {
-						for (i in 0...grpInputs.length) {
-							if(grpInputs[i].sprTracker == item) {
-								grpInputs[i].alpha = 1;
-								break;
+						} else {
+							for (i in 0...grpInputs.length) {
+								if(grpInputs[i].sprTracker == item) {
+									grpInputs[i].alpha = 1;
+									break;
+								}
 							}
 						}
 					}

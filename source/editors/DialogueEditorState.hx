@@ -27,6 +27,7 @@ import flash.net.FileFilter;
 import haxe.Json;
 import DialogueBoxPsych;
 import lime.system.Clipboard;
+import Alphabet;
 #if sys
 import sys.io.File;
 #end
@@ -37,7 +38,7 @@ class DialogueEditorState extends MusicBeatState
 {
 	var character:DialogueCharacter;
 	var box:FlxSprite;
-	var daText:Alphabet;
+	var daText:TypedAlphabet;
 
 	var selectedText:FlxText;
 	var animText:FlxText;
