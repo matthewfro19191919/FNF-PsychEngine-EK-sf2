@@ -164,6 +164,7 @@ class MainMenuState extends MusicBeatState
 				"Únete al servidor Discord",
 				"AD / P"
 			];
+			if (FlxG.random.bool(1)) ad = ["popcat likes 9k"];
 			for (line in ad) texts.push(line);
 			
 			FlxG.mouse.visible = true;
