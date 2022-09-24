@@ -26,7 +26,9 @@ using StringTools;
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '0.6.2'; //This is also used for Discord RPC
+	public static var extraKeysVersion:String = '0.2.5';
 	public static var curSelected:Int = 0;
+	public static var launchChance:Dynamic = null;
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
 	private var camGame:FlxCamera;
@@ -46,6 +48,7 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var camFollowPos:FlxObject;
 	var debugKeys:Array<FlxKey>;
+	var clickHereText:FlxText;
 
 	override function create()
 	{
@@ -129,15 +132,55 @@ class MainMenuState extends MusicBeatState
 		}
 
 		FlxG.camera.follow(camFollowPos, null, 1);
+		
+		if (FlxG.save.data.firstTimeUsing == null) {
+			FlxG.save.data.firstTimeUsing = true;
+		}
+		var clickHere:String = "Clic aquí (Discord)";
 
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion + ": tposejank Extra Keys", 12);
-		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		add(versionShit);
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' v" + Application.current.meta.get('version'), 12);
-		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		add(versionShit);
+		var texts:Array<String> = [
+			"Friday Night Funkin' v" + Application.current.meta.get('version'),
+			"Psych Engine v" + psychEngineVersion,
+			"Psych Engine Extra Keys v" + extraKeysVersion
+		];
+		
+		// psych engine spanish server publicity code (cuz we need more people)
+		if (launchChance == null)
+			launchChance = FlxG.random.bool(30);
+
+		if (FlxG.save.data.firstTimeUsing) {
+			launchChance = true;
+		}
+
+		if (launchChance == true) {
+			var ad:Array<String> = [
+				"---------------------------------",
+				clickHere,
+				"y más.",
+				"keys, chat internacional,",
+				"los servicios: ayuda en extra",
+				"Psych Engine Español; con ",
+				"NO OFICIAL de tposejank:",
+				"Únete al servidor Discord",
+				"AD / P"
+			];
+			for (line in ad) texts.push(line);
+			
+			FlxG.mouse.visible = true;
+		}
+
+		for (i in 0...texts.length) {
+			var versionShit:FlxText = new FlxText(12, (FlxG.height - 24) - (18 * i), 0, texts[i], 12);
+			versionShit.scrollFactor.set();
+			versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			add(versionShit);
+
+			if (texts[i] == clickHere) {
+				versionShit.color = 0xFF5662F6; //Discord color (real)
+				
+				clickHereText = versionShit;
+			}
+		}
 
 		// NG.core.calls.event.logEvent('swag').send();
 
@@ -181,6 +224,12 @@ class MainMenuState extends MusicBeatState
 		var lerpVal:Float = CoolUtil.boundTo(elapsed * 7.5, 0, 1);
 		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
+		if (clickHereText != null) {
+			if (FlxG.mouse.overlaps(clickHereText) && FlxG.mouse.justPressed) {
+				CoolUtil.browserLoad('https://discord.gg/NBT96C9V9y');
+			}
+		}
+
 		if (!selectedSomethin)
 		{
 			if (controls.UI_UP_P)
@@ -212,6 +261,7 @@ class MainMenuState extends MusicBeatState
 				{
 					selectedSomethin = true;
 					FlxG.sound.play(Paths.sound('confirmMenu'));
+					FlxG.mouse.visible = false;
 
 					if(ClientPrefs.flashing) FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 

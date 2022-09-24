@@ -365,6 +365,7 @@ class ClientPrefs {
 			}
 			reloadControls();
 		}
+		loadDefaultKeys();
 	}
 
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic):Dynamic {
