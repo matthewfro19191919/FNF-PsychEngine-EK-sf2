@@ -44,36 +44,29 @@ class NoteSplash extends FlxSprite
 		colorSwap.saturation = satColor;
 		colorSwap.brightness = brtColor;
 
-		var offsets:Array<Int> = [Note.offsets[PlayState.mania][0], Note.offsets[PlayState.mania][1]];
+		var offsets:Array<Int> = [10, 10];
+		var mania:Int = PlayState.mania;
+		if(Note.offsets.exists(mania)){
+			var oA = Note.offsets.get(mania);
+			offsets = [oA[0], oA[1]];
+		}
 
 		offset.set(offsets[0], offsets[1]);
 
 		var animNum:Int = FlxG.random.int(1, 2);
-		animation.play('note' + Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[note] + '-' + animNum, true);
+		var animIndex:Int = Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[note];
+		var animToPlay:String = 'note' + animIndex + '-' + animNum;
+		animation.play(animToPlay, true);
 		if(animation.curAnim != null)animation.curAnim.frameRate = 24 + FlxG.random.int(-2, 2);
 	}
 
 	function loadAnims(skin:String) {
 		frames = Paths.getSparrowAtlas(skin);
 		for (i in 1...3) {
-			animation.addByPrefix('note0-' + i, 'note splash A ' + i, 24, false);
-			animation.addByPrefix('note1-' + i, 'note splash B ' + i, 24, false);
-			animation.addByPrefix('note2-' + i, 'note splash C ' + i, 24, false);
-			animation.addByPrefix('note3-' + i, 'note splash D ' + i, 24, false);
-			animation.addByPrefix('note4-' + i, 'note splash E ' + i, 24, false);
-			animation.addByPrefix('note5-' + i, 'note splash F ' + i, 24, false);
-			animation.addByPrefix('note6-' + i, 'note splash G ' + i, 24, false);
-			animation.addByPrefix('note7-' + i, 'note splash H ' + i, 24, false);
-			animation.addByPrefix('note8-' + i, 'note splash I ' + i, 24, false);
-			animation.addByPrefix('note9-' + i, 'note splash J ' + i, 24, false);
-			animation.addByPrefix('note10-' + i, 'note splash K ' + i, 24, false);
-			animation.addByPrefix('note11-' + i, 'note splash L ' + i, 24, false);
-			animation.addByPrefix('note12-' + i, 'note splash M ' + i, 24, false);
-			animation.addByPrefix('note13-' + i, 'note splash N ' + i, 24, false);
-			animation.addByPrefix('note14-' + i, 'note splash O ' + i, 24, false);
-			animation.addByPrefix('note15-' + i, 'note splash P ' + i, 24, false);
-			animation.addByPrefix('note16-' + i, 'note splash Q ' + i, 24, false);
-			animation.addByPrefix('note17-' + i, 'note splash R ' + i, 24, false);
+			for (j in 0...Note.gfxLetter.length) {
+				var splashLetter:String = Note.gfxLetter[j];
+				animation.addByPrefix('note$j-' + i, 'note splash $splashLetter ' + i, 24, false);
+			}
 
 			//animation.addByPrefix('note9-' + i, 'note splash E ' + i, 24, false);
 		}
