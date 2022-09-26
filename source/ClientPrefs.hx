@@ -144,6 +144,20 @@ class ClientPrefs {
 		'note_elev9'	=> [K, NONE],
 		'note_elev10'	=> [L, NONE],
 		'note_elev11'	=> [PERIOD, NONE],
+
+		// submitted by btoad#2337
+		'note_twel1'	=> [A, NONE],
+		'note_twel2'	=> [D, NONE],
+		'note_twel3'	=> [S, NONE],
+		'note_twel4'	=> [F, NONE],
+		'note_twel5'	=> [C, NONE],
+		'note_twel6'	=> [V, NONE],
+		'note_twel7'	=> [N, NONE],
+		'note_twel8'    => [M, NONE],
+		'note_twel9'	=> [H, NONE],
+		'note_twel10'	=> [J, NONE],
+		'note_twel11'	=> [K, NONE],
+		'note_twel12'	=> [L, NONE],
 		
 		'ui_left'		=> [A, LEFT],
 		'ui_down'		=> [S, DOWN],
@@ -162,7 +176,7 @@ class ClientPrefs {
 		'debug_1'		=> [SEVEN, NONE],
 		'debug_2'		=> [EIGHT, NONE]
 	];
-	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
+	public static var defaultKeys:Map<String, Array<FlxKey>> = keyBinds;
 
 	public static function loadDefaultKeys() {
 		defaultKeys = keyBinds.copy();
@@ -366,7 +380,6 @@ class ClientPrefs {
 			}
 			reloadControls();
 		}
-		loadDefaultKeys();
 	}
 
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic):Dynamic {

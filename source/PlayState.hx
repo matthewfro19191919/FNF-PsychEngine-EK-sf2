@@ -336,7 +336,7 @@ class PlayState extends MusicBeatState
 		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
 		PauseSubState.songName = null; //Reset to default
 
-		keysArray = Keybinds.fill();
+		keysArray = EKData.Keybinds.fill();
 
 
 		//Ratings

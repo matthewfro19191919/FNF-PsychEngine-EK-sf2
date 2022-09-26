@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxTimer;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -48,7 +49,7 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var camFollowPos:FlxObject;
 	var debugKeys:Array<FlxKey>;
-	var clickHereText:FlxText;
+	var qatarText:FlxText;
 
 	override function create()
 	{
@@ -136,39 +137,20 @@ class MainMenuState extends MusicBeatState
 		if (FlxG.save.data.firstTimeUsing == null) {
 			FlxG.save.data.firstTimeUsing = true;
 		}
-		var clickHere:String = "Clic aquí (Discord)";
 
 		var texts:Array<String> = [
 			"Friday Night Funkin' v" + Application.current.meta.get('version'),
 			"Psych Engine v" + psychEngineVersion,
 			"Psych Engine Extra Keys v" + extraKeysVersion
 		];
-		
-		// psych engine spanish server publicity code (cuz we need more people)
-		if (launchChance == null)
-			launchChance = FlxG.random.bool(30);
+		var qatarTimer:String = qatarShit();
 
-		if (FlxG.save.data.firstTimeUsing) {
-			launchChance = true;
-		}
+		var ad:Array<String> = [
+			qatarTimer,
+			"Time until Qatar 2022"
+		];
 
-		if (launchChance == true) {
-			var ad:Array<String> = [
-				"---------------------------------",
-				clickHere,
-				"y más.",
-				"keys, chat internacional,",
-				"los servicios: ayuda en extra",
-				"Psych Engine Español; con ",
-				"NO OFICIAL de tposejank:",
-				"Únete al servidor Discord",
-				"AD / P"
-			];
-			if (FlxG.random.bool(1)) ad = ["popcat likes 9k"];
-			for (line in ad) texts.push(line);
-			
-			FlxG.mouse.visible = true;
-		}
+		for (line in ad) texts.push(line);
 
 		for (i in 0...texts.length) {
 			var versionShit:FlxText = new FlxText(12, (FlxG.height - 24) - (18 * i), 0, texts[i], 12);
@@ -176,12 +158,18 @@ class MainMenuState extends MusicBeatState
 			versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			add(versionShit);
 
-			if (texts[i] == clickHere) {
-				versionShit.color = 0xFF5662F6; //Discord color (real)
-				
-				clickHereText = versionShit;
-			}
+			if (i == texts.length - 2) // position of the qatar shit
+				{
+					qatarText = versionShit;
+				}
 		}
+
+		new FlxTimer().start(1, function(tmr:FlxTimer) {
+			if (qatarText != null)
+				qatarText.text = qatarShit();
+
+			tmr.reset(1); // infinite woah
+		});
 
 		// NG.core.calls.event.logEvent('swag').send();
 
@@ -201,6 +189,40 @@ class MainMenuState extends MusicBeatState
 		#end
 
 		super.create();
+	}
+
+	function qatarShit():String {
+		var leGoal = new Date(2022, 11, 21, 12, 0, 0).getTime();
+
+		var second = 1000;
+		var minute = second * 60;
+		var hour = minute * 60;
+		var day = hour * 24;
+
+		var leDate = Date.now().getTime();
+		var timeLeft = leGoal - leDate;
+
+		var shitArray:Array<Dynamic> = [
+			Math.floor(timeLeft / (day)),
+         	Math.floor((timeLeft % (day)) / (hour)),
+			Math.floor((timeLeft % (hour)) / (minute)),
+        	Math.floor((timeLeft % (minute)) / second)
+		];
+
+		var zeroShitArray:Array<String> = ["day","hour","minute","second"];
+		
+		var leftTime:String = "";
+
+		for (i in 0...shitArray.length) {
+			if (shitArray[i] < 10) {
+				zeroShitArray[i] = '0' + shitArray[i];
+			} else zeroShitArray[i] = '' + shitArray[i];
+			var dosPuntos:String = (i > 0 && i < shitArray.length) ? ":" : "";
+
+			leftTime += dosPuntos + zeroShitArray[i];
+		}
+
+		return leftTime;
 	}
 
 	#if ACHIEVEMENTS_ALLOWED
@@ -224,12 +246,6 @@ class MainMenuState extends MusicBeatState
 
 		var lerpVal:Float = CoolUtil.boundTo(elapsed * 7.5, 0, 1);
 		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
-
-		if (clickHereText != null) {
-			if (FlxG.mouse.overlaps(clickHereText) && FlxG.mouse.justPressed) {
-				CoolUtil.browserLoad('https://discord.gg/NBT96C9V9y');
-			}
-		}
 
 		if (!selectedSomethin)
 		{

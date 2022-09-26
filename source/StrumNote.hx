@@ -56,7 +56,7 @@ class StrumNote extends FlxSprite
 		if(PlayState.isPixelStage)
 			{
 				loadGraphic(Paths.image('pixelUI/' + texture));
-				width = width / 10;
+				width = width / Note.pixelNotesDivisionValue;
 				height = height / 5;
 				antialiasing = false;
 				loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
