@@ -15,6 +15,8 @@ class OutdatedState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
 	var newVersion:String = '';
+	var updateEK:Bool = false;
+	var updateEKVer:String = '';
 
 	var warnText:FlxText;
 	override function create()
@@ -38,11 +40,21 @@ class OutdatedState extends MusicBeatState
 		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
+
+		if (updateEK) {
+			warnText.text = "Hey! The Psych Engine EK version you're using 
+			is currently out of date. \nTo update to the latest EK version,
+			press your ACCEPT key! If you wish to ignore, press BACK.\n
+			\nCurrent version: " + MainMenuState.extraKeysVersion + " - Newest version: " + updateEKVer + "\n";
+			warnText.screenCenter(Y);
+		}
 	}
 
-	public function new(newVer:String)
+	public function new(newVer:String, mustUpdateEK:Bool = false, updateEKVer:String = '')
 	{
 		newVersion = newVer;
+		updateEK = mustUpdateEK;
+		this.updateEKVer = updateEKVer;
 		super();
 	}
 
@@ -51,7 +63,7 @@ class OutdatedState extends MusicBeatState
 		if(!leftState) {
 			if (controls.ACCEPT) {
 				leftState = true;
-				CoolUtil.browserLoad("https://raw.githubusercontent.com/tposejank/file-repos-weeee/main/lmao");
+				CoolUtil.browserLoad("https://gamebanana.com/mods/333373");
 			}
 			else if(controls.BACK) {
 				leftState = true;

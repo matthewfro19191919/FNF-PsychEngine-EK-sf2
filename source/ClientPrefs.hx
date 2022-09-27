@@ -23,8 +23,15 @@ class ClientPrefs {
 	public static var camMovement:Bool = true;
 	public static var hideHud:Bool = false;
 	public static var noteOffset:Int = 0;
-	public static var arrowHSV:Array<Array<Int>> = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
-													[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]; // Fuck
+	public static var arrowHSV:Array<Array<Int>> = [[0, 0, 0], [0, 0, 0], 
+													[0, 0, 0], [0, 0, 0], 
+													[0, 0, 0], [0, 0, 0], 
+													[0, 0, 0], [0, 0, 0], 
+													[0, 0, 0], [0, 0, 0],
+													[0, 0, 0], [0, 0, 0], 
+													[0, 0, 0], [0, 0, 0], 
+													[0, 0, 0], [0, 0, 0], 
+													[0, 0, 0], [0, 0, 0]]; // Fuck
 	public static var imagesPersist:Bool = false;
 	public static var ghostTapping:Bool = true;
 	public static var timeBarType:String = 'Time Left';
@@ -158,6 +165,20 @@ class ClientPrefs {
 		'note_twel10'	=> [J, NONE],
 		'note_twel11'	=> [K, NONE],
 		'note_twel12'	=> [L, NONE],
+
+		'note_thir1'	=> [A, NONE],
+		'note_thir2'	=> [D, NONE],
+		'note_thir3'	=> [S, NONE],
+		'note_thir4'	=> [F, NONE],
+		'note_thir5'	=> [C, NONE],
+		'note_thir6'	=> [V, NONE],
+		'note_thir7'	=> [SPACE, NONE],
+		'note_thir8'	=> [N, NONE],
+		'note_thir9'    => [M, NONE],
+		'note_thir10'	=> [H, NONE],
+		'note_thir11'	=> [J, NONE],
+		'note_thir12'	=> [K, NONE],
+		'note_thir13'	=> [L, NONE],
 		
 		'ui_left'		=> [A, LEFT],
 		'ui_down'		=> [S, DOWN],
@@ -178,10 +199,10 @@ class ClientPrefs {
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = keyBinds;
 
-	public static function loadDefaultKeys() {
+	/*public static function loadDefaultKeys() {
 		defaultKeys = keyBinds.copy();
 		//trace(defaultKeys);
-	}
+	}*/
 
 	public static function saveSettings() {
 		FlxG.save.data.downScroll = downScroll;

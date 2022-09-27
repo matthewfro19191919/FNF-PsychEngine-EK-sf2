@@ -2738,14 +2738,14 @@ class PlayState extends MusicBeatState
 					var textY:Float = (j == 0 ? babyArrow.y - 32 : ((babyArrow.y - 32) + babyArrow.height) - daKeyTxt.height);
 					daKeyTxt.y = textY;
 
-					if (mania > 1) {
+					if (mania > 1 && !skipArrowStartTween) {
 						FlxTween.tween(daKeyTxt, {y: textY + 32, alpha: 1}, twnDuration, {ease: FlxEase.circOut, startDelay: twnStart});
 					} else {
 						daKeyTxt.y += 16;
 						daKeyTxt.alpha = 1;
 					}
 					new FlxTimer().start(Conductor.crochet * 0.001 * 12, function(_) {
-						FlxTween.tween(daKeyTxt, {alpha: 0}, 1, {ease: FlxEase.circOut, onComplete:
+						FlxTween.tween(daKeyTxt, {y: daKeyTxt.y + 32, alpha: 0}, twnDuration, {ease: FlxEase.circIn, startDelay: twnStart, onComplete:
 						function(t) {
 							remove(daKeyTxt);
 						}});

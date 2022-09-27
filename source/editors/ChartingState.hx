@@ -2127,12 +2127,11 @@ class ChartingState extends MusicBeatState
 		}
 		#end
 
+		var oneHalf:Float = GRID_SIZE * Note.ammo[_song.mania];
+		leftIcon.setPosition((oneHalf / 2) - (leftIcon.width / 2), -100);
+		rightIcon.setPosition(((oneHalf * 2) - (oneHalf / 2)) - (rightIcon.width / 2), -100);
+
 		var leHeight:Int = Std.int(gridBG.height);
-		FlxG.watch.addQuick("Da height", leHeight);
-		FlxG.watch.addQuick("should be :", Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]));
-		FlxG.watch.addQuick("beats sec", getSectionBeats());
-		FlxG.watch.addQuick("rn zoom", zoomList[curZoom]);
-		FlxG.watch.addQuick("beats*4*zoom", getSectionBeats() * 4 * zoomList[curZoom]);
 		var foundNextSec:Bool = false;
 		if(sectionStartTime(1) <= FlxG.sound.music.length)
 		{
