@@ -44,7 +44,7 @@ class OutdatedState extends MusicBeatState
 		if (updateEK) {
 			warnText.text = "Hey! The Psych Engine EK version you're using 
 			is currently out of date. \nTo update to the latest EK version,
-			press your ACCEPT key! If you wish to ignore, press BACK.\n
+			press your ACCEPT key!\nIf you wish to ignore, press BACK.\n
 			\nCurrent version: " + MainMenuState.extraKeysVersion + " - Newest version: " + updateEKVer + "\n";
 			warnText.screenCenter(Y);
 		}

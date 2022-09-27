@@ -27,7 +27,7 @@ using StringTools;
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '0.6.2'; //This is also used for Discord RPC
-	public static var extraKeysVersion:String = '0.2.5';
+	public static var extraKeysVersion:String = '0.2.8';
 	public static var curSelected:Int = 0;
 	public static var launchChance:Dynamic = null;
 
@@ -143,10 +143,8 @@ class MainMenuState extends MusicBeatState
 			"Psych Engine v" + psychEngineVersion,
 			"Psych Engine Extra Keys v" + extraKeysVersion
 		];
-		var qatarTimer:String = qatarShit();
-
 		var ad:Array<String> = [
-			qatarTimer,
+			qatarShit(),
 			"Time until Qatar 2022"
 		];
 

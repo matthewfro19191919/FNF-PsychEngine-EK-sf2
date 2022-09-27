@@ -90,6 +90,13 @@ class FPS extends TextField
 			text += "\nMemory: " + memoryMegas + " MB";
 			#end
 
+			text += "\nExtra Keys v" + MainMenuState.extraKeysVersion;
+			#if CHECK_FOR_UPDATES
+			if (MainMenuState.extraKeysVersion != TitleState.extraKeyUpdateVersion) {
+				text += "\nUpdate available!";
+			}
+			#end
+
 			textColor = 0xFFFFFFFF;
 			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.framerate / 2)
 			{
