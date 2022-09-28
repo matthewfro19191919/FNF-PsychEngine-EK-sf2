@@ -154,8 +154,8 @@ class ClientPrefs {
 
 		// submitted by btoad#2337
 		'note_twel1'	=> [A, NONE],
-		'note_twel2'	=> [D, NONE],
-		'note_twel3'	=> [S, NONE],
+		'note_twel2'	=> [S, NONE],
+		'note_twel3'	=> [D, NONE],
 		'note_twel4'	=> [F, NONE],
 		'note_twel5'	=> [C, NONE],
 		'note_twel6'	=> [V, NONE],
@@ -167,8 +167,8 @@ class ClientPrefs {
 		'note_twel12'	=> [L, NONE],
 
 		'note_thir1'	=> [A, NONE],
-		'note_thir2'	=> [D, NONE],
-		'note_thir3'	=> [S, NONE],
+		'note_thir2'	=> [S, NONE],
+		'note_thir3'	=> [D, NONE],
 		'note_thir4'	=> [F, NONE],
 		'note_thir5'	=> [C, NONE],
 		'note_thir6'	=> [V, NONE],
