@@ -170,7 +170,7 @@ class TitleState extends MusicBeatState
 				extraKeyUpdateVersion = data.split('\n')[0].trim();
 				var curVersion:String = MainMenuState.extraKeysVersion.trim();
 				trace('ek version online: ' + extraKeyUpdateVersion + ', your ek version: ' + curVersion);
-				if(updateVersion != curVersion) {
+				if(extraKeyUpdateVersion != curVersion) {
 					trace('versions arent matching!');
 					mustUpdateEK = true;
 				}
