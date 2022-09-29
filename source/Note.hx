@@ -396,11 +396,11 @@ class Note extends FlxSprite
 		if(isSustainNote) {
 			for (i in 0...gfxLetter.length) {
 				animation.add(gfxLetter[i] + ' hold', [i]);
-				animation.add(gfxLetter[i] + ' tail', [i + 10]);
+				animation.add(gfxLetter[i] + ' tail', [i + pixelNotesDivisionValue]);
 			}
 		} else {
 			for (i in 0...gfxLetter.length) {
-				animation.add(gfxLetter[i], [i + 10]);
+				animation.add(gfxLetter[i], [i + pixelNotesDivisionValue]);
 			}
 		}
 	}
