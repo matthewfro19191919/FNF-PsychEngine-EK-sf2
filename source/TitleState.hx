@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxSave;
 #if desktop
 import Discord.DiscordClient;
 import sys.thread.Thread;
@@ -421,7 +422,20 @@ class TitleState extends MusicBeatState
 
 	function getIntroTextShit():Array<Array<String>>
 	{
-		var fullText:String = Assets.getText(Paths.txt('introText'));
+		var ogFullText:String = Assets.getText(Paths.txt('introText'));
+		var fullText:String = ogFullText;
+		var prioritizeNewTexts:Bool = false;
+
+		var save:FlxSave = new FlxSave();
+		save.bind('introtext_je', 'ninjamuffin99');
+		if(save != null && save.data.introText != null) {
+			if (save.data.introText != fullText && save.data.introText.length > 0)
+				prioritizeNewTexts = true;
+		}
+		if (prioritizeNewTexts)
+			fullText = fullText.replace(save.data.introText, ''); // yeet it out! 
+
+		save.data.introText = ogFullText;
 
 		var firstArray:Array<String> = fullText.split('\n');
 		var swagGoodArray:Array<Array<String>> = [];
@@ -430,6 +444,7 @@ class TitleState extends MusicBeatState
 		{
 			swagGoodArray.push(i.split('--'));
 		}
+		save.flush();
 
 		return swagGoodArray;
 	}
@@ -684,7 +699,8 @@ class TitleState extends MusicBeatState
 					createCoolText([curWacky[0]]);
 				// credTextShit.visible = true;
 				case 12:
-					addMoreText(curWacky[1]);
+					if (curWacky.length > 1)
+						addMoreText(curWacky[1]);
 				// credTextShit.text += '\nlmao';
 				case 13:
 					deleteCoolText();

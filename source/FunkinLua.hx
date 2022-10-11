@@ -1615,7 +1615,7 @@ class FunkinLua {
 			if(target == 'dad') {
 				isDad = true;
 			}
-			PlayState.instance.moveCamera(isDad);
+			PlayState.instance.moveCamera(target);
 			return isDad;
 		});
 		Lua_helper.add_callback(lua, "cameraShake", function(camera:String, intensity:Float, duration:Float) {

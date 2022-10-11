@@ -96,6 +96,7 @@ class FPS extends TextField
 	public var _ms:Float;
 	public var updateMemTimer:Float = 0.0;
 	public var textUpdates:Int = 0;
+	public var textCanBecomeRed:Bool = true;
 
 	// Event Handlers
 	@:noCompletion
@@ -149,12 +150,15 @@ class FPS extends TextField
 		theLagIsReal = false;
 		textColor = 0xFFFFFFFF;
 		alpha = 1;
-		if (currentFPS <= 40 || memoryMegas > 2500) { // You cant say its bad fps if you have 240 & its 120
+		var lowFramerate:Int = 40;
+		if (ClientPrefs.framerate <= 40) lowFramerate = 20;
+		if (currentFPS <= lowFramerate || memoryMegas > 2500) { // You cant say its bad fps if you have 240 & its 120
 			theLagIsReal = true;
 			if (memoryMegas > 2500)
 				memOverloaded = true;
 
-			textColor = 0xFFFF0000;
+			if (textCanBecomeRed)
+				textColor = 0xFFFF0000;
 		}
 	
 		if (theLagIsReal) {

@@ -1517,6 +1517,7 @@ class PlayState extends MusicBeatState
 		{
 			if(vocals != null) vocals.pitch = value;
 			FlxG.sound.music.pitch = value;
+			songSpeed = songSpeed * value;
 		}
 		playbackRate = value;
 		Conductor.safeZoneOffset = (ClientPrefs.safeFrames / 60) * 1000 * value;
@@ -1833,7 +1834,7 @@ class PlayState extends MusicBeatState
 			var timeForStuff:Float = Conductor.crochet / 1000 * 4.5;
 			FlxG.sound.music.fadeOut(timeForStuff);
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, timeForStuff, {ease: FlxEase.quadInOut});
-			moveCamera(true);
+			moveCamera('dad');
 			startCountdown();
 
 			dadGroup.alpha = 1;
@@ -2184,7 +2185,6 @@ class PlayState extends MusicBeatState
 				{
 					dad.dance();
 				}
-				FlxG.camera.zoom += 0.05;
 
 				var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
 				introAssets.set('default', ['ready', 'set', 'go']);
@@ -2276,6 +2276,9 @@ class PlayState extends MusicBeatState
 						if (Paths.formatToSongPath(SONG.song) != 'tutorial') returnZoom = true; //reset cam zoom to normal
 					case 4:
 				}
+
+				if (swagCounter <= 3)
+					FlxG.camera.zoom += 0.05;
 
 				notes.forEachAlive(function(note:Note) {
 					if(ClientPrefs.opponentStrums || note.mustPress)
@@ -3258,6 +3261,12 @@ class PlayState extends MusicBeatState
 					if(daNote.copyAlpha)
 						daNote.alpha = strumAlpha;
 
+					if(daNote.noteType == 'Random Note' && !daNote.copyX) {
+						strumX = (strumGroup.members[2].x - (Note.swagWidth / 2));
+						strumX += daNote.offsetX;
+						daNote.x = strumX;
+					}
+
 					if(daNote.copyX)
 						daNote.x = strumX + Math.cos(angleDir) * daNote.distance;
 
@@ -3957,52 +3966,72 @@ class PlayState extends MusicBeatState
 				}
 			case 'Add Subtitle':
 				SubtitleHandler.makeline(value1,value2);
+			case 'Freeze Notes Of Note Type' | 'Unfreeze Notes Of Note Type':
+				toggleFreezeNotes(value1, eventName == 'Freeze Notes Of Note Type');
 		}
 		callOnLuas('onEvent', [eventName, value1, value2]);
 	}
 	var strumsSwapped:Bool = false;
 
+	function toggleFreezeNotes(noteType:String, freeze:Bool = true) {
+		notes.forEachAlive(function(daNote:Note) {
+			if (daNote.noteType == noteType) {
+				daNote.frozen = freeze;
+				daNote.copyY = !freeze;
+			}
+		});
+	}
+
+	function boolFromString(str:String):Bool {
+		if (str == "true") return true;
+		return false;
+	}
+
 	function moveCameraSection():Void {
 		if(SONG.notes[curSection] == null) return;
 
-		if (gf != null && SONG.notes[curSection].gfSection)
-		{
-			camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
-			camFollow.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
-			camFollow.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
-			tweenCamIn();
-			callOnLuas('onMoveCamera', ['gf']);
-			return;
-		}
-
+		var target:String = 'boyfriend';
 		if (!SONG.notes[curSection].mustHitSection)
-		{
-			moveCamera(true);
-			callOnLuas('onMoveCamera', ['dad']);
-		}
-		else
-		{
-			moveCamera(false);
-			callOnLuas('onMoveCamera', ['boyfriend']);
-		}
+			target = 'dad';
+		if (gf != null && SONG.notes[curSection].gfSection)
+			target = 'gf'; // women!
+		
+		moveCamera(target);
+		callOnLuas('onMoveCamera', [target]);
 	}
 
 	var cameraTwn:FlxTween;
-	public function moveCamera(isDad:Bool)
+	public function moveCamera(target:String)
 	{
-		if(isDad)
-		{
-			camFollow.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
-			camFollow.x += dad.cameraPosition[0] + opponentCameraOffset[0];
-			camFollow.y += dad.cameraPosition[1] + opponentCameraOffset[1];
-			tweenCamIn();
+		switch (target) {
+			case 'boyfriend':
+				camFollow.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+				camFollow.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
+				camFollow.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1];
+				tweenCam(false);
+			case 'gf':
+				camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
+				camFollow.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
+				camFollow.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
+				tweenCam(true);
+			default:
+				camFollow.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+				camFollow.x += dad.cameraPosition[0] + opponentCameraOffset[0];
+				camFollow.y += dad.cameraPosition[1] + opponentCameraOffset[1];
+				tweenCam(true);
 		}
-		else
-		{
-			camFollow.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
-			camFollow.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
-			camFollow.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1];
+	}
 
+	function tweenCam(camIn:Bool) {
+		if (camIn) {
+			if (Paths.formatToSongPath(SONG.song) == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1.3) {
+				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut, onComplete:
+					function (twn:FlxTween) {
+						cameraTwn = null;
+					}
+				});
+			}
+		} else {
 			if (Paths.formatToSongPath(SONG.song) == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1)
 			{
 				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut, onComplete:
@@ -4012,16 +4041,6 @@ class PlayState extends MusicBeatState
 					}
 				});
 			}
-		}
-	}
-
-	function tweenCamIn() {
-		if (Paths.formatToSongPath(SONG.song) == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1.3) {
-			cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut, onComplete:
-				function (twn:FlxTween) {
-					cameraTwn = null;
-				}
-			});
 		}
 	}
 

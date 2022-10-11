@@ -65,7 +65,9 @@ class ChartingState extends MusicBeatState
 		'Hey!',
 		'Hurt Note',
 		'GF Sing',
-		'No Animation'
+		'No Animation',
+		'Random Note',
+		'Wiggly Sustains'
 	];
 	private var noteTypeIntMap:Map<Int, String> = new Map<Int, String>();
 	private var noteTypeMap:Map<String, Null<Int>> = new Map<String, Null<Int>>();
@@ -96,7 +98,9 @@ class ChartingState extends MusicBeatState
 		['Change Vertical Scroll', "Value 1: Mode [any, player, swap current, swap player]\nValue 2: Type [downscroll, upscroll]"],
 		['Change Horizontal Scroll', "Value 1: Mode [any, player, swap current, swap player]\nValue 2: Type [middlescroll, normal]"],
 		['Swap Strums', "(unusable when middlescroll is on)"],
-		['Add Subtitle', 'Value 1: Text\nValue 2: Time (in seconds)']
+		['Add Subtitle', 'Value 1: Text\nValue 2: Time (in seconds)'],
+		['Freeze Notes Of Note Type', 'Freezes the notes of the note types\nthat are the same of value 1\n(leave it blank to freeze all notes)'],
+		['Unfreeze Notes Of Note Type', 'Unfreezes the notes of the note types\nthat are the same of value 1\n(leave it blank to unfreeze all notes)']
 	];
 
 	var _file:FileReference;
@@ -300,13 +304,13 @@ class ChartingState extends MusicBeatState
 		enemy.scrollFactor.set();
 		add(enemy);
 
-		enemy.x -= 280;
+		enemy.x -= 300;
 		enemy.y -= 110;
 
-		boyfriend.x -= 150;
+		boyfriend.x -= 170;
 		boyfriend.y -= 115;
 
-		girlfriend.x -= 320;
+		girlfriend.x -= 340;
 		girlfriend.y -= 220;
 
 		/*var chars = [girlfriend, boyfriend, enemy];

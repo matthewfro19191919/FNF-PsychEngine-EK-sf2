@@ -68,8 +68,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			60);
 		addOption(option);
 
-		option.minValue = 60;
-		option.maxValue = 241;
+		option.minValue = ClientPrefs.minFramerate;
+		option.maxValue = ClientPrefs.maxFramerate + 1;
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
 		option.isFps = true;
@@ -94,29 +94,35 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeFramerate()
 	{
-		if(ClientPrefs.framerate == 241) // its unlimited!!!
-		{
+		var changeTo:String = 'Unlimited';
+		var doChange:Bool = false;
+		if (ClientPrefs.framerate == ClientPrefs.minFramerate) {
+			changeTo = 'Minimum: ' + ClientPrefs.minFramerate;
+			doChange = true;
+		}
+
+		if (ClientPrefs.framerate == ClientPrefs.maxFramerate + 1) {
+			FlxG.updateFramerate = 999;
+			FlxG.drawFramerate = 999;
+			doChange = true;
+		} else {
+			if(ClientPrefs.framerate > FlxG.drawFramerate) {
+				FlxG.updateFramerate = ClientPrefs.framerate;
+				FlxG.drawFramerate = ClientPrefs.framerate;
+			} else {
+				FlxG.drawFramerate = ClientPrefs.framerate;
+				FlxG.updateFramerate = ClientPrefs.framerate;
+			}
+		}
+
+		if (doChange) {
 			for (option in optionsArray){
 				if (option.isFps) {
 					if (option.child != null) {
-						option.child.text = "Unlimited";
+						option.child.text = changeTo;
 					}
 				}
 			}
-			FlxG.updateFramerate = 999; // FUCK YEAH!
-			FlxG.drawFramerate = 999;
-			return;
-		}
-
-		if(ClientPrefs.framerate > FlxG.drawFramerate)
-		{
-			FlxG.updateFramerate = ClientPrefs.framerate;
-			FlxG.drawFramerate = ClientPrefs.framerate;
-		}
-		else
-		{
-			FlxG.drawFramerate = ClientPrefs.framerate;
-			FlxG.updateFramerate = ClientPrefs.framerate;
 		}
 	}
 }

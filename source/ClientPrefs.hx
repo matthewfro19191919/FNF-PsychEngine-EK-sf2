@@ -17,6 +17,8 @@ class ClientPrefs {
 	public static var opponentNoteSplashes:Bool = true;
 	public static var lowQuality:Bool = false;
 	public static var shaders:Bool = true;
+	public static var minFramerate:Int = 30;
+	public static var maxFramerate:Int = 240;
 	public static var framerate:Int = 60;
 	public static var cursing:Bool = true;
 	public static var violence:Bool = true;
@@ -183,7 +185,7 @@ class ClientPrefs {
 		}
 		if(FlxG.save.data.framerate != null) {
 			framerate = FlxG.save.data.framerate;
-			if (framerate != 241) {
+			if (framerate != maxFramerate + 1) {
 				if(framerate > FlxG.drawFramerate) {
 					FlxG.updateFramerate = framerate;
 					FlxG.drawFramerate = framerate;

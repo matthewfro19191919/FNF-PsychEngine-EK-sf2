@@ -56,6 +56,8 @@ class Note extends FlxSprite
 	public var earlyHitMult:Float = 0.5;
 	public var lateHitMult:Float = 1;
 	public var lowPriority:Bool = false;
+	public var frozen:Bool = false;
+	public var wiggly:Bool = false;
 
 	public static var swagWidth:Float = 160 * 0.7;
 	
@@ -152,6 +154,10 @@ class Note extends FlxSprite
 					noMissAnimation = true;
 				case 'GF Sing':
 					gfNote = true;
+				case 'Random Note':
+					copyX = false;
+				case 'Wiggly Sustains':
+					wiggly = true;
 			}
 			noteType = value;
 		}
@@ -320,13 +326,15 @@ class Note extends FlxSprite
 	}
 
 	function loadNoteAnims() {
-		animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
+		for (i in 0...4) {
+			animation.addByPrefix(colArray[i] + 'Scroll', colArray[i] + '0');
 
-		if (isSustainNote)
-		{
-			animation.addByPrefix('purpleholdend', 'pruple end hold'); // ?????
-			animation.addByPrefix(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end');
-			animation.addByPrefix(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece');
+			if (isSustainNote)
+			{
+				animation.addByPrefix('purpleholdend', 'pruple end hold'); // ?????
+				animation.addByPrefix(colArray[i] + 'holdend', colArray[i] + ' hold end');
+				animation.addByPrefix(colArray[i] + 'hold', colArray[i] + ' hold piece');
+			}
 		}
 
 		setGraphicSize(Std.int(width * 0.7));
@@ -334,14 +342,21 @@ class Note extends FlxSprite
 	}
 
 	function loadPixelNoteAnims() {
-		if(isSustainNote) {
-			animation.add(colArray[noteData] + 'holdend', [pixelInt[noteData] + 4]);
-			animation.add(colArray[noteData] + 'hold', [pixelInt[noteData]]);
-		} else {
-			animation.add(colArray[noteData] + 'Scroll', [pixelInt[noteData] + 4]);
+		for (i in 0...4) {
+			if(isSustainNote) {
+				animation.add(colArray[i] + 'holdend', [pixelInt[i] + 4]);
+				animation.add(colArray[i] + 'hold', [pixelInt[i]]);
+			} else {
+				animation.add(colArray[i] + 'Scroll', [pixelInt[i] + 4]);
+			}
 		}
 	}
 
+	var curTimePerChange:Float = 0;
+	var changedNoteData:Int = 0;
+	public var randomNoteYModifier:Float = 400;
+
+	public var wigglySinTime:Float = 0;
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -373,6 +388,54 @@ class Note extends FlxSprite
 		{
 			if (alpha > 0.3)
 				alpha = 0.3;
+		}
+
+		if (wiggly && isSustainNote) {
+			wigglySinTime += elapsed * 120;
+			angle = 10 * Math.sin(wigglySinTime);
+		}
+
+		if (frozen && !inEditor)
+			strumTime += FlxG.elapsed * 1000 * PlayState.instance.playbackRate;
+
+		if (noteType == 'Random Note' && !inEditor) {
+			if (distance > randomNoteYModifier) {
+				curTimePerChange += elapsed;
+				if (curTimePerChange > 0.1) {
+
+					changedNoteData++;
+					if (changedNoteData > 3) changedNoteData = 0;
+
+					var animToPlay:String = colArray[changedNoteData % 4];
+
+					animation.play(animToPlay + 'Scroll');
+					if (isSustainNote && prevNote != null) {
+						animation.play(colArray[changedNoteData % 4] + 'holdend');
+						if (prevNote.isSustainNote)
+							prevNote.animation.play(colArray[changedNoteData % 4] + 'hold');
+					}
+					curTimePerChange = 0;
+				}
+			} else if (distance < randomNoteYModifier && !copyX) {
+				if (!isSustainNote)
+					changedNoteData = FlxG.random.int(0, 3);
+				else
+					changedNoteData = parent.noteData;
+				noteData = changedNoteData;
+
+				var animToPlay:String = colArray[changedNoteData % 4];
+
+				animation.play(animToPlay + 'Scroll');
+
+				if (isSustainNote && prevNote != null) {
+					if (isSustainNote && prevNote != null) {
+						animation.play(colArray[changedNoteData % 4] + 'holdend');
+						if (prevNote.isSustainNote)
+							prevNote.animation.play(colArray[changedNoteData % 4] + 'hold');
+					}
+				}
+				copyX = true;
+			}
 		}
 	}
 }
