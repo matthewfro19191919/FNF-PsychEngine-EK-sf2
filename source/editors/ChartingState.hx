@@ -1,5 +1,6 @@
 package editors;
 
+import flixel.FlxCamera;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -77,6 +78,7 @@ class ChartingState extends MusicBeatState
 	var girlfriend:Character;
 	var undos = [];
 	var redos = [];
+	var camChars:FlxCamera;
 	var eventStuff:Array<Dynamic> =
 	[
 		['', "Nothing. Yep, that's right."],
@@ -119,6 +121,7 @@ class ChartingState extends MusicBeatState
 	var bpmTxt:FlxText;
 
 	var camPos:FlxObject;
+	var camPosDisplayed:FlxObject;
 	var strumLine:FlxSprite;
 	var quant:AttachedSprite;
 	var strumLineNotes:FlxTypedGroup<StrumNote>;
@@ -129,7 +132,7 @@ class ChartingState extends MusicBeatState
 	var highlight:FlxSprite;
 
 	public static var GRID_SIZE:Int = 40;
-	var CAM_OFFSET:Int = 480;
+	var CAM_OFFSET:Int = 0;
 
 	var dummyArrow:FlxSprite;
 
@@ -160,6 +163,7 @@ class ChartingState extends MusicBeatState
 
 	var leftIcon:HealthIcon;
 	var rightIcon:HealthIcon;
+	var eventIcon:FlxSprite;
 
 	var value1InputText:FlxUIInputText;
 	var value2InputText:FlxUIInputText;
@@ -211,6 +215,9 @@ class ChartingState extends MusicBeatState
 	var text:String = "";
 	public static var vortex:Bool = false;
 	public var mouseQuant:Bool = false;
+
+	public var buttonCollapse:FlxButton;
+	public var ui_collapsed:Bool = false;
 	override function create()
 	{
 		if (PlayState.SONG != null)
@@ -258,7 +265,7 @@ class ChartingState extends MusicBeatState
 		waveformSprite = new FlxSprite(GRID_SIZE, 0).makeGraphic(FlxG.width, FlxG.height, 0x00FFFFFF);
 		add(waveformSprite);
 
-		var eventIcon:FlxSprite = new FlxSprite(-GRID_SIZE - 5, -90).loadGraphic(Paths.image('eventArrow'));
+		eventIcon = new FlxSprite(-GRID_SIZE - 5, -90).loadGraphic(Paths.image('eventArrow'));
 		leftIcon = new HealthIcon('bf');
 		rightIcon = new HealthIcon('dad');
 		eventIcon.scrollFactor.set(1, 1);
@@ -292,42 +299,13 @@ class ChartingState extends MusicBeatState
 
 		addSection();
 
-		girlfriend = new Character(1100, 200, 'gf-chart');
-		girlfriend.scrollFactor.set();
-		add(girlfriend);
-
-		boyfriend = new Boyfriend(1150, 260, 'bf-chart');
-		boyfriend.scrollFactor.set();
-		add(boyfriend);
-
-		enemy = new Character(1000, 250, 'pico-chart');
-		enemy.scrollFactor.set();
-		add(enemy);
-
-		enemy.x -= 300;
-		enemy.y -= 110;
-
-		boyfriend.x -= 170;
-		boyfriend.y -= 115;
-
-		girlfriend.x -= 340;
-		girlfriend.y -= 220;
-
-		/*var chars = [girlfriend, boyfriend, enemy];
-		for (char in chars) {
-			if(char.animationsArray != null && char.animationsArray.length > 0) {
-				for (anim in char.animationsArray) {
-					if(anim.offsets != null && anim.offsets.length > 1) {
-						char.animOffsets[anim.anim][0] *= 0.3;
-						char.animOffsets[anim.anim][1] *= 0.3;
-					}
-				}
-			}
-		}*/
-
-		//FlxG.camera.zoom = 0.5;
-
-		// sections = _song.notes;
+		camChars = new FlxCamera(0, 0, Std.int(FlxG.width * 0.32), Std.int(FlxG.height * 0.32));
+		//camChars.width = Std.int(FlxG.width * 0.3);
+		//camChars.height = Std.int(FlxG.height * 0.3);
+		camChars.setScale(0.32, 0.32);
+		camChars.setPosition(10, (FlxG.height - camChars.height) - 10);
+		camChars.bgColor.alpha = 50;
+		FlxG.cameras.add(camChars, false);
 
 		currentSongName = Paths.formatToSongPath(_song.song);
 		loadSong();
@@ -362,7 +340,11 @@ class ChartingState extends MusicBeatState
 		add(strumLineNotes);
 
 		camPos = new FlxObject(0, 0, 1, 1);
-		camPos.setPosition(strumLine.x + CAM_OFFSET, strumLine.y);
+		camPos.setPosition((GRID_SIZE * 4) + GRID_SIZE + CAM_OFFSET, strumLine.y);
+		camPosDisplayed = new FlxObject(0, 0, 1, 1);
+		camPosDisplayed.setPosition(400, 130);
+
+		camChars.follow(camPosDisplayed, LOCKON);
 
 		dummyArrow = new FlxSprite().makeGraphic(GRID_SIZE, GRID_SIZE);
 		add(dummyArrow);
@@ -377,16 +359,16 @@ class ChartingState extends MusicBeatState
 
 		UI_box = new FlxUITabMenu(null, tabs, true);
 
-		UI_box.resize(300, 400);
-		UI_box.x = 640 + GRID_SIZE / 2;
-		UI_box.y = 25;
+		UI_box.resize(300, FlxG.height - (100 * 2));
+		UI_box.x = 0;
+		UI_box.screenCenter(Y);
 		UI_box.scrollFactor.set();
 
 		text =
-		"W/S or Mouse Wheel - Change Conductor's strum time
+		"W/S or Mouse Wheel - Change Conductor's \nstrum time
 		\nA/D - Go to the previous/next section
 		\nLeft/Right - Change Snap
-		\nUp/Down - Change Conductor's Strum Time with Snapping
+		\nUp/Down - Change Conductor's Strum Time with\nSnapping
 		\nHold Shift to move 4x faster
 		\nHold Control and click on an arrow to select it
 		\nZ/X - Zoom in/out
@@ -398,14 +380,42 @@ class ChartingState extends MusicBeatState
 
 		var tipTextArray:Array<String> = text.split('\n');
 		for (i in 0...tipTextArray.length) {
-			var tipText:FlxText = new FlxText(UI_box.x, UI_box.y + UI_box.height + 8, 0, tipTextArray[i], 16);
-			tipText.y += i * 12;
+			var tipText:FlxText = new FlxText(30, 80, 0, tipTextArray[i], 16);
+			tipText.y += i * 10;
 			tipText.setFormat(Paths.font("vcr.ttf"), 14, FlxColor.WHITE, LEFT/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
-			//tipText.borderSize = 2;
 			tipText.scrollFactor.set();
 			add(tipText);
 		}
 		add(UI_box);
+
+		if (FlxG.save.data.chart_uiCollapsed != null) ui_collapsed = FlxG.save.data.chart_uiCollapsed;
+
+		buttonCollapse = new FlxButton(0, 0, '<', function() {
+			ui_collapsed = !ui_collapsed;
+			if (ui_collapsed) {
+				buttonCollapse.label.text = '>';
+				var ui_box_tween_to = FlxG.width - UI_box.width;
+				FlxTween.tween(UI_box, {x: ui_box_tween_to}, 0.25);
+				FlxTween.tween(buttonCollapse, {x: ui_box_tween_to - buttonCollapse.width}, 0.25);
+			} else {
+				buttonCollapse.label.text = '<';
+				FlxTween.tween(UI_box, {x: FlxG.width}, 0.25);
+				FlxTween.tween(buttonCollapse, {x: FlxG.width - buttonCollapse.width}, 0.25);
+			}
+
+			FlxG.save.data.chart_uiCollapsed = ui_collapsed;
+			FlxG.sound.play(Paths.sound('cancelMenu'), 0.4);
+		});
+		buttonCollapse.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.BLACK, CENTER);
+		add(buttonCollapse);
+		buttonCollapse.scrollFactor.set();
+
+		buttonCollapse.setGraphicSize(Std.int(buttonCollapse.height), 40);
+		buttonCollapse.updateHitbox();
+		buttonCollapse.screenCenter(Y);
+		setAllLabelsOffset(buttonCollapse, 0, (buttonCollapse.height / 2) - 8);
+		buttonCollapse.label.fieldWidth = buttonCollapse.width;
+		updateUI_boxPositions();
 
 		addSongUI();
 		addSectionUI();
@@ -414,6 +424,9 @@ class ChartingState extends MusicBeatState
 		addChartingUI();
 		updateHeads();
 		updateWaveform();
+		
+		reloadChars(_song.gfVersion, _song.player1, _song.player2);
+
 		//UI_box.selected_tab = 4;
 
 		add(curRenderedSustains);
@@ -430,9 +443,63 @@ class ChartingState extends MusicBeatState
 		zoomTxt = new FlxText(10, 10, 0, "Zoom: 1 / 1", 16);
 		zoomTxt.scrollFactor.set();
 		add(zoomTxt);
-
+		updateZoom();
 		updateGrid();
+
+		var startY:Float = (FlxG.height / 2) + 50;
+		var siz = GRID_SIZE + 20;
+		var startX:Float = 30;
+		sectionIndicator = new MeasureIndicator(startX, startY, siz, 0xff00ffe6);
+		beatIndicator = new MeasureIndicator(startX + siz, startY, siz, 0xff00ff9a);
+		stepIndicator = new MeasureIndicator(startX + (siz * 2), startY, siz, 0xffffcd00);
+		timeIndicator = new MeasureIndicator(startX + (siz * 3), startY, siz, 0xff72ff00);
+		var objects = [sectionIndicator,beatIndicator,stepIndicator,timeIndicator];
+		for (object in objects) {
+			object.scrollFactor.set();
+			add(object);
+		}
+
 		super.create();
+	}
+
+	var sectionIndicator:MeasureIndicator;
+	var beatIndicator:MeasureIndicator;
+	var stepIndicator:MeasureIndicator;
+	var timeIndicator:MeasureIndicator;
+	function reloadChars(gfName = '', bfName = '', dadName = '') {
+		var charNames:Array<String> = [gfName, bfName, dadName];
+		if (gfName.length < 1 || gfName == null) charNames[0] = _song.gfVersion;
+		if (bfName.length < 1 || bfName == null) charNames[1] = _song.player1;
+		if (dadName.length < 1 || dadName == null) charNames[2] = _song.player2;
+
+		girlfriend = new Character(0, 0, gfName);
+		girlfriend.scrollFactor.set(0.95, 0.95);
+		add(girlfriend);
+
+		boyfriend = new Boyfriend(0, 0, bfName);
+		add(boyfriend);
+
+		enemy = new Character(0, 0, dadName);
+		add(enemy);
+		girlfriend.cameras = [camChars];
+		boyfriend.cameras = [camChars];
+		enemy.cameras = [camChars];
+		startCharacterPos(girlfriend, false, 'gf');
+		startCharacterPos(boyfriend, false, 'bf');
+		startCharacterPos(enemy, true, 'dad');
+	}
+
+	function updateUI_boxPositions()
+	{
+		if (ui_collapsed) {
+			buttonCollapse.label.text = '<';
+			UI_box.x = FlxG.width;
+			buttonCollapse.x = FlxG.width - buttonCollapse.width;
+		} else {
+			buttonCollapse.label.text = '>';
+			UI_box.x = FlxG.width - UI_box.width;
+			buttonCollapse.x = UI_box.x - buttonCollapse.width;
+		}
 	}
 
 	var check_mute_inst:FlxUICheckBox = null;
@@ -1290,13 +1357,13 @@ class ChartingState extends MusicBeatState
 			reloadGridLayer();
 		};
 
-		display_girlfriend = new FlxUIInputText(check_vortex.x + 120, check_vortex.y - 30, 100, "gf-chart");
+		display_girlfriend = new FlxUIInputText(check_vortex.x + 120, check_vortex.y - 30, 100, _song.gfVersion);
 		blockPressWhileTypingOn.push(display_girlfriend);
 
-		display_enemy = new FlxUIInputText(display_girlfriend.x, display_girlfriend.y + 40, 100, "pico-chart");
+		display_enemy = new FlxUIInputText(display_girlfriend.x, display_girlfriend.y + 40, 100, _song.player2);
 		blockPressWhileTypingOn.push(display_enemy);
 
-		display_boyfriend = new FlxUIInputText(display_girlfriend.x, display_enemy.y + 40, 100, "bf-chart");
+		display_boyfriend = new FlxUIInputText(display_girlfriend.x, display_enemy.y + 40, 100, _song.player1);
 		blockPressWhileTypingOn.push(display_boyfriend);
 
 		var apply_display_characters:FlxButton = new FlxButton(display_girlfriend.x, display_boyfriend.y + 20, "Apply", function() {
@@ -1305,38 +1372,7 @@ class ChartingState extends MusicBeatState
 
 			var chars:Array<Character> = [girlfriend, boyfriend, enemy];
 			for (char in chars) remove(char);
-
-			girlfriend = new Character(1100, 200, display_girlfriend.text);
-			girlfriend.scrollFactor.set();
-			add(girlfriend);
-	
-			boyfriend = new Boyfriend(1150, 260, display_boyfriend.text);
-			boyfriend.scrollFactor.set();
-			add(boyfriend);
-	
-			enemy = new Character(1000, 250, display_enemy.text);
-			enemy.scrollFactor.set();
-			add(enemy);
-	
-			enemy.x -= 280;
-			enemy.y -= 110;
-	
-			boyfriend.x -= 150;
-			boyfriend.y -= 115;
-	
-			girlfriend.x -= 320;
-			girlfriend.y -= 220;
-
-			/*for (char in chars) {
-				if(char.animationsArray != null && char.animationsArray.length > 0) {
-					for (anim in char.animationsArray) {
-						if(anim.offsets != null && anim.offsets.length > 1) {
-							char.animOffsets[anim.anim][0] *= 0.3;
-							char.animOffsets[anim.anim][1] *= 0.3;
-						}
-					}
-				}
-			}*/
+			reloadChars(display_girlfriend.text, display_boyfriend.text, display_enemy.text);
 		});
 
 		check_warnings = new FlxUICheckBox(10, 120, null, null, "Ignore Progress Warnings", 100);
@@ -1649,6 +1685,7 @@ class ChartingState extends MusicBeatState
 
 		leftIcon.setPosition(GRID_SIZE + 10, strumLine.y - 100);
 		rightIcon.setPosition(GRID_SIZE * 5.2, strumLine.y - 100);
+		eventIcon.setPosition(-GRID_SIZE - 5, strumLine.y - 90);
 
 		if(!disableAutoScrolling.checked) {
 			if (Math.ceil(strumLine.y) >= gridBG.height)
@@ -2073,27 +2110,45 @@ class ChartingState extends MusicBeatState
 		}
 		for (i in 0...8){
 			strumLineNotes.members[i].y = strumLine.y;
-			strumLineNotes.members[i].alpha = FlxG.sound.music.playing ? 1 : 0.35;
+			if (FlxG.sound.music.playing)
+				strumLineNotes.members[i].alpha = 1;
 		}
 
 
 		boyfriend.visible = enemy.visible = girlfriend.visible = vortex;
 
-		var chars:Array<Character> = [enemy, boyfriend, girlfriend];
-		for (char in chars) {
-			if (char.animation.curAnim.name.startsWith("sing") && char.animation.curAnim.finished) {
-				var anim:String = "idle";
-				if (char.curCharacter == "gf-chart") anim = "danceLeft";
-				char.playAnim(anim, true);
-			}
+		bpmTxt.text = "Beat Snap: " + quantization + "th";
+		if (lastBeat != curBeat) {
+			beatIndicator.indicate();
+			lastBeat = curBeat;
 		}
+		beatIndicator.text.text = '' + FlxMath.roundDecimal(curDecBeat, 1);
 
-		bpmTxt.text =
-		Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 2)) + " / " + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 2)) +
-		"\nSection: " + curSec +
-		"\n\nBeat: " + Std.string(curDecBeat).substring(0,4) +
-		"\n\nStep: " + curStep +
-		"\n\nBeat Snap: " + quantization + "th";
+		if (lastSec != curSec) {
+			lastSec = curSec;
+			sectionIndicator.indicate();
+		}
+		sectionIndicator.text.text = '' + curSec;
+
+		if (lastSeconds != Math.floor(Conductor.songPosition / 1000)) {
+			timeIndicator.indicate();
+			lastSeconds = Math.floor(Conductor.songPosition / 1000);
+		}
+		timeIndicator.text.text = '' + Std.string(FlxMath.roundDecimal(Conductor.songPosition / 1000, 1)) + "\n----\n" + Std.string(FlxMath.roundDecimal(FlxG.sound.music.length / 1000, 1));
+
+		if (lastStep != curStep) {
+			lastStep = curStep;
+			stepIndicator.indicate();
+		}
+		stepIndicator.text.text = '' + curStep;
+
+		beatIndicator.twnDuration = Conductor.crochet / 1000;
+		stepIndicator.twnDuration = Conductor.stepCrochet / 1000;
+		timeIndicator.twnDuration = 1;
+		sectionIndicator.twnDuration = (Conductor.crochet * 4) / 1000;
+
+		cameraMove();
+		camChars.followLerp = elapsed * 1.5;
 
 		var playedSound:Array<Bool> = [false, false, false, false]; //Prevents ouchy GF sex sounds
 		curRenderedNotes.forEachAlive(function(note:Note) {
@@ -2119,8 +2174,12 @@ class ChartingState extends MusicBeatState
 					if (note.gfNote || _song.notes[curSec].gfSection) char = girlfriend;
 					else if (note.mustPress) char = boyfriend;
 
-					if (char != null) char.playAnim(animationArray[data], true);
-
+					if (char != null) {
+						if (!note.noAnimation && !note.hitCausesMiss && !note.ignoreNote) {
+							char.playAnim(animationArray[data], true);
+							char.holdTimer = 0;
+						}
+					}
 
 					var noteDataToCheck:Int = note.noteData;
 					if(noteDataToCheck > -1 && note.mustPress != _song.notes[curSec].mustHitSection) noteDataToCheck += 4;
@@ -2153,21 +2212,30 @@ class ChartingState extends MusicBeatState
 			//boyfriend.animation.curAnim.finish();
 		}
 
-		if(metronome.checked && lastConductorPos != Conductor.songPosition) {
+		if(lastConductorPos != Conductor.songPosition) { //Cheap beatHit function
 			var metroInterval:Float = 60 / metronomeStepper.value;
 			var metroStep:Int = Math.floor(((Conductor.songPosition + metronomeOffsetStepper.value) / metroInterval) / 1000);
 			var lastMetroStep:Int = Math.floor(((lastConductorPos + metronomeOffsetStepper.value) / metroInterval) / 1000);
 			if(metroStep != lastMetroStep) {
-				var tickNum:Int = 2;
-				if (curBeat % 4 == 0) tickNum = 1;
-				FlxG.sound.play(Paths.sound('charterTick' + tickNum)); 
+				if (metronome.checked) {
+					var tickNum:Int = 2;
+					if (curBeat % 4 == 0) tickNum = 1;
+					FlxG.sound.play(Paths.sound('charterTick' + tickNum)); 
+				}
 
 				var chars:Array<Character> = [enemy, boyfriend, girlfriend];
 				for (char in chars) {
 					if (curBeat % char.danceEveryNumBeats == 0) {
-						if (char.animation.curAnim != null && !char.animation.curAnim.name.startsWith("sing") && !char.stunned) {
+						if (char.animation.curAnim != null && !char.animation.curAnim.name.startsWith("sing") && !char.stunned && char.holdTimer == 0) {
 							char.dance();
 						}
+					}
+				}
+
+				if (!FlxG.sound.music.playing) {
+					for (i in 0...8){
+						strumLineNotes.members[i].alpha = 1;
+						FlxTween.tween(strumLineNotes.members[i], {alpha: 0.5}, Conductor.crochet * 0.0001);
 					}
 				}
 				//trace('Ticked');
@@ -2176,12 +2244,17 @@ class ChartingState extends MusicBeatState
 		lastConductorPos = Conductor.songPosition;
 		super.update(elapsed);
 	}
+	var lastSeconds:Int = 0;
+	var lastBeat:Int = 0;
+	var lastSec:Int = 0;
+	var lastStep:Int = 0;
 
 	function updateZoom() {
 		var daZoom:Float = zoomList[curZoom];
 		var zoomThing:String = '1 / ' + daZoom;
 		if(daZoom < 1) zoomThing = Math.round(1 / daZoom) + ' / 1';
 		zoomTxt.text = 'Zoom: ' + zoomThing;
+		zoomTxt.y = 80 - zoomTxt.height;
 		reloadGridLayer();
 	}
 
@@ -2909,6 +2982,38 @@ class ChartingState extends MusicBeatState
 		return [spr, end]; //Add these two
 	}
 
+	var lastCurSec:Int = 0;
+ 	function cameraMove() {
+		var t = 'boyfriend';
+		if (!_song.notes[curSec].mustHitSection)
+			t = 'enemy';
+		if (girlfriend != null && _song.notes[curSec].gfSection)
+			t = 'gf'; // women!
+		moveCamera(t);
+	}
+
+	public function moveCamera(target:String)
+	{
+		var positions:Array<Float> = [];
+		switch (target) {
+			case 'boyfriend':
+				positions = [boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100];
+				positions[0] -= boyfriend.cameraPosition[0];
+				positions[1] += boyfriend.cameraPosition[1];
+			case 'gf':
+				positions = [girlfriend.getMidpoint().x, girlfriend.getMidpoint().y];
+				positions[0] -= girlfriend.cameraPosition[0];
+				positions[1] -= girlfriend.cameraPosition[1];
+				FlxTween.tween(camPosDisplayed, {x: positions[0], y: positions[1]}, 2);
+			default:
+				positions = [enemy.getMidpoint().x + 150, enemy.getMidpoint().y - 100];
+				positions[0] -= enemy.cameraPosition[0];
+				positions[1] -= enemy.cameraPosition[1];
+				FlxTween.tween(camPosDisplayed, {x: positions[0], y: positions[1]}, 2);
+		}
+		camPosDisplayed.setPosition(positions[0], positions[1]);
+	}
+
 	private function addSection(sectionBeats:Float = 4):Void
 	{
 		var sec:SwagSection = {
@@ -3232,6 +3337,24 @@ class ChartingState extends MusicBeatState
 		if(_song.notes[section] != null) val = _song.notes[section].sectionBeats;
 		return val != null ? val : 4;
 	}
+
+	function startCharacterPos(char:Character, ?gfCheck:Bool = false, charType:String) {
+		if(gfCheck && char.curCharacter.startsWith('gf')) { //IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+			char.setPosition(400, 130);
+			char.scrollFactor.set(0.95, 0.95);
+		}
+		char.x += char.positionArray[0];
+		char.y += char.positionArray[1];
+
+		switch(charType) {
+			case 'bf':
+				char.x += 500;
+			case 'dad':
+				char.x -= 250;
+			case 'gf':
+				char.y += 60;
+		}
+	}
 }
 
 class AttachedFlxText extends FlxText
@@ -3253,5 +3376,50 @@ class AttachedFlxText extends FlxText
 			angle = sprTracker.angle;
 			alpha = sprTracker.alpha;
 		}
+	}
+}
+
+class MeasureIndicator extends FlxSpriteGroup {
+	var background:FlxSprite;
+	public var text:FlxText;
+	public var twnDuration:Float = 0.5;
+	public var tileSize:Float = 0;
+	var alphaTween:FlxTween = null;
+
+	public function new(X:Float = 0, Y:Float = 0, tileSize:Int, color) {
+		super(X, Y);
+
+		this.tileSize = tileSize;
+
+		background = new FlxSprite(0, 0).makeGraphic(tileSize, tileSize, color);
+		add(background);
+
+		text = new FlxText(0, 0, tileSize, '', 16);
+		text.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		add(text);
+
+		background.scrollFactor.set();
+		text.scrollFactor.set();
+	}
+
+	override function update(elapsed) {
+		text.y = background.y;
+		text.y += tileSize / 2;
+		text.y -= text.height / 2;
+	}
+
+	public function indicate() {
+		if (alphaTween != null) {
+			if (alphaTween.active) alphaTween.active = false;
+			alphaTween.cancel();
+		}
+
+		background.alpha = 1;
+
+		alphaTween = FlxTween.tween(background, {alpha: 0.5}, twnDuration, {onComplete:
+			function (twn:FlxTween) {
+				alphaTween = null;
+			}
+		});
 	}
 }
