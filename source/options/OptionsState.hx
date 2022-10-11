@@ -84,6 +84,7 @@ class OptionsState extends MusicBeatState
 			optionText.isMenuItem = true;
 			optionText.targetY = i - curSelected;
 			optionText.startedAs = options[i];
+			optionText.snapToPosition();
 			grpOptions.add(optionText);
 		}
 
@@ -116,6 +117,7 @@ class OptionsState extends MusicBeatState
 			optionText.isMenuItem = true;
 			optionText.targetY = i - curSelected;
 			optionText.startedAs = options[i];
+			optionText.snapToPosition();
 			grpOptions.add(optionText);
 		}
 		changeSelection();

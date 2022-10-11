@@ -178,12 +178,19 @@ class SongPlayer extends MusicBeatState
 
 	var instPlaying:Int = -1;
 	var holdTime:Float = 0;
+    public static var queuedCamZooms:Int = 0;
+    public static var holdingOnBar:Bool = false;
 	override function update(elapsed:Float)
 	{
 		if (FlxG.sound.music.volume < 0.7)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
+
+        if (queuedCamZooms > 0 && ClientPrefs.camZooms && !holdingOnBar) {
+            FlxG.camera.zoom += 0.015;
+            queuedCamZooms--;
+        }
 
 		Conductor.songPosition = FlxG.sound.music.time;
 		FlxG.camera.zoom = FlxMath.lerp(1, FlxG.camera.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125 * 1), 0, 1));
@@ -381,10 +388,12 @@ class SongPlayer extends MusicBeatState
 
 	override function beatHit() {
 		if (curBeat % 4 == 0) {
-			if (FlxG.camera.zoom < 1.35 && ClientPrefs.camZooms)
+			if (FlxG.camera.zoom < 1.35 && ClientPrefs.camZooms && !holdingOnBar)
 			{
 				FlxG.camera.zoom += 0.015;
-			}
+			} else {
+                queuedCamZooms ++;
+            }
 			if (bopIcon > -1) {
 				iconArray[bopIcon].scale.x += 0.15;
 				iconArray[bopIcon].scale.y += 0.15;
@@ -558,6 +567,14 @@ class PlayerSubstate extends MusicBeatSubstate {
         FlxG.sound.music.onComplete = initClose;
     }
 
+    function setPitch(value:Float)
+    {
+        if (canPause) {
+            if(vocals != null) vocals.pitch = value;
+            FlxG.sound.music.pitch = value;
+        }
+    }
+
     var holdTime:Float = 0;
     override function update(elapsed:Float) {
         super.update(elapsed);
@@ -567,11 +584,12 @@ class PlayerSubstate extends MusicBeatSubstate {
         if (startTimer > 0.5) canPause = true;
 
         //Raise/lower the speed
-        if (paused && songSpeed > 0)
-            songSpeed -= elapsed;
+        if (!paused) 
+            songSpeed = FlxMath.lerp(songSpeed, playbackSpeed, elapsed * 2);
+        else
+            songSpeed = FlxMath.lerp(songSpeed, 0, elapsed * 10);
 
-        if (!paused && songSpeed < playbackSpeed)
-            songSpeed += elapsed;
+        setPitch(songSpeed);
         
         //Check the values are correct
         if (songSpeed > playbackSpeed) songSpeed = playbackSpeed;
@@ -596,18 +614,6 @@ class PlayerSubstate extends MusicBeatSubstate {
                 songSpeedMultiplier.setAlignmentFromString("center");
             }
         }
-        
-        if (canPause) {
-            #if cpp
-            @:privateAccess
-            {
-                if (FlxG.sound.music.playing)
-                    lime.media.openal.AL.sourcef(FlxG.sound.music._channel.__source.__backend.handle, lime.media.openal.AL.PITCH, songSpeed);
-                if (vocals.playing)
-                    lime.media.openal.AL.sourcef(vocals._channel.__source.__backend.handle, lime.media.openal.AL.PITCH, songSpeed);
-            }
-            #end
-        }
 
         disc.angle += (180 * elapsed) * songSpeed;
         icon.angle += (180 * elapsed) * songSpeed;
@@ -620,10 +626,22 @@ class PlayerSubstate extends MusicBeatSubstate {
         var shiftMult = 5;
         if (FlxG.keys.pressed.SHIFT) shiftMult = 10;
 
-        if (back && canPause) { initClose(); canPause = false; songSpeed = 1;}
-        if ((FlxG.keys.justPressed.ENTER || (FlxG.mouse.overlaps(pauseIcon) && FlxG.mouse.justPressed)) && canPause) pause();
+        if (back && canPause) {
+            initClose(); 
+            canPause = false; 
+            songSpeed = 1; 
+        }
+        if ((FlxG.keys.justPressed.ENTER || (FlxG.mouse.overlaps(pauseIcon) && FlxG.mouse.justPressed)) && canPause) 
+            pause();
         if (canPause && FlxG.mouse.overlaps(timeBar) && FlxG.mouse.pressed) {
-            setTime(((FlxG.mouse.x - timeBar.x) / timeBar.width) * FlxG.sound.music.length); //thank you ralt
+            SongPlayer.holdingOnBar = true;
+        } else if (FlxG.mouse.justReleased)
+            SongPlayer.holdingOnBar = false;
+
+        if (SongPlayer.holdingOnBar) {
+            var setToTime:Float = ((FlxG.mouse.x - timeBar.x) / timeBar.width) * FlxG.sound.music.length; //thank you ralt
+            if (FlxG.sound.music.time != setToTime)
+                setTime(setToTime);
         }
 
         if(left || right)
@@ -668,12 +686,18 @@ class PlayerSubstate extends MusicBeatSubstate {
         }
         else if (newTime > FlxG.sound.music.length) FlxG.sound.music.time = FlxG.sound.music.length;
         else if (newTime < 0) FlxG.sound.music.time = 0;
+        disc.angle += change * 180;
+        icon.angle += change * 180;
 
         vocals.time = FlxG.sound.music.time;
     }
 
     function setTime(time:Float = 0) {
         if (!canPause) return;
+        var differenceInMs:Float = FlxG.sound.music.time - time;
+        disc.angle += -((differenceInMs / 1000) * 180);
+        icon.angle += -((differenceInMs / 1000) * 180);
+
         if (time < FlxG.sound.music.length && time > 0) {
             FlxG.sound.music.time = time;
         }
@@ -696,7 +720,10 @@ class PlayerSubstate extends MusicBeatSubstate {
     }
 
     function initClose() {
-        FlxTween.tween(background, {alpha: 0}, 0.5, {onComplete: function(_) {close();}});
+        FlxTween.tween(background, {alpha: 0}, 0.5, {onComplete: 
+            function(_) {
+                close();
+            }});
         FlxTween.tween(disc, {alpha: 0}, 0.5);
         FlxTween.tween(icon, {alpha: 0}, 0.5);
         FlxTween.tween(songText, {alpha: 0}, 0.5);
