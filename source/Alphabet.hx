@@ -311,14 +311,6 @@ class AlphaCharacter extends FlxSprite
 		'm'  => null, 'n'  => null, 'o'  => null, 'p'  => null, 'q'  => null, 'r'  => null,
 		's'  => null, 't'  => null, 'u'  => null, 'v'  => null, 'w'  => null, 'x'  => null,
 		'y'  => null, 'z'  => null,
-
-		//special
-		'á'  => {anim: 'á', offsetsBold: [0, 37]},
-		'é'  => {offsetsBold: [0, 35]},
-		'í'  => {anim: 'í', offsetsBold: [0, 35]},
-		'ó'  => {anim: 'ó', offsetsBold: [0, 40]},
-		'ú'  => {anim: 'ú', offsetsBold: [0, 33]},
-		'ñ'  => {offsetsBold: [0, 25]},
 		
 		//special
 		'á'  => {offsetsBold: [0, 36]},
