@@ -2139,7 +2139,7 @@ class ChartingState extends MusicBeatState
 			lastStep = curStep;
 			stepIndicator.indicate();
 		}
-		stepIndicator.text.text = '' + curStep;
+		stepIndicator.text.text = '' + FlxMath.roundDecimal(curDecStep, 1);
 
 		beatIndicator.twnDuration = Conductor.crochet / 1000;
 		stepIndicator.twnDuration = Conductor.stepCrochet / 1000;

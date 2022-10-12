@@ -182,6 +182,7 @@ class FPS extends TextField
 		text += '\nState: ${Type.getClassName(Type.getClass(FlxG.state))}';
 		if (FlxG.state.subState != null)
 			text += '\nSubstate: ${Type.getClassName(Type.getClass(FlxG.state.subState))}';
+		text += '\nObjects: ${FlxG.state.members.length}';
 		#end
 				
 		#if (gl_stats && !disable_cffi && (!html5 || !canvas))

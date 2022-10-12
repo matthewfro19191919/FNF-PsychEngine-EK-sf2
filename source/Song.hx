@@ -33,6 +33,8 @@ typedef SwagSong =
 
 class Song
 {
+	public static var chartText:String = "";
+
 	public var song:String;
 	public var notes:Array<SwagSection>;
 	public var events:Array<Dynamic>;
@@ -128,6 +130,7 @@ class Song
 				daNotes = songData.notes;
 				daSong = songData.song;
 				daBpm = songData.bpm; */
+		Song.chartText = rawJson;
 
 		var songJson:Dynamic = parseJSONshit(rawJson);
 		if(jsonInput != 'events') StageData.loadDirectory(songJson);
