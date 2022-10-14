@@ -1,5 +1,7 @@
 package options;
 
+import flixel.math.FlxMath;
+import flixel.FlxObject;
 import flixel.util.FlxStringUtil;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -40,6 +42,9 @@ class NoteOffsetState extends MusicBeatState
 	var beatTween:FlxTween;
 
 	var changeModeText:FlxText;
+
+	var camFollow:FlxPoint;
+	var camPos:FlxObject;
 
 	override public function create()
 	{
@@ -86,6 +91,8 @@ class NoteOffsetState extends MusicBeatState
 			add(stageCurtains);
 		}
 
+		camFollow = new FlxPoint();
+		camPos = new FlxObject(0, 0, 1, 1);
 		// Characters
 		gf = new Character(400, 130, 'gf');
 		gf.x += gf.positionArray[0];
@@ -96,6 +103,7 @@ class NoteOffsetState extends MusicBeatState
 		boyfriend.y += boyfriend.positionArray[1];
 		add(gf);
 		add(boyfriend);
+		resetCam();
 
 		// Combo stuff
 
@@ -209,18 +217,19 @@ class NoteOffsetState extends MusicBeatState
 	}
 
 	var holdTime:Float = 0;
-	var onComboMenu:Bool = true;
+	var mode:String = 'combo';
 	var holdingObjectType:Null<Bool> = null;
 
 	var startMousePos:FlxPoint = new FlxPoint();
 	var startComboOffset:FlxPoint = new FlxPoint();
 
+	public var curMode:Int = 0;
 	override public function update(elapsed:Float)
 	{
 		var addNum:Int = 1;
 		if(FlxG.keys.pressed.SHIFT) addNum = 10;
 
-		if(onComboMenu)
+		if(mode == 'combo')
 		{
 			var controlArray:Array<Bool> = [
 				FlxG.keys.justPressed.LEFT,
@@ -312,7 +321,7 @@ class NoteOffsetState extends MusicBeatState
 				repositionCombo();
 			}
 		}
-		else
+		else if (mode == 'beat')
 		{
 			if(controls.UI_LEFT_P)
 			{
@@ -347,11 +356,55 @@ class NoteOffsetState extends MusicBeatState
 				barPercent = 0;
 				updateNoteDelay();
 			}
+		} else { //Camera offsetting
+			var controlArray:Array<Bool> = [controls.UI_LEFT_P, controls.UI_RIGHT_P, controls.UI_DOWN_P, controls.UI_UP_P];
+			if(controlArray.contains(true))
+			{
+				for (i in 0...controlArray.length)
+				{
+					if(controlArray[i])
+					{
+						switch(i)
+						{
+							case 0:
+								ClientPrefs.camMovementForce[0] -= addNum;
+							case 1:
+								ClientPrefs.camMovementForce[0] += addNum;
+							case 2:
+								ClientPrefs.camMovementForce[1] += addNum;
+							case 3:
+								ClientPrefs.camMovementForce[1] -= addNum;
+						}
+						reloadTexts();
+					}
+				}
+			}
+
+			var keysArray:Array<Bool> = [
+				FlxG.keys.justPressed.A, 
+				FlxG.keys.justPressed.S, 
+				FlxG.keys.justPressed.W,
+				FlxG.keys.justPressed.D];
+			var singAnimations:Array<String> = ['LEFT', 'DOWN', 'UP', 'RIGHT'];
+			if(keysArray.contains(true))
+			{
+				for (i in 0...keysArray.length)
+				{
+					if(keysArray[i])
+					{
+						boyfriend.playAnim('sing'+singAnimations[i], true);
+						moveCam(i);
+					}
+				}
+			}
 		}
 
 		if(controls.ACCEPT)
 		{
-			onComboMenu = !onComboMenu;
+			var modes:Array<String> = ['combo', 'beat', 'cam'];
+			curMode++;
+			if (curMode > modes.length) curMode = 0;
+			mode = modes[curMode];
 			updateMode();
 		}
 
@@ -368,11 +421,28 @@ class NoteOffsetState extends MusicBeatState
 		}
 
 		Conductor.songPosition = FlxG.sound.music.time;
+
+		var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4, 0, 1);
+		camPos.setPosition(FlxMath.lerp(camPos.x, camFollow.x, lerpVal), FlxMath.lerp(camPos.y, camFollow.y, lerpVal));
+		FlxG.camera.follow(camPos, LOCKON);
 		super.update(elapsed);
 	}
 
 	var zoomTween:FlxTween;
 	var lastBeatHit:Int = -1;
+	function moveCam(dir:Int) {
+		var c = ClientPrefs.camMovementForce;
+		var pos:Array<Dynamic> = [[-c[0], 0], [0, c[1]], [0, -c[1]], [c[0], 0]];
+		resetCam();
+
+		camFollow.x += pos[dir][0];
+		camFollow.y += pos[dir][1];
+	}
+
+	function resetCam() {
+		camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
+	}
+
 	override public function beatHit()
 	{
 		super.beatHit();
@@ -384,7 +454,13 @@ class NoteOffsetState extends MusicBeatState
 
 		if(curBeat % 2 == 0)
 		{
-			boyfriend.dance();
+			if (mode == 'cam') {
+				if (boyfriend.animation.curAnim.finished && boyfriend.animation.curAnim.name.startsWith('sing')) {
+					boyfriend.dance();
+					resetCam();
+				}
+			} else boyfriend.dance();
+			
 			gf.dance();
 		}
 		
@@ -447,12 +523,23 @@ class NoteOffsetState extends MusicBeatState
 	{
 		for (i in 0...dumbTexts.length)
 		{
-			switch(i)
-			{
-				case 0: dumbTexts.members[i].text = 'Rating Offset:';
-				case 1: dumbTexts.members[i].text = '[' + ClientPrefs.comboOffset[0] + ', ' + ClientPrefs.comboOffset[1] + ']';
-				case 2: dumbTexts.members[i].text = 'Numbers Offset:';
-				case 3: dumbTexts.members[i].text = '[' + ClientPrefs.comboOffset[2] + ', ' + ClientPrefs.comboOffset[3] + ']';
+			switch (mode) {
+				case 'combo':
+					switch(i)
+					{
+						case 0: dumbTexts.members[i].text = 'Rating Offset:';
+						case 1: dumbTexts.members[i].text = '[' + ClientPrefs.comboOffset[0] + ', ' + ClientPrefs.comboOffset[1] + ']';
+						case 2: dumbTexts.members[i].text = 'Numbers Offset:';
+						case 3: dumbTexts.members[i].text = '[' + ClientPrefs.comboOffset[2] + ', ' + ClientPrefs.comboOffset[3] + ']';
+					}
+				case 'cam':
+					switch(i)
+					{
+						case 0: dumbTexts.members[i].text = 'Cam Offset';
+						case 1: dumbTexts.members[i].text = '[' + ClientPrefs.camMovementForce[0] + ', ' + ClientPrefs.camMovementForce[1] + ']';
+						case 2: dumbTexts.members[i].text = 'Press A, S, W and D to make boyfriend sing';
+						default: dumbTexts.members[i].text = '';
+					}
 			}
 		}
 	}
@@ -465,21 +552,20 @@ class NoteOffsetState extends MusicBeatState
 
 	function updateMode()
 	{
-		rating.visible = onComboMenu;
-		comboNums.visible = onComboMenu;
-		dumbTexts.visible = onComboMenu;
+		rating.visible = mode == 'combo';
+		comboNums.visible = mode == 'combo';
+		dumbTexts.visible = mode == 'combo' || mode == 'cam';
 		
-		timeBarBG.visible = !onComboMenu;
-		timeBar.visible = !onComboMenu;
-		timeTxt.visible = !onComboMenu;
-		beatText.visible = !onComboMenu;
+		timeBarBG.visible = mode == 'beat';
+		timeBar.visible = mode == 'beat';
+		timeTxt.visible = mode == 'beat';
+		beatText.visible = mode == 'beat';
 
-		if(onComboMenu)
-			changeModeText.text = '< Combo Offset (Press Accept to Switch) >';
-		else
-			changeModeText.text = '< Note/Beat Delay (Press Accept to Switch) >';
+		var modeArray:Array<String> = ['Combo Offset', 'Note/Beat Delay', 'Camera Direction Scroll'];
+		changeModeText.text = '< ${modeArray[curMode]} (Press Accept to Switch) >';
 
 		changeModeText.text = changeModeText.text.toUpperCase();
-		FlxG.mouse.visible = onComboMenu;
+		FlxG.mouse.visible = mode == 'combo';
+		reloadTexts();
 	}
 }

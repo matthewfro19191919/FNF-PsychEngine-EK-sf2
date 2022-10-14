@@ -148,7 +148,7 @@ class VisualsUISubState extends BaseOptionsMenu
 			'transition',
 			'string',
 			'Vertical Fade',
-			['Vertical Fade', 'Horizontal Fade', 'Zoom in vertical', 'Zoom in horizontal', 'Wheel Fade']);
+			['Vertical Fade', 'Horizontal Fade']);
 		option.onEnter = onPreviewTransition;
 		addOption(option);
 

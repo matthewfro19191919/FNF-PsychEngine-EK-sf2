@@ -82,46 +82,6 @@ class CustomFadeTransition extends FlxSpriteGroup {
 					transBlack.x = transGradient.x - transBlack.width;
 					leTween = FlxTween.tween(transGradient, {x: transGradient.width + 50}, duration, {onComplete: mf, ease: FlxEase.linear});
 				}
-			case 'Wheel Fade':
-				transGradient.x -= (shit[0] - FlxG.width);
-				transBlack.x = transGradient.x;
-
-				transGradient.origin.set(transGradient.width, transGradient.height);
-				transBlack.origin.set(transGradient.width, transGradient.height);
-				
-				if(isTransIn) {
-					transGradient.x = transBlack.x - transBlack.width;
-					FlxTween.tween(transGradient, {angle: -90}, duration, {onComplete: mf, ease: FlxEase.linear});
-				} else {
-					transGradient.x = -transGradient.width;
-					transBlack.x = transGradient.x - transBlack.width;
-					transGradient.angle = 90;
-					transBlack.angle = 90;
-					leTween = FlxTween.tween(transGradient, {angle: 0}, duration, {onComplete: mf, ease: FlxEase.linear});
-				}
-			case 'Zoom in vertical':
-				for (camera in FlxG.cameras.list) {
-					if (isTransIn) {
-						camera.setPosition(camera.x, -camera.height);
-						camera.zoom = 0.5;
-						FlxTween.tween(camera, {zoom: camera.initialZoom, y:0}, duration, {onComplete: mf, ease: FlxEase.cubeOut});
-					} else 
-						FlxTween.tween(camera, {zoom: 0.5,y: FlxG.height}, duration, {onComplete: mf, ease: FlxEase.cubeOut});
-				}
-			case 'Zoom in horizontal':
-				for (camera in FlxG.cameras.list) {
-					if (isTransIn) {
-						camera.setPosition(-camera.width, camera.y);
-						camera.zoom = 0.5;
-						var posTo = 0;
-						FlxTween.tween(camera, {zoom: camera.initialZoom}, duration, {onComplete: mf, ease: FlxEase.cubeOut, startDelay: duration / 2});
-						FlxTween.tween(camera, {x: posTo}, duration, {onComplete: mf, ease: FlxEase.cubeOut});
-					} else {
-						var posTo = FlxG.width;
-						FlxTween.tween(camera, {zoom: 0.5}, duration, {onComplete: mf, ease: FlxEase.cubeOut});
-						FlxTween.tween(camera, {x: posTo}, duration, {onComplete: mf, ease: FlxEase.cubeOut, startDelay: duration / 2});
-					}
-				}
 		}
 
 		if(nextCamera != null) {
@@ -152,9 +112,6 @@ class CustomFadeTransition extends FlxSpriteGroup {
 				} else {
 					transBlack.x = transGradient.x - transBlack.width;
 				}
-			case 'Wheel Fade':
-				transBlack.angle = transGradient.angle;
-			case 'Zoom in vertical' | 'Zoom in horizontal': // nothing!
 		}
 	}
 

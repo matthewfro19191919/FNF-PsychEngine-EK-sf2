@@ -392,7 +392,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	}
 
 	function closing() {
-		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.4, false, 'Zoom in horizontal');
+		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.4, false);
 		add(fadeTrans);
 		CustomFadeTransition.finishCallback = function() {
 			remove(fadeTrans);

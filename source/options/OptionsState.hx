@@ -31,7 +31,7 @@ using StringTools;
 class OptionsState extends MusicBeatState
 {
 	var options:Array<String> = ['Note Colors', 'Controls', 'Adjust Delay and Combo', 'Graphics', 'Visuals and UI', 'Gameplay' #if PRELOAD_ALL , 'Song Player' #end];
-	var descriptions:Array<String> = ['Edit the notes\' colors.', 'Edit your keybinds.', 'Adjust the music delay and combo positions.', 'Change graphical settings.', 'Change UI settings.', 'Open the Song Player'];
+	var descriptions:Array<String> = ['Edit the notes\' colors.', 'Edit your keybinds.', 'Adjust the music delay and combo positions.', 'Change graphical settings.', 'Change gameplay settings.', 'Change UI settings.', 'Open the Song Player'];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
 	public static var menuBG:FlxSprite;
@@ -41,7 +41,7 @@ class OptionsState extends MusicBeatState
 		if (!opening) {
 			var dumb:String = label.toLowerCase().replace(' ', '');
 			if (dumb != 'adjustdelayandcombo' && dumb != 'songplayer') {
-				var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.4, false, 'Zoom in horizontal');
+				var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.4, false);
 				add(fadeTrans);
 				CustomFadeTransition.finishCallback = function() {
 					remove(fadeTrans);
@@ -130,7 +130,7 @@ class OptionsState extends MusicBeatState
 	override function closeSubState() {
 		super.closeSubState();
 
-		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.5, true, 'Zoom in horizontal');
+		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.5, true);
 		add(fadeTrans);
 		CustomFadeTransition.finishCallback = function() {
 			remove(fadeTrans);

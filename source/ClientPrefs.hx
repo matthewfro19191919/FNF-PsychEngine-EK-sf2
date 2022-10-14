@@ -62,6 +62,7 @@ class ClientPrefs {
 	];
 
 	public static var comboOffset:Array<Int> = [0, 0, 0, 0];
+	public static var camMovementForce:Array<Int> = [30, 30];
 	public static var ratingOffset:Int = 0;
 	public static var marvelousWindow:Int = 20;
 	public static var sickWindow:Int = 45;
@@ -142,6 +143,7 @@ class ClientPrefs {
 		FlxG.save.data.opponentNoteSplashes = opponentNoteSplashes;
 		FlxG.save.data.input = input;
 		FlxG.save.data.transition = transition;
+		FlxG.save.data.camMovementForce = camMovementForce;
 
 		FlxG.save.data.language = language;
 	
@@ -295,6 +297,8 @@ class ClientPrefs {
 			input = FlxG.save.data.input;
 		if (FlxG.save.data.transition != null)
 			transition = FlxG.save.data.transition;
+		if (FlxG.save.data.camMovementForce != null)
+			camMovementForce = FlxG.save.data.camMovementForce;
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99');

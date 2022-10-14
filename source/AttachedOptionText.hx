@@ -8,6 +8,7 @@ class AttachedOptionText extends Alphabet {
 	public var copyAlpha:Bool = false;
 	public function new(text:String = "", ?offsetX:Float = 0, ?offsetY:Float = 0, ?bold = false, ?scale:Float = 1, widthPerLine:Float = 0) {
         this.whiteText = true;
+		this.outline = true;
 		super(0, 0, text, bold);
 
 		this.scaleX = scale;

@@ -185,7 +185,7 @@ class PlayState extends MusicBeatState
 	public var returnZoom:Bool = false;
 	public var camZoomingMult:Float = 1;
 	public var camZoomingDecay:Float = 1;
-	public var cameraNoteMove:Float = 30;
+	public var cameraMoveMult:Float = 1;
 	public var waveformAmplitudeCam:Bool = false;
 	private var curSong:String = "";
 
@@ -4950,12 +4950,12 @@ class PlayState extends MusicBeatState
 		if (!ClientPrefs.camMovement) return;
 
 		if (!reset) {
-			var c = cameraNoteMove;
-			var pos:Array<Dynamic> = [[-c, 0], [0, c], [0, -c], [c, 0]];
+			var c = ClientPrefs.camMovementForce;
+			var pos:Array<Dynamic> = [[-c[0], 0], [0, c[1]], [0, -c[1]], [c[0], 0]];
 			moveCameraSection();
 
-			camFollow.x += pos[data][0];
-			camFollow.y += pos[data][1];
+			camFollow.x += pos[data][0] * cameraMoveMult;
+			camFollow.y += pos[data][1] * cameraMoveMult;
 		} else moveCameraSection();
 	}
 

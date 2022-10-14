@@ -1,5 +1,6 @@
 package;
 
+import flixel.system.FlxAssets.FlxShader;
 import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -45,7 +46,7 @@ class Alphabet extends FlxSpriteGroup
 	public var changeX:Bool = true;
 	public var changeY:Bool = true;
 	public var whiteText:Bool = false;
-	public var outline:Bool = false;
+	public var outline:Bool = true;
 
 	public var alignment(default, set):Alignment = LEFT;
 	public var scaleX(default, set):Float = 1;
@@ -265,6 +266,26 @@ class Alphabet extends FlxSpriteGroup
 					xPos += letter.width + (letter.letterOffset[0] + off) * scaleX;
 					rowData[rows] = xPos;
 
+					var letterColor:FlxColor = FlxColor.WHITE;
+					if (!bold && whiteText) {
+						letterColor = 0xFFFFFFFF;
+			
+						colorTransform.redMultiplier = 0;
+						colorTransform.greenMultiplier = 0;
+						colorTransform.blueMultiplier = 0;
+				
+						colorTransform.redOffset = letterColor.red;
+						colorTransform.greenOffset = letterColor.green;
+						colorTransform.blueOffset = letterColor.blue;
+			
+						color = letterColor;
+					}
+
+					if (outline) {
+						var letterShader:OutlineShaders = new OutlineShaders();
+						letter.shader = letterShader;
+					}
+
 					add(letter);
 					letters.push(letter);
 				}
@@ -443,20 +464,6 @@ class AlphaCharacter extends FlxSprite
 			animation.play(anim, true);
 		}
 
-		if (!bold) {
-			letterColor = 0xFFFFFFFF;
-
-			colorTransform.redMultiplier = 0;
-			colorTransform.greenMultiplier = 0;
-			colorTransform.blueMultiplier = 0;
-	
-			colorTransform.redOffset = letterColor.red;
-			colorTransform.greenOffset = letterColor.green;
-			colorTransform.blueOffset = letterColor.blue;
-
-			color = letterColor;
-		}
-
 		updateHitbox();
 		updateLetterOffset();
 	}
@@ -512,4 +519,44 @@ class AlphaCharacter extends FlxSprite
 			offset.y += -(110 - height);
 		}
 	}
+}
+
+class OutlineShaders extends FlxShader {
+	@:glFragmentSource('#pragma header
+	vec2 uv = openfl_TextureCoordv.xy;
+	vec2 fragCoord = openfl_TextureCoordv*openfl_TextureSize;
+	#define iChannel0 bitmap
+	#define texture flixel_texture2D
+	#define fragColor gl_FragColor
+	#define mainImage main
+
+	float diff = 7;
+    int step = 3;
+
+	float motherfuckingAbs(float v) {
+        if (v < 0)
+            return -v;
+        return v;
+    }
+
+	void main()
+	{
+		vec2 position = vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y)
+		position -= 10;
+
+		vec4 color = flixel_texture2D(bitmap, position);
+        float a = 0;
+        for(int x = -int(diff); x < int(diff); x += step) {
+            for(int y = -int(diff); y < int(diff); y += step) {
+                vec2 offset = vec2(x / openfl_TextureSize.x, y / openfl_TextureSize.y);
+                float angle = atan(offset.y, offset.x);
+                offset = vec2(cos(angle) * (motherfuckingAbs(x) / openfl_TextureSize.x), sin(angle) * (motherfuckingAbs(y) / openfl_TextureSize.y));
+
+                vec4 c1 = flixel_texture2D(bitmap, position + offset);
+                if (a < c1.a) a = c1.a;
+            }
+        }
+
+		gl_FragColor = vec4(1, 0, 0, flixel_texture2D(bitmap, uv).a);
+	}')
 }
