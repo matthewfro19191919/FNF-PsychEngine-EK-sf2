@@ -403,7 +403,7 @@ class NoteOffsetState extends MusicBeatState
 		{
 			var modes:Array<String> = ['combo', 'beat', 'cam'];
 			curMode++;
-			if (curMode > modes.length) curMode = 0;
+			if (curMode >= modes.length) curMode = 0;
 			mode = modes[curMode];
 			updateMode();
 		}
@@ -567,5 +567,6 @@ class NoteOffsetState extends MusicBeatState
 		changeModeText.text = changeModeText.text.toUpperCase();
 		FlxG.mouse.visible = mode == 'combo';
 		reloadTexts();
+		resetCam();
 	}
 }
