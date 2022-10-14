@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -43,6 +44,8 @@ class Alphabet extends FlxSpriteGroup
 	public var targetY:Int = 0;
 	public var changeX:Bool = true;
 	public var changeY:Bool = true;
+	public var whiteText:Bool = false;
+	public var outline:Bool = false;
 
 	public var alignment(default, set):Alignment = LEFT;
 	public var scaleX(default, set):Float = 1;
@@ -217,6 +220,11 @@ class Alphabet extends FlxSpriteGroup
 	}
 
 	private static var Y_PER_ROW:Float = 85;
+	public var maxNormalWidthPerLine(default,set):Float = 832;
+	function set_maxNormalWidthPerLine(v:Float):Float {
+		text = text;
+		return v;
+	}
 
 	private function createLetters(newText:String)
 	{
@@ -239,7 +247,7 @@ class Alphabet extends FlxSpriteGroup
 					if (consecutiveSpaces > 0)
 					{
 						xPos += 28 * consecutiveSpaces * scaleX;
-						if(!bold && xPos >= FlxG.width * 0.65)
+						if(!bold && xPos >= maxNormalWidthPerLine)
 						{
 							xPos = 0;
 							rows++;
@@ -379,6 +387,7 @@ class AlphaCharacter extends FlxSprite
 
 	public var row:Int = 0;
 	public var rowWidth:Float = 0;
+	public var letterColor:FlxColor;
 	public function new(x:Float, y:Float, character:String, bold:Bool, parent:Alphabet)
 	{
 		super(x, y);
@@ -433,6 +442,21 @@ class AlphaCharacter extends FlxSprite
 			animation.addByPrefix(anim, anim, 24);
 			animation.play(anim, true);
 		}
+
+		if (!bold) {
+			letterColor = 0xFFFFFFFF;
+
+			colorTransform.redMultiplier = 0;
+			colorTransform.greenMultiplier = 0;
+			colorTransform.blueMultiplier = 0;
+	
+			colorTransform.redOffset = letterColor.red;
+			colorTransform.greenOffset = letterColor.green;
+			colorTransform.blueOffset = letterColor.blue;
+
+			color = letterColor;
+		}
+
 		updateHitbox();
 		updateLetterOffset();
 	}

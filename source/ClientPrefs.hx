@@ -39,6 +39,7 @@ class ClientPrefs {
 	public static var language:String = "english";
 	public static var camMovement:Bool = true;
 	public static var input:String = 'Normal';
+	public static var transition:String = "Vertical Fade";
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -140,6 +141,7 @@ class ClientPrefs {
 		FlxG.save.data.camMovement = camMovement;
 		FlxG.save.data.opponentNoteSplashes = opponentNoteSplashes;
 		FlxG.save.data.input = input;
+		FlxG.save.data.transition = transition;
 
 		FlxG.save.data.language = language;
 	
@@ -291,6 +293,8 @@ class ClientPrefs {
 			opponentNoteSplashes = FlxG.save.data.opponentNoteSplashes;
 		if (FlxG.save.data.input != null)
 			input = FlxG.save.data.input;
+		if (FlxG.save.data.transition != null)
+			transition = FlxG.save.data.transition;
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99');

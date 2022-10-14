@@ -143,6 +143,15 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.onChange = onUpdateLanguage;
 		addOption(option);
 
+		var option:Option = new Option('Transition',
+			'Changes the transition between states. Press ACCEPT to preview.',
+			'transition',
+			'string',
+			'Vertical Fade',
+			['Vertical Fade', 'Horizontal Fade', 'Zoom in vertical', 'Zoom in horizontal', 'Wheel Fade']);
+		option.onEnter = onPreviewTransition;
+		addOption(option);
+
 		super();
 
 		onUpdateLanguage(); //At the end of super because then it will crash
@@ -150,6 +159,19 @@ class VisualsUISubState extends BaseOptionsMenu
 	}
 
 	var changedMusic:Bool = false;
+	function onPreviewTransition() {
+		var fadeTransition:CustomFadeTransition = new CustomFadeTransition(0.4, false);
+		add(fadeTransition);
+		CustomFadeTransition.finishCallback = function() {
+			var fadeTransition2:CustomFadeTransition = new CustomFadeTransition(0.5, true);
+			add(fadeTransition2);
+			remove(fadeTransition);
+			CustomFadeTransition.finishCallback = function() {
+				remove(fadeTransition2);
+			}
+		}
+	}
+
 	function onUpdateLanguage()
 	{
 		for (option in optionsArray){

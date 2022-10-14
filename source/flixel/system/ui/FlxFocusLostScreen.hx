@@ -172,49 +172,6 @@ class FlxFocusLostScreen extends Sprite
             }
             finalStr += "\n";
         }
-        /* this was an attempt to translate donut.c to haxe... but it didnt work
-        var b:Array<String> = [];
-        var z:Array<Float> = [];
-        A += 0.07;
-        B += 0.03;
-        var cA = Math.cos(A);
-        var sA = Math.sin(A);
-        var cB = Math.cos(B);
-        var sB = Math.sin(B);
-        for(k in 0...1760) {
-            if (b.length < k) b.push("");
-            if (z.length < k) z.push(0);
-
-            if (k % 80 == 79) {
-                b[k] = "\n";
-            } else b[k] = " ";
-            z[k] = 0;
-        }
-        var j:Float = 0;
-        while(j < 6.28) {  // j <=> theta
-            j += 0.07;
-            var ct = Math.cos(j),st=Math.sin(j);
-            var i:Float = 0;
-            while (i < 6.28) { // i <=> phi
-                i += 0.02;
-                var sp = Math.sin(i),cp=Math.cos(i);
-                var h = ct+2; // R1 + R2*cos(theta)
-                var D = 1/(sp*h*sA+st*cA+5); // this is 1/z
-                var t = sp*h*cA-st*sA; // this is a clever factoring of some of the terms in x' and y'
-        
-                var x = (40+30*D*(cp*h*cB-t*sB));
-                var y = (12+15*D*(cp*h*sB+t*cB));
-                var o = Math.floor(x + 80 * y);
-                var N = Math.floor((8*((st*sA-sp*ct*cA)*cB-sp*ct*sA-st*cA-cp*ct*sB)));
-                if(y<22 && y>=0 && x>=0 && x<80 && D>z[o])
-                {
-                    z[o]=D;
-                    if (b[o] != "\n") {
-                        b[o]= ".,-~:;=!*#$@".split('')[N>0?N:0];
-                    }
-                }
-            }
-        }*/
 
         if (text!=null) text.text = finalStr;
     }

@@ -97,6 +97,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			optionText.targetY = i;
 			grpOptions.add(optionText);
 
+			var optionDesc:AttachedOptionText = new AttachedOptionText(optionsArray[i].description, 0, -20, false, 0.35, FlxG.width);
+			optionDesc.sprTracker = optionText;
+			optionDesc.copyAlpha = true;
+			add(optionDesc);
+
 			if(optionsArray[i].type == 'bool') {
 				var checkbox:CheckboxThingie = new CheckboxThingie(optionText.x - 105, optionText.y, optionsArray[i].getValue() == true);
 				checkbox.sprTracker = optionText;
@@ -121,6 +126,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				reloadBoyfriend();
 			}
 			updateTextFrom(optionsArray[i]);
+		}
+		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.5, true);
+		add(fadeTrans);
+		CustomFadeTransition.finishCallback = function() {
+			remove(fadeTrans);
 		}
 
 		changeSelection();
@@ -152,7 +162,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		}
 
 		if (controls.BACK) {
-			close();
+			closing();
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
 
@@ -191,6 +201,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					reloadCheckboxes();
 				}
 			} else {
+				if(controls.ACCEPT)
+				{
+					if (curOption.onEnter != null) curOption.onEnter();
+				}
+
 				if(controls.UI_LEFT || controls.UI_RIGHT) {
 					var pressed = (controls.UI_LEFT_P || controls.UI_RIGHT_P);
 					if(holdTime > 0.5 || pressed) {
@@ -373,6 +388,15 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	function reloadCheckboxes() {
 		for (checkbox in checkboxGroup) {
 			checkbox.daValue = (optionsArray[checkbox.ID].getValue() == true);
+		}
+	}
+
+	function closing() {
+		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.4, false, 'Zoom in horizontal');
+		add(fadeTrans);
+		CustomFadeTransition.finishCallback = function() {
+			remove(fadeTrans);
+			close();
 		}
 	}
 }

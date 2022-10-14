@@ -31,32 +31,48 @@ using StringTools;
 class OptionsState extends MusicBeatState
 {
 	var options:Array<String> = ['Note Colors', 'Controls', 'Adjust Delay and Combo', 'Graphics', 'Visuals and UI', 'Gameplay' #if PRELOAD_ALL , 'Song Player' #end];
+	var descriptions:Array<String> = ['Edit the notes\' colors.', 'Edit your keybinds.', 'Adjust the music delay and combo positions.', 'Change graphical settings.', 'Change UI settings.', 'Open the Song Player'];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
 	public static var menuBG:FlxSprite;
+	var opening:Bool = false;
 
 	function openSelectedSubstate(label:String) {
-		switch(label) {
-			case 'Note Colors':
-				openSubState(new options.NotesSubState());
-			case 'Controls':
-				openSubState(new options.ControlsSubState());
-			case 'Graphics':
-				openSubState(new options.GraphicsSettingsSubState());
-			case 'Visuals and UI':
-				openSubState(new options.VisualsUISubState());
-			case 'Gameplay':
-				openSubState(new options.GameplaySettingsSubState());
-			case 'Adjust Delay and Combo':
-				LoadingState.loadAndSwitchState(new options.NoteOffsetState());
-			case 'Song Player':
-				MusicBeatState.switchState(new options.SongPlayer());
+		if (!opening) {
+			var dumb:String = label.toLowerCase().replace(' ', '');
+			if (dumb != 'adjustdelayandcombo' && dumb != 'songplayer') {
+				var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.4, false, 'Zoom in horizontal');
+				add(fadeTrans);
+				CustomFadeTransition.finishCallback = function() {
+					remove(fadeTrans);
+					switch(label) {
+						case 'Note Colors':
+							openSubState(new options.NotesSubState());
+						case 'Controls':
+							openSubState(new options.ControlsSubState());
+						case 'Graphics':
+							openSubState(new options.GraphicsSettingsSubState());
+						case 'Visuals and UI':
+							openSubState(new options.VisualsUISubState());
+						case 'Gameplay':
+							openSubState(new options.GameplaySettingsSubState());
+					}
+				}
+			} else {
+				switch(label){
+					case 'Adjust Delay and Combo':
+						LoadingState.loadAndSwitchState(new options.NoteOffsetState());
+					case 'Song Player':
+						MusicBeatState.switchState(new options.SongPlayer());
+				}
+			}
+			persistentUpdate = false;
 		}
-		persistentUpdate = false;
 	}
 
 	var selectorLeft:Alphabet;
 	var selectorRight:Alphabet;
+	var grpDescriptions:FlxTypedGroup<Alphabet>;
 
 	override function create() {
 		persistentUpdate = true;
@@ -74,19 +90,11 @@ class OptionsState extends MusicBeatState
 
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
+		grpDescriptions = new FlxTypedGroup<Alphabet>();
+		add(grpDescriptions);
 
 		FlxG.mouse.visible = true;
-		for (i in 0...options.length)
-		{
-			var optionText:Alphabet = new Alphabet(150, 320, Lang.g(Lang.convert(options[i])), true);
-			//optionText.screenCenter();
-			//optionText.y += (100 * (i - (options.length / 2))) + 50;
-			optionText.isMenuItem = true;
-			optionText.targetY = i - curSelected;
-			optionText.startedAs = options[i];
-			optionText.snapToPosition();
-			grpOptions.add(optionText);
-		}
+		reloadTexts();
 
 		selectorLeft = new Alphabet(0, 0, '>', true);
 		add(selectorLeft);
@@ -99,9 +107,36 @@ class OptionsState extends MusicBeatState
 		super.create();
 	}
 
+	function reloadTexts() {
+		for (i in 0...options.length) {
+			var optionText:Alphabet = new Alphabet(150, 320, Lang.g(Lang.convert(options[i])), true);
+			//optionText.screenCenter();
+			//optionText.y += (100 * (i - (options.length / 2))) + 50;
+			optionText.isMenuItem = true;
+			optionText.targetY = i - curSelected;
+			//optionText.scaleX = 0.7;
+			//optionText.scaleY = 0.7;
+			optionText.startedAs = options[i];
+			optionText.snapToPosition();
+			grpOptions.add(optionText);
+
+			var optionDesc:AttachedOptionText = new AttachedOptionText(descriptions[i], 0, -20, false, 0.35, FlxG.width);
+			optionDesc.sprTracker = optionText;
+			optionDesc.copyAlpha = true;
+			grpDescriptions.add(optionDesc);
+		}
+	}
+
 	override function closeSubState() {
 		super.closeSubState();
+
+		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.5, true, 'Zoom in horizontal');
+		add(fadeTrans);
+		CustomFadeTransition.finishCallback = function() {
+			remove(fadeTrans);
+		}
 		persistentUpdate = true;
+		opening = false;
 		ClientPrefs.saveSettings();
 		Language.initLanguage();
 
@@ -109,17 +144,12 @@ class OptionsState extends MusicBeatState
 			member.kill();
 			grpOptions.remove(member);
 		}
-
-		for (i in 0...options.length) {
-			var optionText:Alphabet = new Alphabet(150, 320, Lang.g(Lang.convert(options[i])), true);
-			//optionText.screenCenter();
-			//optionText.y += (100 * (i - (options.length / 2))) + 50;
-			optionText.isMenuItem = true;
-			optionText.targetY = i - curSelected;
-			optionText.startedAs = options[i];
-			optionText.snapToPosition();
-			grpOptions.add(optionText);
+		for (member in grpDescriptions.members) {
+			member.kill();
+			grpDescriptions.remove(member);
 		}
+		reloadTexts();
+
 		changeSelection();
 	}
 
@@ -140,6 +170,7 @@ class OptionsState extends MusicBeatState
 
 		if (controls.ACCEPT) {
 			openSelectedSubstate(options[curSelected]);
+			opening = true;
 		}
 
 		if (FlxG.mouse.wheel != 0) {
