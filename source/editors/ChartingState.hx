@@ -1296,6 +1296,8 @@ class ChartingState extends MusicBeatState
 	var display_enemy:FlxUIInputText;
 
 	var fixSectionToScreen:FlxUICheckBox;
+	var beatBars:FlxUICheckBox;
+	var showBeatBars:Bool = false;
 	function addChartingUI() {
 		var tab_group_chart = new FlxUI(null, UI_box);
 		tab_group_chart.name = 'Charting';
@@ -1452,6 +1454,14 @@ class ChartingState extends MusicBeatState
 		if (FlxG.save.data.chart_fixSection == null) FlxG.save.data.chart_fixSection = false;
 		fixSectionToScreen.checked = FlxG.save.data.chart_fixSection;
 
+		beatBars = new FlxUICheckBox(playSoundBf.x, playSoundBf.y + 40, null, null, "Show beat & step bars", 100, function() {
+			reloadGridLayer();
+			FlxG.save.data.chart_beatBars = beatBars.checked;
+			showBeatBars = beatBars.checked;
+		});
+		if (FlxG.save.data.chart_beatBars == null) FlxG.save.data.chart_beatBars = false;
+		beatBars.checked = FlxG.save.data.chart_beatBars;
+
 		tab_group_chart.add(new FlxText(metronomeStepper.x, metronomeStepper.y - 15, 0, 'BPM:'));
 		tab_group_chart.add(new FlxText(metronomeOffsetStepper.x, metronomeOffsetStepper.y - 15, 0, 'Offset (ms):'));
 		tab_group_chart.add(new FlxText(instVolume.x, instVolume.y - 15, 0, 'Inst Volume'));
@@ -1481,6 +1491,7 @@ class ChartingState extends MusicBeatState
 		tab_group_chart.add(new FlxText(display_boyfriend.x, display_boyfriend.y - 15, 0, 'Display Boyfriend:'));
 		tab_group_chart.add(apply_display_characters);
 		tab_group_chart.add(fixSectionToScreen);
+		tab_group_chart.add(beatBars);
 		UI_box.addGroup(tab_group_chart);
 	}
 
@@ -1697,7 +1708,7 @@ class ChartingState extends MusicBeatState
 
 				changeSection(curSec + 1, false);
 			} else if(strumLine.y < -10) {
-				changeSection(curSec - 1, false);
+				changeSection(curSec - 1, false, true);
 			}
 		}
 		FlxG.watch.addQuick('daBeat', curBeat);
@@ -1900,22 +1911,25 @@ class ChartingState extends MusicBeatState
 			if (FlxG.mouse.wheel != 0)
 			{
 				FlxG.sound.music.pause();
-				if (!mouseQuant)
-					FlxG.sound.music.time -= (FlxG.mouse.wheel * Conductor.stepCrochet*0.8);
-				else
+				if (!mouseQuant) {
+					var wawa:Float = FlxG.sound.music.time - (FlxG.mouse.wheel * Conductor.stepCrochet*0.8);
+					FlxTween.tween(FlxG.sound.music, {time:wawa}, 0.05, {ease:FlxEase.circOut});
+				} else
 					{
 						var time:Float = FlxG.sound.music.time;
 						var beat:Float = curDecBeat;
 						var snap:Float = quantization / 4;
 						var increase:Float = 1 / snap;
+						var excrement:Float = 0;
 						if (FlxG.mouse.wheel > 0)
 						{
 							var fuck:Float = CoolUtil.quantize(beat, snap) - increase;
-							FlxG.sound.music.time = Conductor.beatToSeconds(fuck);
+							excrement = Conductor.beatToSeconds(fuck);
 						}else{
 							var fuck:Float = CoolUtil.quantize(beat, snap) + increase;
-							FlxG.sound.music.time = Conductor.beatToSeconds(fuck);
+							excrement = Conductor.beatToSeconds(fuck);
 						}
+						FlxTween.tween(FlxG.sound.music, {time:excrement}, 0.05, {ease:FlxEase.circOut});
 					}
 				if(vocals != null) {
 					vocals.pause();
@@ -2033,7 +2047,7 @@ class ChartingState extends MusicBeatState
 						var fuck:Float = CoolUtil.quantize(beat, snap) + increase; //(Math.floor((beat+snap) / snap) * snap);
 						feces = Conductor.beatToSeconds(fuck);
 					}
-					FlxTween.tween(FlxG.sound.music, {time:feces}, 0.1, {ease:FlxEase.circOut});
+					FlxTween.tween(FlxG.sound.music, {time:feces}, 0.2, {ease:FlxEase.circOut});
 					if(vocals != null) {
 						vocals.pause();
 						vocals.time = FlxG.sound.music.time;
@@ -2076,7 +2090,7 @@ class ChartingState extends MusicBeatState
 				if(curSec <= 0) {
 					changeSection(_song.notes.length-1);
 				} else {
-					changeSection(curSec - shiftThing);
+					changeSection(curSec - shiftThing, true, true);
 				}
 			}
 		} else if (FlxG.keys.justPressed.ENTER) {
@@ -2302,7 +2316,8 @@ class ChartingState extends MusicBeatState
 	var lastSecBeatsNext:Float = 0;
 	function reloadGridLayer() {
 		gridLayer.clear();
-		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]));
+		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, Std.int(GRID_SIZE * getSectionBeats() * 4 * zoomList[curZoom]),
+		true, FlxColor.WHITE, FlxColor.BLACK);
 
 		#if desktop
 		if(FlxG.save.data.chart_waveformInst || FlxG.save.data.chart_waveformVoices) {
@@ -2315,7 +2330,8 @@ class ChartingState extends MusicBeatState
 		var foundPrevSec:Bool = false;
 		if(sectionStartTime(1) <= FlxG.sound.music.length)
 		{
-			nextGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, Std.int(GRID_SIZE * getSectionBeats(curSec + 1) * 4 * zoomList[curZoom]));
+			nextGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, Std.int(GRID_SIZE * getSectionBeats(curSec + 1) * 4 * zoomList[curZoom]),
+			true, FlxColor.WHITE, FlxColor.BLACK);
 			leHeight = Std.int(gridBG.height + nextGridBG.height);
 			foundNextSec = true;
 		}
@@ -2324,7 +2340,8 @@ class ChartingState extends MusicBeatState
 
 		if(curSec >= 1)
 		{
-			prevGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, Std.int(GRID_SIZE * getSectionBeats(curSec - 1) * 4 * zoomList[curZoom]));
+			prevGridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 9, Std.int(GRID_SIZE * getSectionBeats(curSec - 1) * 4 * zoomList[curZoom]),
+			true, FlxColor.WHITE, FlxColor.BLACK);
 			prevGridBG.y = -gridBG.height;
 			foundPrevSec = true;
 		}
@@ -2333,6 +2350,10 @@ class ChartingState extends MusicBeatState
 		gridLayer.add(nextGridBG);
 		gridLayer.add(gridBG);
 		gridLayer.add(prevGridBG);
+
+		nextGridBG.alpha = 0.1;
+		gridBG.alpha = 0.1;
+		prevGridBG.alpha = 0.1;
 
 		if(foundNextSec)
 		{
@@ -2347,26 +2368,30 @@ class ChartingState extends MusicBeatState
 			gridBlack.alpha = 0.4;
 			gridLayer.add(gridBlack);
 
-			var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + gridBG.width - (GRID_SIZE * 4), -prevGridBG.height).makeGraphic(2, leHeight, FlxColor.BLACK);
+			var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + gridBG.width - (GRID_SIZE * 4), -prevGridBG.height).makeGraphic(2, leHeight, FlxColor.WHITE);
 			gridLayer.add(gridBlackLine);
 
-			var gridBlackLine2:FlxSprite = new FlxSprite(gridBG.x + GRID_SIZE, -prevGridBG.height).makeGraphic(2, leHeight, FlxColor.BLACK);
+			var gridBlackLine2:FlxSprite = new FlxSprite(gridBG.x + GRID_SIZE, -prevGridBG.height).makeGraphic(2, leHeight, FlxColor.WHITE);
 			gridLayer.add(gridBlackLine2);
 		}
 
-		var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + gridBG.width - (GRID_SIZE * 4)).makeGraphic(2, leHeight, FlxColor.BLACK);
+		var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + gridBG.width - (GRID_SIZE * 4)).makeGraphic(2, leHeight, FlxColor.WHITE);
 		gridLayer.add(gridBlackLine);
 
-		for (i in 1...4) {
-			var beatsep1:FlxSprite = new FlxSprite(gridBG.x, (GRID_SIZE * (4 * curZoom)) * i).makeGraphic(Std.int(gridBG.width), 1, 0x44FF0000);
-			if(vortex)
-			{
-				gridLayer.add(beatsep1);
+		for (i in 0...Math.floor(getSectionBeats())) {
+			var beatSepY:Float = (GRID_SIZE * (4 * curZoom) * i) / 2;
+			var beatsep1:FlxSprite = new FlxSprite(gridBG.x - GRID_SIZE, beatSepY).makeGraphic(Std.int(gridBG.width + GRID_SIZE), 5, 0xFFC3C3C3);
+			for (j in 0...4) {
+				var stepSepY:Float = ((GRID_SIZE * (j * curZoom)) * i) / 2;
+				var beatsep2:FlxSprite = new FlxSprite(gridBG.x - (GRID_SIZE / 2), stepSepY).makeGraphic(Std.int(GRID_SIZE / 2), 3, 0xFFC3C3C3);
+				gridLayer.add(beatsep2);
 			}
+			gridLayer.add(beatsep1);
 		}
 
-		var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + GRID_SIZE).makeGraphic(2, leHeight, FlxColor.BLACK);
+		var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + GRID_SIZE).makeGraphic(2, leHeight, FlxColor.WHITE);
 		gridLayer.add(gridBlackLine);
+
 		updateGrid();
 
 		lastSecBeats = getSectionBeats();
@@ -2648,22 +2673,33 @@ class ChartingState extends MusicBeatState
 		updateWaveform();
 	}
 
-	function changeSection(sec:Int = 0, ?updateMusic:Bool = true):Void
+	// yes im stupi!
+	function changeSection(sec:Int = 0, ?updateMusic:Bool = true, goingBack:Bool = false):Void
 	{
+		var shittyCaca:Float = 0;
 		if (_song.notes[sec] != null)
 		{
-			curSec = sec;
 			if (updateMusic)
 			{
 				FlxG.sound.music.pause();
 
-				FlxG.sound.music.time = sectionStartTime();
+				if (!FlxG.keys.pressed.TAB) {
+					if (goingBack){
+						shittyCaca = Conductor.songPosition - ((Conductor.crochet) * 4);
+					} else shittyCaca = Conductor.songPosition + ((Conductor.crochet) * 4);
+				} else {
+					shittyCaca = sectionStartTime();
+				}
+				FlxTween.tween(FlxG.sound.music, {time:shittyCaca}, 0.2, {ease:FlxEase.circOut, onUpdate: function(__) {
+					Conductor.songPosition = FlxG.sound.music.time;
+				}});
 				if(vocals != null) {
 					vocals.pause();
-					vocals.time = FlxG.sound.music.time;
+					FlxTween.tween(vocals, {time:shittyCaca}, 0.2, {ease:FlxEase.circOut});
 				}
 				updateCurStep();
 			}
+			curSec = sec;
 
 			var blah1:Float = getSectionBeats();
 			var blah2:Float = getSectionBeats(curSec + 1);
@@ -2683,7 +2719,6 @@ class ChartingState extends MusicBeatState
 		{
 			changeSection();
 		}
-		Conductor.songPosition = FlxG.sound.music.time;
 		updateWaveform();
 	}
 
