@@ -1,5 +1,6 @@
 package;
 
+import Subtitle.SubProperties;
 import Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
@@ -29,6 +30,8 @@ typedef SwagSong =
 	var arrowSkin:String;
 	var splashSkin:String;
 	var validScore:Bool;
+
+	var subtitles:Array<SubProperties>;
 }
 
 class Song

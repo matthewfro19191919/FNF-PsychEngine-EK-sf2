@@ -2,7 +2,6 @@ package editors;
 
 import flixel.FlxCamera;
 import Subtitle.SubProperties;
-import Subtitle.SubExam;
 import Subtitle.SubtitleHandler;
 #if desktop
 import Discord.DiscordClient;
@@ -93,7 +92,7 @@ class SubtitleEditor extends MusicBeatState
 	/*
 	 * WILL BE THE CURRENT / LAST PLACED SUBTITLE
 	**/
-	var curSelected:Array<Dynamic> = null;
+	var curSelected:SubProperties = null;
 
 	var tempBpm:Float = 0;
 
@@ -163,7 +162,8 @@ class SubtitleEditor extends MusicBeatState
 				gfVersion: 'gf',
 				speed: 1,
 				stage: 'stage',
-				validScore: false
+				validScore: false,
+				subtitles: []
 			};
 
 			addSection();
@@ -341,24 +341,19 @@ class SubtitleEditor extends MusicBeatState
 		{
 			openSubState(new Prompt('This action will clear current progress.\n\nProceed?', 0, function(){loadJson(_song.song.toLowerCase()); }, null,false));
 		});
-        
-		var saveEvents:FlxButton = new FlxButton(110, reloadSongJson.y, 'Save Events', function ()
-        {
-            saveEvents();
-        });
 
-		var loadEventJson:FlxButton = new FlxButton(saveButton.x + (saveButton.width / 2) + 5, saveEvents.y + 30, 'Load Events', function()
+		var loadEventJson:FlxButton = new FlxButton(saveButton.x, saveButton.y + 30, 'Load', function()
 		{
 			var songName:String = Paths.formatToSongPath(_song.song);
-			var file:String = Paths.json(songName + '/events');
+			var file:String = Paths.json(songName + '/subtitles');
 			#if sys
-			if (#if MODS_ALLOWED FileSystem.exists(Paths.modsJson(songName + '/events')) || #end FileSystem.exists(file))
+			if (#if MODS_ALLOWED FileSystem.exists(Paths.modsJson(songName + '/subtitles')) || #end FileSystem.exists(file))
 			#else
 			if (OpenFlAssets.exists(file))
 			#end
 			{
 				clearEvents();
-				var events:SwagSong = Song.loadFromJson('events', songName);
+				var events:SwagSong = Song.loadFromJson('subtitles', songName);
 				_song.events = events.events;
 				changeSection(curSec);
 			}
@@ -547,7 +542,6 @@ class SubtitleEditor extends MusicBeatState
         tab_group_event.add(saveButton);
         tab_group_event.add(reloadSong);
         tab_group_event.add(reloadSongJson);
-        tab_group_event.add(saveEvents);
         tab_group_event.add(loadEventJson);
         tab_group_event.add(stepperBPM);
         tab_group_event.add(clear_events);
@@ -716,35 +710,59 @@ class SubtitleEditor extends MusicBeatState
 		}
 		else if(id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText)) {
 			//sender.text = sender.text.replace('=', '').replace('|', '');
-			if(sender == strumTimeInputText && curSelected != null) {
+			if(sender == strumTimeInputText) {
 				var value:Float = Std.parseFloat(strumTimeInputText.text);
 				if(Math.isNaN(value)) value = 0;
-				curSelected[0] = value;
+				curSelected.time = value;
 				updateGrid();
-			} else if (sender == subTextInput && curSelected != null) {
+			} else if (sender == subTextInput) {
 				updateCurShit();
 				updateGrid();
-			} else if (sender == fontInputText && curSelected != null) {
-				if(curSelected != null) {
-					updateCurShit();
-					updateGrid();
-				}
+			} else if (sender == fontInputText) {
+				updateCurShit();
+				updateGrid();
 			}
 		}
 		else if(id == FlxUICheckBox.CLICK_EVENT && (sender is FlxUICheckBox)) {
-			if (curSelected != null) {
-				updateCurShit();
-				updateGrid();
-			}
+			updateCurShit();
+			updateGrid();
 		}
 
 		// FlxG.log.add(id + " WEED " + sender + " WEED " + data + " WEED " + params);
 	}
 
+	function getWeed():Float {
+		var value:Float = Std.parseFloat(strumTimeInputText.text);
+		if(Math.isNaN(value)) value = 0;
+		return value;
+	}
+
+	function getWeed2():Array<Int> {
+		var weed = [stepperRColor.value, stepperGColor.value, stepperBColor.value];
+		var weed2:Array<Int> = [];
+		for (c in weed) weed2.push(Math.floor(c));
+		return weed2;
+	}
+
 	function updateCurShit() {
 		if (curSelected != null) {
-			curSelected[1][0][1] = 'subText=' + subTextInput.text +'|fadeOut='+fadeOut.checked +',fadeIn:'+fadeIn.checked+'|deletePrevious='+deletePrevCheckbox.checked+'|typeIn='+typeIn.checked +'|typeOut='+typeOut.checked+'|raisesLast='+raisesLast.checked+'|bold='+boldCheckbox.checked+'|italic='+italicCheckbox.checked;
-			curSelected[1][0][2] = 'length=' + stepperSusLength.value + '|size=' + stepperSubSize.value + '|font=' + fontInputText.text + '|border=' + borderCheckbox.checked + '|alignment=' + alignmentDrop.selectedLabel + '|rc='+stepperRColor.value+'|gc='+stepperGColor.value+'|bc='+stepperBColor.value;
+			curSelected.subText = subTextInput.text;
+			curSelected.fadeOut = fadeOut.checked;
+			curSelected.fadeIn = fadeIn.checked;
+			curSelected.deletePrevious = deletePrevCheckbox.checked;
+			curSelected.typeIn = typeIn.checked;
+			curSelected.typeOut = typeOut.checked;
+			curSelected.bold = boldCheckbox.checked;
+			curSelected.italic = italicCheckbox.checked;
+			curSelected.length = Std.string(stepperSusLength.value);
+			curSelected.size = Math.floor(stepperSubSize.value);
+			curSelected.font = fontInputText.text;
+			curSelected.border = borderCheckbox.checked;
+			curSelected.alignment = alignmentDrop.selectedLabel;
+			curSelected.colorArray = getWeed2();
+			curSelected.time = getWeed();
+		} else {
+			trace('da curselected null');
 		}
 	}
 
@@ -825,7 +843,7 @@ class SubtitleEditor extends MusicBeatState
 						if (FlxG.mouse.y > gridBG.y &&
 							FlxG.mouse.y < gridBG.y + gridBG.height) {
 								if (curSelected != null) {
-									curSelected[1][0][3] = FlxG.mouse.y - (GRID_SIZE / 2);
+									curSelected.yInEditor = FlxG.mouse.y - (GRID_SIZE / 2);
 								}
 								updateGrid();
 							}
@@ -847,7 +865,6 @@ class SubtitleEditor extends MusicBeatState
 				&& FlxG.mouse.y < gridBG.y + gridBG.height
 				&& FlxG.mouse.justPressed)
 			{
-				trace("added note !!!");
 				FlxG.log.add('added note');
 				addNote();
 			}
@@ -1008,7 +1025,7 @@ class SubtitleEditor extends MusicBeatState
 		curRenderedSubs.forEachAlive(function(spr:StoredSubData) {
 			spr.alpha = 1;
 			if(curSelected != null) {
-				if (curSelected[0] == spr.time)
+				if (curSelected.time == spr.properties.time)
 				{
 					colorSine += elapsed;
 					var colorVal:Float = 0.7 + Math.sin(Math.PI * colorSine) * 0.3;
@@ -1016,10 +1033,10 @@ class SubtitleEditor extends MusicBeatState
 				}
 			}
 
-			if(spr.time <= Conductor.songPosition) {
+			if(spr.properties.time <= Conductor.songPosition) {
 				spr.alpha = 0.4;
-				if(spr.time > lastConductorPos && FlxG.sound.music.playing) {
-					SubtitleHandler.makeline(spr.value1, spr.value2);
+				if(spr.properties.time > lastConductorPos && FlxG.sound.music.playing) {
+					SubtitleHandler.makeline(spr.properties);
 				}
 			}
 		});
@@ -1099,12 +1116,12 @@ class SubtitleEditor extends MusicBeatState
 	{
 		if (curSelected != null)
 		{
-			if (curSelected[1][0][2] != null)
+			if (curSelected != null)
 			{
-				var curVal:Float = Std.parseFloat(SubtitleHandler.examinateEventValue(curSelected[1][0][2]).length);
+				var curVal:Float = Std.parseFloat(curSelected.length);
 				curVal += value;
-				curVal = Math.max(curSelected[2], 0);
-				curSelected[1][0][2] = 'length=' + curVal + '|size=' + stepperSubSize.value + '|font=' + fontInputText.text + '|border=' + borderCheckbox.checked + '|alignment=' + alignmentDrop.selectedLabel + '|rc='+stepperRColor.value+'|gc='+stepperGColor.value+'|bc='+stepperBColor.value;
+				curVal = Math.max(curVal, 0);
+				curSelected.length = ''+ curVal;
 			}
 		}
 
@@ -1222,10 +1239,10 @@ class SubtitleEditor extends MusicBeatState
 	function updateNoteUI():Void
 	{
 		if (curSelected != null) {
-			if(curSelected[1][0][2] != null) {
-				stepperSusLength.value = Std.parseFloat(SubtitleHandler.examinateEventValue(curSelected[1][0][2]).length);
+			if(curSelected != null) {
+				stepperSusLength.value = Std.parseFloat(curSelected.length);
 			}
-			strumTimeInputText.text = '' + curSelected[0];
+			strumTimeInputText.text = '' + curSelected.time;
 		}
 	}
 
@@ -1252,19 +1269,14 @@ class SubtitleEditor extends MusicBeatState
 		// CURRENT EVENTS
 		var startThing:Float = sectionStartTime();
 		var endThing:Float = sectionStartTime(1);
-		for (i in _song.events)
+		for (i in _song.subtitles)
 		{
-            var strumTime:Float = i[0];
-            var name:String = i[1][0][0];
-			if(endThing > i[0] && i[0] >= startThing && name == "Add Subtitle")
+            var strumTime:Float = i.time;
+			if(endThing > strumTime && strumTime >= startThing)
 			{
-				var eventValues:Array<String> = [i[1][0][1], i[1][0][2]];
-				var storeY:Float = i[1][0][3];
+				var storeY:Float = i.yInEditor;
 
-				var examv1:SubProperties = SubtitleHandler.examinateSubProperties(eventValues[0]);
-				var exam:SubExam = SubtitleHandler.examinateEventValue(eventValues[1]);
-
-                var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(exam.length), 0, 
+                var width:Int = Math.floor(FlxMath.remapToRange(Std.parseFloat(i.length), 0, 
                     Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
 
                 //var editorLane:String = eventValue1[2];
@@ -1274,19 +1286,19 @@ class SubtitleEditor extends MusicBeatState
 				//trace(spr.x + ' ' + spr.y, 'expectedX: ' + getYfromStrumNotes(strumTime - sectionStartTime(), 1));
                 spr.makeGraphic(width, GRID_SIZE, FlxColor.BLACK);
                 spr.time = strumTime;
-                spr.length = Std.parseFloat(eventValues[1]);
-				spr.value1 = eventValues[0];
-				spr.value2 = eventValues[1];
+                spr.length = Std.parseFloat(i.length);
+				spr.properties = i;
+				
 
 				curRenderedSubs.add(spr);
 
-				var text:String = examv1.subText;
+				var text:String = i.subText;
 				var daText:FlxText = new FlxText(0, 0, width, text, 12);
-				daText.setFormat(Paths.font(exam.font), exam.size, FlxColor.WHITE);
+				daText.setFormat(Paths.font(i.font), i.size, FlxColor.WHITE);
 
-				if (exam.border) daText.setFormat(Paths.font(exam.font), exam.size, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
+				if (i.border) daText.setFormat(Paths.font(i.font), i.size, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE_FAST, FlxColor.BLACK);
 
-				switch(exam.alignment) {
+				switch(i.alignment) {
 					case "LEFT": daText.alignment = LEFT;
 					case "RIGHT": daText.alignment = RIGHT;
 					case "CENTER": daText.alignment = CENTER;
@@ -1300,55 +1312,6 @@ class SubtitleEditor extends MusicBeatState
 		}
 	}
 
-	function setupNoteData(i:Array<Dynamic>, isNextSection:Bool):Note
-	{
-		var daNoteInfo = i[1];
-		var daStrumTime = i[0];
-		var daSus:Dynamic = i[2];
-
-		var note:Note = new Note(daStrumTime, daNoteInfo % 4, null, null, true);
-		if(daSus != null) { //Common note
-			if(!Std.isOfType(i[3], String)) //Convert old note type to new note type format
-			{
-				i[3] = 'sussy';
-			}
-			if(i.length > 3 && (i[3] == null || i[3].length < 1))
-			{
-				i.remove(i[3]);
-			}
-			note.sustainLength = daSus;
-			note.noteType = i[3];
-		} else { //Event note
-			note.loadGraphic(Paths.image('eventArrow'));
-			note.eventName = getEventName(i[1]);
-			note.eventLength = i[1].length;
-			if(i[1].length < 2)
-			{
-				note.eventVal1 = i[1][0][1];
-				note.eventVal2 = i[1][0][2];
-			}
-			note.noteData = -1;
-			daNoteInfo = -1;
-		}
-
-		note.setGraphicSize(GRID_SIZE, GRID_SIZE);
-		note.updateHitbox();
-		note.x = Math.floor(daNoteInfo * GRID_SIZE) + GRID_SIZE;
-		if(isNextSection && _song.notes[curSec].mustHitSection != _song.notes[curSec+1].mustHitSection) {
-			if(daNoteInfo > 3) {
-				note.x -= GRID_SIZE * 4;
-			} else if(daSus != null) {
-				note.x += GRID_SIZE * 4;
-			}
-		}
-
-		var beats:Float = getSectionBeats(isNextSection ? 1 : 0);
-		note.y = getYfromStrumNotes(daStrumTime - sectionStartTime(), beats);
-		//if(isNextSection) note.y += gridBG.height;
-		if(note.y < -150) note.y = -150;
-		return note;
-	}
-
 	function getEventName(names:Array<Dynamic>):String
 	{
 		var retStr:String = '';
@@ -1360,44 +1323,6 @@ class SubtitleEditor extends MusicBeatState
 			addedOne = true;
 		}
 		return retStr;
-	}
-
-	function setupSusNote(note:Note, beats:Float):Array<FlxSprite> {
-		var skin:String = _song.arrowSkin;
-		if(skin == null || skin.length < 1) {
-			skin = 'NOTE_assets';
-		}
-		var height:Int = Math.floor(FlxMath.remapToRange(note.sustainLength, 0, Conductor.stepCrochet * 16, 0, GRID_SIZE * 16 * zoomList[curZoom]) + (GRID_SIZE * zoomList[curZoom]) - GRID_SIZE / 2);
-		var minHeight:Int = Std.int((GRID_SIZE * zoomList[curZoom] / 2) + GRID_SIZE / 2);
-		if(height < minHeight) height = minHeight;
-		if(height < 1) height = 1; //Prevents error of invalid height
-
-		var sprAnims:Array<String> = ["purple", "blue", "green", "red"];
-		
-		//Hold sprite
-		var spr:FlxSprite = new FlxSprite(0, note.y + GRID_SIZE / 2);
-		spr.frames = Paths.getSparrowAtlas(skin);
-		for (anim in 0...sprAnims.length) {
-			spr.animation.addByPrefix('anim' + anim, sprAnims[anim] + ' hold piece');
-		}
-		spr.animation.play('anim' + note.noteData % 4);
-		spr.setGraphicSize(15, height);
-		spr.updateHitbox();
-		spr.x = (note.x + (GRID_SIZE / 2)) - (spr.width / 2);
-
-		//End sprite
-		var end:FlxSprite = new FlxSprite(0, (note.y + GRID_SIZE / 2) + (height - 15));
-		end.frames = Paths.getSparrowAtlas(skin);
-		end.animation.addByPrefix('anim0', 'pruple end hold'); // ?????
-		for (anim in 1...sprAnims.length) {
-			end.animation.addByPrefix('anim' + anim, sprAnims[anim] + ' hold end');
-		}
-		end.animation.play('anim' + note.noteData % 4);
-		end.setGraphicSize(15, 20);
-		end.updateHitbox();
-		end.x = (note.x + (GRID_SIZE / 2)) - (end.width / 2);
-		spr.alpha = end.alpha = 0.6;
-		return [spr, end]; //Add these two
 	}
 
 	private function addSection(sectionBeats:Float = 4):Void
@@ -1418,9 +1343,9 @@ class SubtitleEditor extends MusicBeatState
 
 	function selectNote(spr:StoredSubData):Void
 	{
-        for (i in _song.events)
+        for (i in _song.subtitles)
         {
-            if(i != curSelected && i[0] == spr.time)
+            if(i != curSelected && i.time == spr.properties.time)
             {
                 curSelected = i;
 
@@ -1434,9 +1359,9 @@ class SubtitleEditor extends MusicBeatState
 
 	function deleteNote(spr:StoredSubData):Void
 	{
-        for (i in _song.events)
+        for (i in _song.subtitles)
         {
-            if(i[0] == spr.time)
+            if(i.time == spr.properties.time)
             {
                 if(i == curSelected)
                 {
@@ -1444,7 +1369,7 @@ class SubtitleEditor extends MusicBeatState
                     //changeEventSelected();
                 }
                 //FlxG.log.add('FOUND EVIL EVENT');
-                _song.events.remove(i);
+                _song.subtitles.remove(i);
                 break;
             }
         }
@@ -1484,25 +1409,33 @@ class SubtitleEditor extends MusicBeatState
 	private function addNote(strum:Null<Float> = null, data:Null<Int> = null, type:Null<Int> = null):Void
 	{
 		trace('added');
-		var noteStrum = getStrumTime(dummyArrow.x, false) + sectionStartTime();
-		var noteSus = stepperSusLength.value;
-		var size = stepperSubSize.value;
-		var font = fontInputText.text;
-		var border = borderCheckbox.checked;
-		var alignment = alignmentDrop.selectedLabel;
-		var rColor = stepperRColor.value;
-		var gColor = stepperGColor.value;
-		var bColor = stepperGColor.value;
+		var noteStrum = getStrumTime(dummyArrow.x, true) + sectionStartTime();
 
-		var event = 'Add Subtitle';
-		var text1 = 'subText=' + subTextInput.text +'|fadeOut='+fadeOut.checked +'|fadeIn='+fadeIn.checked+'|deletePrevious='+deletePrevCheckbox.checked+'|typeIn='+typeIn.checked +'|typeOut='+typeOut.checked+'|raisesLast='+raisesLast.checked;
-		var text2 = 'length=$noteSus|size=$size|font=$font|border=$border|alignment=$alignment|rc=$rColor|gc=$gColor|bc=$bColor';
-		var presetY = 430;
-		_song.events.push([noteStrum, [[event, text1, text2, presetY]]]);
-		curSelected = _song.events[_song.events.length - 1];
+		var newSub:SubProperties = {
+			subText: subTextInput.text,
+			fadeOut: fadeOut.checked,
+			fadeIn: fadeIn.checked,
+			deletePrevious: deletePrevCheckbox.checked,
+			typeIn: typeIn.checked,
+			typeOut: typeOut.checked,
+			bold: boldCheckbox.checked,
+			italic: italicCheckbox.checked,
+			length: Std.string(stepperSusLength.value),
+			size: Math.floor(stepperSubSize.value),
+			font: fontInputText.text,
+			border: borderCheckbox.checked,
+			alignment: alignmentDrop.selectedLabel,
+			colorArray: getWeed2(),
+			time: noteStrum,
+
+			yInEditor: 430
+		}
+
+		_song.subtitles.push(newSub);
+		curSelected = _song.subtitles[_song.subtitles.length - 1];
 
 		//trace(noteData + ', ' + noteStrum + ', ' + curSec);
-		strumTimeInputText.text = '' + curSelected[0];
+		strumTimeInputText.text = '' + curSelected.time;
 
 		updateGrid();
 	}
@@ -1576,7 +1509,7 @@ class SubtitleEditor extends MusicBeatState
 
 	private function saveLevel()
 	{
-		if(_song.events != null && _song.events.length > 1) _song.events.sort(sortByTime);
+		if(_song.subtitles != null && _song.subtitles.length > 1) _song.subtitles.sort(sortByTime);
 		var json = {
 			"song": _song
 		};
@@ -1589,35 +1522,13 @@ class SubtitleEditor extends MusicBeatState
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-			_file.save(data.trim(), Paths.formatToSongPath(_song.song) + ".json");
+			_file.save(data.trim(), "subtitles.json");
 		}
 	}
 
-	function sortByTime(Obj1:Array<Dynamic>, Obj2:Array<Dynamic>):Int
+	function sortByTime(Obj1:SubProperties, Obj2:SubProperties):Int
 	{
-		return FlxSort.byValues(FlxSort.ASCENDING, Obj1[0], Obj2[0]);
-	}
-
-	private function saveEvents()
-	{
-		if(_song.events != null && _song.events.length > 1) _song.events.sort(sortByTime);
-		var eventsSong:Dynamic = {
-			events: _song.events
-		};
-		var json = {
-			"song": eventsSong
-		}
-
-		var data:String = Json.stringify(json, "\t");
-
-		if ((data != null) && (data.length > 0))
-		{
-			_file = new FileReference();
-			_file.addEventListener(Event.COMPLETE, onSaveComplete);
-			_file.addEventListener(Event.CANCEL, onSaveCancel);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-			_file.save(data.trim(), "events.json");
-		}
+		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.time, Obj2.time);
 	}
 
 	function onSaveComplete(_):Void
@@ -1665,8 +1576,7 @@ class SubtitleEditor extends MusicBeatState
 class StoredSubData extends FlxSprite {
     public var time:Float = 0;
     public var length:Float = 0;
-	public var value1:String = "";
-	public var value2:String = "";
+	public var properties:SubProperties;
     public function new(x,y) {
         super(x, y);
     }

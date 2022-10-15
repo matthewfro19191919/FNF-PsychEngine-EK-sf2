@@ -1,5 +1,6 @@
 package;
 
+import Subtitle.SubProperties;
 import Subtitle.SubtitleHandler;
 import lime.utils.Bytes;
 import openfl.geom.Rectangle;
@@ -167,6 +168,7 @@ class PlayState extends MusicBeatState
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
 	public var eventNotes:Array<EventNote> = [];
+	public var subtitleNotes:Array<SubProperties> = [];
 
 	private var strumLine:FlxSprite;
 
@@ -2519,6 +2521,20 @@ class PlayState extends MusicBeatState
 			}
 		}
 
+		var songName:String = Paths.formatToSongPath(SONG.song);
+		var file:String = Paths.json(songName + '/subtitles');
+		#if MODS_ALLOWED
+		if (FileSystem.exists(Paths.modsJson(songName + '/subtitles')) || FileSystem.exists(file)) {
+		#else
+		if (OpenFlAssets.exists(file)) {
+		#end
+			var subtitlesData:Array<SubProperties> = Song.loadFromJson('subtitles', songName).subtitles;
+			for (subtitle in subtitlesData) //Event Notes
+			{
+				subtitleNotes.push(subtitle);
+			}
+		}
+
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -3474,6 +3490,16 @@ class PlayState extends MusicBeatState
 			triggerEventNote(eventNotes[0].event, value1, value2);
 			eventNotes.shift();
 		}
+
+		while(subtitleNotes.length > 0) {
+			var leStrumTime:Float = subtitleNotes[0].time;
+			if(Conductor.songPosition < leStrumTime) {
+				break;
+			}
+
+			SubtitleHandler.makeline(subtitleNotes[0]);
+			subtitleNotes.shift();
+		}
 	}
 
 	public function getControl(key:String) {
@@ -3965,7 +3991,7 @@ class PlayState extends MusicBeatState
 					FlxTween.tween(strum, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 				}
 			case 'Add Subtitle':
-				SubtitleHandler.makeline(value1,value2);
+				SubtitleHandler.basic(value1, value2);
 			case 'Freeze Notes Of Note Type' | 'Unfreeze Notes Of Note Type':
 				toggleFreezeNotes(value1, eventName == 'Freeze Notes Of Note Type');
 		}
