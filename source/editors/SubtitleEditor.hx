@@ -182,14 +182,6 @@ class SubtitleEditor extends MusicBeatState
 		bg.color = 0xFF0A0A0A;
 		add(bg);
 
-        var preview:FlxSprite = new FlxSprite(10).makeGraphic(Std.int(FlxG.width * 0.3), Std.int(FlxG.height * 0.3), FlxColor.BLACK);
-		preview.scrollFactor.set();
-        //preview.screenCenter(X);
-        preview.x = FlxG.width - preview.width;
-        preview.x -= 100;
-        preview.y += 100;
-		add(preview);
-
 		gridLayer = new FlxTypedGroup<FlxSprite>();
 		add(gridLayer);
 
@@ -225,14 +217,14 @@ class SubtitleEditor extends MusicBeatState
 		add(dummyArrow);
 
 		var tabs = [
-            {name: "Subtitle", label: "Subtitle"},
-			{name: "Other", label: "Other"}
+			{name: "Other", label: "Other"},
+			{name: "Subtitle", label: "Subtitle"}
 		];
 
 		UI_box = new FlxUITabMenu(null, tabs, true);
 
 		UI_box.resize(300, 400);
-		UI_box.x = 10;
+		UI_box.x = 200;
 		UI_box.y = 20;
 		UI_box.scrollFactor.set();
 
@@ -248,7 +240,7 @@ class SubtitleEditor extends MusicBeatState
 		\nHold Shift to move 4x faster
 		\nHold Control and click on a subtitle to select it
 		\nZ/X - Zoom in/out
-		\nHold Shift+Drag subtitle to move the selected subtitle
+		\nHold Shift+Drag up/down subtitle to move the selected subtitle
 		\n
 		\nQ/E - Decrease/Increase subtitle length
 		\nClick - Delete or add subtitle
@@ -597,16 +589,42 @@ class SubtitleEditor extends MusicBeatState
 		blockPressWhileTypingOnStepper.push(stepperGColor);
 		blockPressWhileTypingOnStepper.push(stepperBColor);
 
-		tab_group_event.add(new FlxText(stepperRColor.x, stepperRColor.y - 15, "<color> Tag's colors:"));
+		tab_group_event.add(new FlxText(stepperRColor.x, stepperRColor.y - 15, "<c> Tag's colors:"));
 
-		tab_group_event.add(new FlxText(stepperRColor.x, stepperRColor.y + 40, "How to add a <color> tag:
+		var descTxt:FlxText = new FlxText(stepperRColor.x, stepperRColor.y + 40, "How to add a <c> tag:
 		If your text is 'YOU MUST DIE NOW!' and you want
 		to add a red color to 'DIE NOW!'
-		Write 'YOU MUST <color>DIE NOW!<color>' and
-		change the steppers to the color you want."));
+		Write 'YOU MUST <c>DIE NOW!<c>' and
+		change the steppers to the color you want.
+		You can also use <r> for red,
+		<g> for green and <b> for blue.
+		It would look like this:");
+		tab_group_event.add(descTxt);
 
-		italicCheckbox = new FlxUICheckBox(10, 200, null, null, "Italic", 100);
-		boldCheckbox = new FlxUICheckBox(110, 200, null, null, "Bold", 100);
+		var red:FlxTextFormat = new FlxTextFormat(FlxColor.RED);
+		var green:FlxTextFormat = new FlxTextFormat(FlxColor.GREEN);
+		var blue:FlxTextFormat = new FlxTextFormat(FlxColor.BLUE);
+
+		var daTxtY:Float = descTxt.y + descTxt.height + 15;
+		var example1:FlxText = new FlxText(stepperRColor.x, daTxtY, "YOU MUST <r>DIE NOW!<r>").applyMarkup("YOU MUST <r>DIE NOW!<r>", [new FlxTextFormatMarkerPair(red, "<r>")]);
+		var example2:FlxText = new FlxText(150, daTxtY, "<r> tag");
+		tab_group_event.add(example1);
+		tab_group_event.add(example2);
+
+		daTxtY += 10;
+		var example1:FlxText = new FlxText(stepperRColor.x, daTxtY, "YOU MUST <g>DIE NOW!<g>").applyMarkup("YOU MUST <g>DIE NOW!<g>", [new FlxTextFormatMarkerPair(green, "<g>")]);
+		var example2:FlxText = new FlxText(150, daTxtY, "<g> tag");
+		tab_group_event.add(example1);
+		tab_group_event.add(example2);
+
+		daTxtY += 10;
+		var example1:FlxText = new FlxText(stepperRColor.x, daTxtY, "YOU MUST <b>DIE NOW!<b>").applyMarkup("YOU MUST <b>DIE NOW!<b>", [new FlxTextFormatMarkerPair(blue, "<b>")]);
+		var example2:FlxText = new FlxText(150, daTxtY, "<b> tag");
+		tab_group_event.add(example1);
+		tab_group_event.add(example2);
+
+		italicCheckbox = new FlxUICheckBox(10, daTxtY + 40, null, null, "Italic", 100);
+		boldCheckbox = new FlxUICheckBox(110, italicCheckbox.y, null, null, "Bold", 100);
 
 		tab_group_event.add(stepperRColor);
 		tab_group_event.add(stepperGColor);
