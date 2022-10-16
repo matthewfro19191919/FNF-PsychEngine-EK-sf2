@@ -190,6 +190,10 @@ class Paths
 		return getPath('$key.lua', TEXT, library);
 	}
 
+	inline static public function replays(key:String = '', ?library:String = 'preload') {
+		return getPath('replays/' + key, TEXT, library);
+	}
+
 	static public function video(key:String)
 	{
 		#if MODS_ALLOWED

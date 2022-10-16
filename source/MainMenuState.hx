@@ -235,6 +235,8 @@ class MainMenuState extends MusicBeatState
 				MusicBeatState.switchState(new MasterEditorMenu());
 			}
 			#end
+
+			if (FlxG.keys.justPressed.F8) MusicBeatState.switchState(new replays.ui.ReplayMenu());
 		}
 
 		super.update(elapsed);

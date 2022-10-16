@@ -1,5 +1,6 @@
 package;
 
+import replays.Replay;
 import Subtitle.SubProperties;
 import Subtitle.SubtitleHandler;
 import lime.utils.Bytes;
@@ -223,6 +224,13 @@ class PlayState extends MusicBeatState
 	public var cpuControlled:Bool = false;
 	public var practiceMode:Bool = false;
 
+	//Replays
+	public static var replayMode:Bool = false;
+	public static var _replay:ReplayData;
+	public var replayHoldTime:Float = 0;
+	public var replayHeldTime:Float = 0;
+	public static var _ogReplay:ReplayData;
+
 	public var botplaySine:Float = 0;
 	public var botplayTxt:FlxText;
 
@@ -367,6 +375,16 @@ class PlayState extends MusicBeatState
 			'NOTE_UP',
 			'NOTE_RIGHT'
 		];
+
+		if (!replayMode) {
+			Replay.recordedReplay = {
+				hits: [],
+				song: Highscore.formatSong(SONG.song, storyDifficulty),
+				songPath: Paths.formatToSongPath(SONG.song),
+				totalHits: 0,
+				totalMisses: 0
+			};
+		}
 
 		//Ratings
 		var rating:Rating = new Rating('marvelous');
@@ -1192,10 +1210,13 @@ class PlayState extends MusicBeatState
 		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		botplayTxt.scrollFactor.set();
 		botplayTxt.borderSize = 1.25;
-		botplayTxt.visible = cpuControlled;
+		botplayTxt.visible = cpuControlled || replayMode;
 		add(botplayTxt);
 		if(ClientPrefs.downScroll) {
 			botplayTxt.y = timeBarBG.y - 78;
+		}
+		if (replayMode) {
+			botplayTxt.text = "REPLAY";
 		}
 
 		strumLineNotes.cameras = [camHUD];
@@ -1399,7 +1420,7 @@ class PlayState extends MusicBeatState
 		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 		#end
 
-		if(!ClientPrefs.controllerMode)
+		if(!ClientPrefs.controllerMode && !replayMode)
 		{
 			FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 			FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
@@ -2355,7 +2376,7 @@ class PlayState extends MusicBeatState
 		+ ' | ' + Lang.g('game_rating') + ': ' + ratingName
 		+ (ratingName != '?' ? ' (${Highscore.floorDecimal(ratingPercent * 100, 2)}%) - $ratingFC' : '');
 
-		if(ClientPrefs.scoreZoom && !miss && !cpuControlled)
+		if(ClientPrefs.scoreZoom && !miss && !cpuControlled && !replayMode)
 		{
 			if(scoreTxtTween != null) {
 				scoreTxtTween.cancel();
@@ -3232,8 +3253,11 @@ class PlayState extends MusicBeatState
 
 		if (generatedMusic && !inCutscene)
 		{
+			if (replayMode && replayHoldTime > 0) {
+				keyShitRep(_replay.hits[0].keyNum);
+			}
 			if(!cpuControlled) {
-				keyShit();
+				if (!replayMode) keyShit(elapsed);
 			} else if(boyfriend.animation.curAnim != null && boyfriend.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')) {
 				boyfriend.dance();
 				//boyfriend.animation.curAnim.finish();
@@ -3393,6 +3417,7 @@ class PlayState extends MusicBeatState
 		setOnLuas('cameraX', camFollowPos.x);
 		setOnLuas('cameraY', camFollowPos.y);
 		setOnLuas('botPlay', cpuControlled);
+		setOnLuas('replay', replayMode);
 		callOnLuas('onUpdatePost', [elapsed]);
 	}
 
@@ -3499,6 +3524,31 @@ class PlayState extends MusicBeatState
 
 			SubtitleHandler.makeline(subtitleNotes[0]);
 			subtitleNotes.shift();
+		}
+
+		if (replayMode) {
+			while(_replay.hits.length > 0) {
+				var leHitTime:Float = _replay.hits[0].time;
+				if(Conductor.songPosition < leHitTime) {
+					break;
+				}
+
+				if (_replay.hits.length > 1) {
+					var nextHit:ReplayHit = _replay.hits[1];
+					replayPress(_replay.hits[0], nextHit);
+				} else replayPress(_replay.hits[0]);
+	
+				_replay.hits.shift();
+			}
+		}
+	}
+
+	public function replayPress(hit:ReplayHit, nextHit:ReplayHit = null) {
+		if (hit.event == 'keyDown') {
+			if (nextHit != null) replayHoldTime = nextHit.holdNoteDuration;
+			onKeyPress(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, -1, keysArray[hit.keyNum][0]));
+		} else {
+			onKeyRelease(new KeyboardEvent(KeyboardEvent.KEY_UP, true, true, -1, keysArray[hit.keyNum][0]));
 		}
 	}
 
@@ -4122,6 +4172,7 @@ class PlayState extends MusicBeatState
 		camZooming = false;
 		inCutscene = false;
 		updateTime = false;
+		replayMode = false;
 
 		deathCounter = 0;
 		seenCutscene = false;
@@ -4140,6 +4191,9 @@ class PlayState extends MusicBeatState
 			}
 		}
 		#end
+
+		if (ClientPrefs.replays && !replayMode)
+			Replay.save();
 
 		var ret:Dynamic = callOnLuas('onEndSong', [], false);
 		if(ret != FunkinLua.Function_Stop && !transitioning) {
@@ -4337,7 +4391,7 @@ class PlayState extends MusicBeatState
 			spawnNoteSplashOnNote(note);
 		}
 
-		if(!practiceMode && !cpuControlled) {
+		if(!practiceMode && !cpuControlled && !replayMode) {
 			songScore += score;
 			if(!note.ratingDisabled)
 			{
@@ -4520,7 +4574,7 @@ class PlayState extends MusicBeatState
 		var key:Int = getKeyFromEvent(eventKey);
 		//trace('Pressed: ' + eventKey);
 
-		if (!cpuControlled && startedCountdown && !paused && key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || ClientPrefs.controllerMode))
+		if (!cpuControlled && startedCountdown && !paused && key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || ClientPrefs.controllerMode || replayMode))
 		{
 			if(!boyfriend.stunned && generatedMusic && !endingSong)
 			{
@@ -4595,6 +4649,10 @@ class PlayState extends MusicBeatState
 				spr.resetAnim = 0;
 			}
 			callOnLuas('onKeyPress', [key]);
+
+			if (ClientPrefs.replays && !replayMode) {
+				Replay.register(Conductor.songPosition, key, 'keyDown', 0);
+			}
 		}
 		//trace('pressed: ' + controlArray);
 	}
@@ -4622,6 +4680,13 @@ class PlayState extends MusicBeatState
 				spr.resetAnim = 0;
 			}
 			callOnLuas('onKeyRelease', [key]);
+
+			if (ClientPrefs.replays && !replayMode) {
+				Replay.register(Conductor.songPosition, key, 'keyUp', replayHeldTime);
+			}
+			if (replayMode) {
+				replayHoldTime = 0;
+			}
 		}
 		//trace('released: ' + controlArray);
 	}
@@ -4645,7 +4710,19 @@ class PlayState extends MusicBeatState
 	}
 
 	// Hold notes
-	private function keyShit():Void
+	private function keyShitRep(data:Int) {
+		// rewritten inputs???
+		notes.forEachAlive(function(daNote:Note)
+			{
+				// hold note functions
+				if (daNote.isSustainNote && daNote.noteData == data && daNote.canBeHit
+				&& daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit) {
+					goodNoteHit(daNote);
+				}
+			});
+	}
+
+	private function keyShit(elapsed:Float):Void
 	{
 		// HOLDING
 		var parsedHoldArray:Array<Bool> = parseKeys();
@@ -4673,6 +4750,7 @@ class PlayState extends MusicBeatState
 				// hold note functions
 				if (strumsBlocked[daNote.noteData] != true && daNote.isSustainNote && parsedHoldArray[daNote.noteData] && daNote.canBeHit
 				&& daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit) {
+					if (ClientPrefs.replays) replayHeldTime += elapsed;
 					goodNoteHit(daNote);
 				}
 			});
@@ -5213,7 +5291,7 @@ class PlayState extends MusicBeatState
 		if(FunkinLua.hscript != null) FunkinLua.hscript = null;
 		#end
 
-		if(!ClientPrefs.controllerMode)
+		if(!ClientPrefs.controllerMode && !replayMode)
 		{
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
@@ -5483,7 +5561,7 @@ class PlayState extends MusicBeatState
 		var usedPractice:Bool = (ClientPrefs.getGameplaySetting('practice', false) || ClientPrefs.getGameplaySetting('botplay', false));
 		for (i in 0...achievesToCheck.length) {
 			var achievementName:String = achievesToCheck[i];
-			if(!Achievements.isAchievementUnlocked(achievementName) && !cpuControlled) {
+			if(!Achievements.isAchievementUnlocked(achievementName) && !cpuControlled && !replayMode) {
 				var unlock:Bool = false;
 				
 				if (achievementName.contains(WeekData.getWeekFileName()) && achievementName.endsWith('nomiss')) // any FC achievements, name should be "weekFileName_nomiss", e.g: "weekd_nomiss";

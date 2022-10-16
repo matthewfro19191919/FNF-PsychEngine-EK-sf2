@@ -225,6 +225,7 @@ class PauseSubState extends MusicBeatSubstate
 					practiceText.visible = PlayState.instance.practiceMode;
 				case "Restart Song":
 					restartSong();
+					if (PlayState.replayMode) PlayState._replay = PlayState._ogReplay;
 				case "Leave Charting Mode":
 					restartSong();
 					PlayState.chartingMode = false;
@@ -246,6 +247,10 @@ class PauseSubState extends MusicBeatSubstate
 				case "End Song":
 					close();
 					PlayState.instance.finishSong(true);
+					if(PlayState.replayMode) {
+						PlayState.replayMode = false;
+						PlayState._replay = null;
+					}
 				case 'Toggle Botplay':
 					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
 					PlayState.changedDifficulty = true;

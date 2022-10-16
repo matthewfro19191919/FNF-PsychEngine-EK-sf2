@@ -49,6 +49,15 @@ class CoolUtil
 		return Paths.formatToSongPath(fileSuffix);
 	}
 
+	public static function getHostUsername():String
+	{
+		#if (macos || linux)
+		return Sys.getEnv("USER");
+		#elseif windows
+		return Sys.getEnv("USERNAME");
+		#end
+	}
+
 	public static function difficultyString(diff:Int = null):String
 	{
 		var difficulty = diff;
