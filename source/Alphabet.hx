@@ -281,10 +281,10 @@ class Alphabet extends FlxSpriteGroup
 						color = letterColor;
 					}
 
-					if (outline) {
+					/*if (outline) {
 						var letterShader:OutlineShaders = new OutlineShaders();
 						letter.shader = letterShader;
-					}
+					}*/
 
 					add(letter);
 					letters.push(letter);
