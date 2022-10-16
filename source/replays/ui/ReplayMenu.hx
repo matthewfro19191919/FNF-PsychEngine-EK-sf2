@@ -166,6 +166,7 @@ class ReplayMenu extends MusicBeatState
         }
     
         dateText.text = Date.now().toString();
+        super.update(elapsed);
     }
 
     function changeSelection(a:Int = 0) {

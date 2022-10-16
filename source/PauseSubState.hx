@@ -247,10 +247,6 @@ class PauseSubState extends MusicBeatSubstate
 				case "End Song":
 					close();
 					PlayState.instance.finishSong(true);
-					if(PlayState.replayMode) {
-						PlayState.replayMode = false;
-						PlayState._replay = null;
-					}
 				case 'Toggle Botplay':
 					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
 					PlayState.changedDifficulty = true;
@@ -271,6 +267,10 @@ class PauseSubState extends MusicBeatSubstate
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 					PlayState.changedDifficulty = false;
 					PlayState.chartingMode = false;
+					if(PlayState.replayMode) {
+						PlayState.replayMode = false;
+						PlayState._replay = null;
+					}
 			}
 		}
 	}

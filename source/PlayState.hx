@@ -227,8 +227,8 @@ class PlayState extends MusicBeatState
 	//Replays
 	public static var replayMode:Bool = false;
 	public static var _replay:ReplayData;
-	public var replayHoldTime:Float = 0;
-	public var replayHeldTime:Float = 0;
+	public var replayHoldTime:Array<Float> = [0,0,0,0];
+	public var replayHeldTime:Array<Float> = [0,0,0,0];
 	public static var _ogReplay:ReplayData;
 
 	public var botplaySine:Float = 0;
@@ -2376,7 +2376,7 @@ class PlayState extends MusicBeatState
 		+ ' | ' + Lang.g('game_rating') + ': ' + ratingName
 		+ (ratingName != '?' ? ' (${Highscore.floorDecimal(ratingPercent * 100, 2)}%) - $ratingFC' : '');
 
-		if(ClientPrefs.scoreZoom && !miss && !cpuControlled && !replayMode)
+		if(ClientPrefs.scoreZoom && !miss && !cpuControlled)
 		{
 			if(scoreTxtTween != null) {
 				scoreTxtTween.cancel();
@@ -3253,11 +3253,8 @@ class PlayState extends MusicBeatState
 
 		if (generatedMusic && !inCutscene)
 		{
-			if (replayMode && replayHoldTime > 0) {
-				keyShitRep(_replay.hits[0].keyNum);
-			}
 			if(!cpuControlled) {
-				if (!replayMode) keyShit(elapsed);
+				keyShit(elapsed);
 			} else if(boyfriend.animation.curAnim != null && boyfriend.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss')) {
 				boyfriend.dance();
 				//boyfriend.animation.curAnim.finish();
@@ -3533,9 +3530,16 @@ class PlayState extends MusicBeatState
 					break;
 				}
 
+				var first = _replay.hits[0];
 				if (_replay.hits.length > 1) {
-					var nextHit:ReplayHit = _replay.hits[1];
-					replayPress(_replay.hits[0], nextHit);
+					var foundHit:Bool = false;
+					for (i in 1..._replay.hits.length) {
+						var hit = _replay.hits[i];
+						if (hit.keyNum == first.keyNum && hit.event == 'keyUp' && !foundHit) {
+							replayPress(first, hit);
+							foundHit = true;
+						}
+					}
 				} else replayPress(_replay.hits[0]);
 	
 				_replay.hits.shift();
@@ -3545,7 +3549,10 @@ class PlayState extends MusicBeatState
 
 	public function replayPress(hit:ReplayHit, nextHit:ReplayHit = null) {
 		if (hit.event == 'keyDown') {
-			if (nextHit != null) replayHoldTime = nextHit.holdNoteDuration;
+			if (nextHit != null) {
+				if (nextHit.event == 'keyUp' && nextHit.keyNum == hit.keyNum)
+					replayHoldTime[hit.keyNum] = nextHit.holdNoteDuration;
+			}
 			onKeyPress(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, -1, keysArray[hit.keyNum][0]));
 		} else {
 			onKeyRelease(new KeyboardEvent(KeyboardEvent.KEY_UP, true, true, -1, keysArray[hit.keyNum][0]));
@@ -4391,7 +4398,7 @@ class PlayState extends MusicBeatState
 			spawnNoteSplashOnNote(note);
 		}
 
-		if(!practiceMode && !cpuControlled && !replayMode) {
+		if(!practiceMode && !cpuControlled) {
 			songScore += score;
 			if(!note.ratingDisabled)
 			{
@@ -4682,10 +4689,10 @@ class PlayState extends MusicBeatState
 			callOnLuas('onKeyRelease', [key]);
 
 			if (ClientPrefs.replays && !replayMode) {
-				Replay.register(Conductor.songPosition, key, 'keyUp', replayHeldTime);
+				Replay.register(Conductor.songPosition, key, 'keyUp', replayHeldTime[key]);
 			}
 			if (replayMode) {
-				replayHoldTime = 0;
+				replayHoldTime[key] = 0;
 			}
 		}
 		//trace('released: ' + controlArray);
@@ -4748,9 +4755,10 @@ class PlayState extends MusicBeatState
 			notes.forEachAlive(function(daNote:Note)
 			{
 				// hold note functions
-				if (strumsBlocked[daNote.noteData] != true && daNote.isSustainNote && parsedHoldArray[daNote.noteData] && daNote.canBeHit
+				if (strumsBlocked[daNote.noteData] != true && daNote.isSustainNote && (parsedHoldArray[daNote.noteData] || 
+				(replayMode && replayHoldTime[daNote.noteData] > 0)) && daNote.canBeHit
 				&& daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.blockHit) {
-					if (ClientPrefs.replays) replayHeldTime += elapsed;
+					if (ClientPrefs.replays) replayHeldTime[daNote.noteData] += elapsed;
 					goodNoteHit(daNote);
 				}
 			});
