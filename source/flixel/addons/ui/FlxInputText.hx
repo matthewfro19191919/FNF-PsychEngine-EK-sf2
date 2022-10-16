@@ -48,6 +48,7 @@ class FlxInputText extends FlxText
 	public static inline var PASTE_ACTION:String = "paste"; // text paste
 	public static inline var COPY_ACTION:String = "copy"; // text copy
 	public static inline var CUT_ACTION:String = "cut"; // text copy
+	public static inline var WORD_DELETE_ACTION:String = "word_delete"; // text word deleted
 
 	/**
 	 * This regular expression will filter out (remove) everything that matches.
@@ -429,11 +430,27 @@ class FlxInputText extends FlxText
 			// Backspace
 			else if (key == 8)
 			{
-				if (caretIndex > 0)
-				{
-					caretIndex--;
-					text = text.substring(0, caretIndex) + text.substring(caretIndex + 1);
-					onChange(BACKSPACE_ACTION);
+				#if windows
+				if (e.ctrlKey) {
+				#elseif macos
+				if (e.commandKey) {
+				#end
+					if (caretIndex > 0)
+					{
+						var textArray:Array<String> = text.split(" ");
+						var newT:String = "";
+						for (i in 0...textArray.length - 1) newT += textArray[i];
+						caretIndex = newT.length;
+						text = newT;
+						onChange(WORD_DELETE_ACTION);
+					}
+				} else {
+					if (caretIndex > 0)
+					{
+						caretIndex--;
+						text = text.substring(0, caretIndex) + text.substring(caretIndex + 1);
+						onChange(BACKSPACE_ACTION);
+					}
 				}
 			}
 			// Delete

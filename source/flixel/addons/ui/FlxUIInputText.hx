@@ -21,6 +21,7 @@ class FlxUIInputText extends FlxInputText implements IResizable implements IFlxU
 	public static inline var COPY_EVENT:String = "copy_input_text"; // copy text in this text field
 	public static inline var PASTE_EVENT:String = "paste_input_text"; // paste text in this text field
 	public static inline var CUT_EVENT:String = "cut_input_text"; // cut text in this text field
+	public static inline var WORD_DELETE_EVENT:String = "word_delete_input_text"; // cut text in this text field
 
 	public function resize(w:Float, h:Float):Void
 	{
@@ -52,6 +53,9 @@ class FlxUIInputText extends FlxInputText implements IResizable implements IFlxU
                 		case FlxInputText.CUT_ACTION: // text was cut
                     			FlxUI.event(CUT_EVENT, this, text, params);
                     			FlxUI.event(CHANGE_EVENT, this, text, params);
+						case FlxInputText.WORD_DELETE_ACTION: // word was deleted
+								FlxUI.event(WORD_DELETE_EVENT, this, text, params);
+								FlxUI.event(CHANGE_EVENT, this, text, params);
 			}
 		}
 	}

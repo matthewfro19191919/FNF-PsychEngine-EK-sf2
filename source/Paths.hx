@@ -440,10 +440,12 @@ class Paths
 	inline static public function modsShaderVertex(key:String, ?library:String)
 	{
 		return modFolders('shaders/'+key+'.vert');
-	}
-	inline static public function modsAchievements(key:String) {
-		return modFolders('achievements/' + key + '.json');
 	}*/
+
+	// heh !??!
+	inline static public function modsAchievements(mod:String, key:String = '') {
+		return mods(mod + '/achievements/' + key);
+	}
 
 	static public function modFolders(key:String) {
 		if(currentModDirectory != null && currentModDirectory.length > 0) {

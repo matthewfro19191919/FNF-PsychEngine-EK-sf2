@@ -1,5 +1,6 @@
-package;
+package achievements;
 
+import achievements.Achievements;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -13,7 +14,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
 import flixel.FlxSubState;
-import Achievements;
+import achievements.Achievements;
 
 using StringTools;
 
@@ -26,6 +27,7 @@ class AchievementsMenuState extends MusicBeatState
 	private var achievementArray:Array<AttachedAchievement> = [];
 	private var achievementIndex:Array<Int> = [];
 	private var descText:FlxText;
+	var allAchievements:Array<Dynamic> = [];
 
 	override function create() {
 		#if desktop
@@ -43,16 +45,37 @@ class AchievementsMenuState extends MusicBeatState
 		add(grpOptions);
 
 		Achievements.loadAchievements();
-		for (i in 0...Achievements.achievementsStuff.length) {
-			if(!Achievements.achievementsStuff[i][3] || Achievements.achievementsMap.exists(Achievements.achievementsStuff[i][2])) {
-				options.push(Achievements.achievementsStuff[i]);
+		for (i in 0...Achievements.baseGameAchievements.length) {
+			if(!Achievements.baseGameAchievements[i][3] || 
+				Achievements.achievementsMap.exists(
+					Achievements.baseGameAchievements[i][2])) {
+				options.push(Achievements.baseGameAchievements[i]);
 				achievementIndex.push(i);
+			}
+			allAchievements.push(Achievements.baseGameAchievements[i]);
+		}
+
+		mods.ModManager.loadModAchievements();
+		trace(Achievements.modAchievements);
+		for (mod in Achievements.modAchievements) {
+			var ogL:Int = Achievements.baseGameAchievements.length;
+			for (i in 0...mod.length) {
+				if(!mod[i][3] || 
+					Achievements.achievementsMap.exists(mod[i][2])) {
+					options.push(mod[i]);
+					achievementIndex.push(ogL + i);
+				}
+				allAchievements.push(mod[i]);
 			}
 		}
 
 		for (i in 0...options.length) {
-			var achieveName:String = Achievements.achievementsStuff[achievementIndex[i]][2];
-			var optionText:Alphabet = new Alphabet(280, 300, Achievements.isAchievementUnlocked(achieveName) ? Achievements.achievementsStuff[achievementIndex[i]][0] : '?', false);
+			var achieveName:String = allAchievements[achievementIndex[i]][2];
+			var optionText:Alphabet = new Alphabet(280, 300, 
+				Achievements.isAchievementUnlocked(achieveName) ? 
+					allAchievements[achievementIndex[i]][0] : 
+					'?', 
+			false);
 			optionText.isMenuItem = true;
 			optionText.targetY = i - curSelected;
 			optionText.snapToPosition();
@@ -115,7 +138,7 @@ class AchievementsMenuState extends MusicBeatState
 				achievementArray[i].alpha = 1;
 			}
 		}
-		descText.text = Achievements.achievementsStuff[achievementIndex[curSelected]][1];
+		descText.text = allAchievements[achievementIndex[curSelected]][1];
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 	}
 	#end

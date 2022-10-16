@@ -1,5 +1,6 @@
 package;
 
+import achievements.Achievements;
 import flixel.FlxG;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
@@ -41,6 +42,7 @@ class ClientPrefs {
 	public static var input:String = 'Normal';
 	public static var transition:String = "Vertical Fade";
 	public static var replays:Bool = true;
+	public static var stretchScreen:Bool = true;
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -146,6 +148,7 @@ class ClientPrefs {
 		FlxG.save.data.transition = transition;
 		FlxG.save.data.camMovementForce = camMovementForce;
 		FlxG.save.data.replays = replays;
+		FlxG.save.data.stretchScreen = stretchScreen;
 
 		FlxG.save.data.language = language;
 	
@@ -303,6 +306,8 @@ class ClientPrefs {
 			camMovementForce = FlxG.save.data.camMovementForce;
 		if (FlxG.save.data.replays != null)
 			replays = FlxG.save.data.replays;
+		if (FlxG.save.data.stretchScreen != null)
+			stretchScreen = FlxG.save.data.stretchScreen;
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99');

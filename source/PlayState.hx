@@ -60,7 +60,7 @@ import flixel.effects.particles.FlxEmitter;
 import flixel.effects.particles.FlxParticle;
 import flixel.util.FlxSave;
 import animateatlas.AtlasFrameMaker;
-import Achievements;
+import achievements.Achievements;
 import StageData;
 import FunkinLua;
 import DialogueBoxPsych;
@@ -916,8 +916,10 @@ class PlayState extends MusicBeatState
 		if(Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
 			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/scripts/'));
 
-		for(mod in Paths.getGlobalMods())
+		for(mod in Paths.getGlobalMods()) {
+			foldersToCheck.insert(0, Paths.modsAchievements(mod));
 			foldersToCheck.insert(0, Paths.mods(mod + '/scripts/'));
+		}
 		#end
 
 		for (folder in foldersToCheck)
@@ -4188,9 +4190,23 @@ class PlayState extends MusicBeatState
 		if(achievementObj != null) {
 			return;
 		} else {
-			var achieve:String = checkForAchievement(['week1_nomiss', 'week2_nomiss', 'week3_nomiss', 'week4_nomiss',
-				'week5_nomiss', 'week6_nomiss', 'week7_nomiss', 'ur_bad',
-				'ur_good', 'hype', 'two_keys', 'toastie', 'debugger']);
+			var arrayToCheck:Array<String> = [];
+
+			//DEFAULT GAME ACHIEVEMENTS
+			var extras:Array<String> = ['ur_bad', 'ur_good', 'hype', 'two_keys', 'toastie', 'debugger'];
+			for (i in 1...8) arrayToCheck.push('week'+i+'_nomiss');
+			for (i in 0...extras.length) arrayToCheck.push(extras[i]);
+
+			//MOD ACHIEVEMENTS
+			for (mod in Achievements.modAchievements) {
+				for (i in 0...mod.length) {
+					arrayToCheck.push(mod[i][2]);
+				}
+			}
+
+			trace(arrayToCheck);
+
+			var achieve:String = checkForAchievement(arrayToCheck);
 
 			if(achieve != null) {
 				startAchievement(achieve);
@@ -5577,48 +5593,54 @@ class PlayState extends MusicBeatState
 					if(isStoryMode && campaignMisses + songMisses < 1 && CoolUtil.difficultyString() == 'HARD'
 						&& storyPlaylist.length <= 1 && !changedDifficulty && !usedPractice)
 						unlock = true;
-				}
-				switch(achievementName)
-				{
-					case 'ur_bad':
-						if(ratingPercent < 0.2 && !practiceMode) {
-							unlock = true;
-						}
-					case 'ur_good':
-						if(ratingPercent >= 1 && !usedPractice) {
-							unlock = true;
-						}
-					case 'roadkill_enthusiast':
-						if(Achievements.henchmenDeath >= 100) {
-							unlock = true;
-						}
-					case 'oversinging':
-						if(boyfriend.holdTimer >= 10 && !usedPractice) {
-							unlock = true;
-						}
-					case 'hype':
-						if(!boyfriendIdled && !usedPractice) {
-							unlock = true;
-						}
-					case 'two_keys':
-						if(!usedPractice) {
-							var howManyPresses:Int = 0;
-							for (j in 0...keysPressed.length) {
-								if(keysPressed[j]) howManyPresses++;
-							}
-
-							if(howManyPresses <= 2) {
+				} else {
+					switch(achievementName)
+					{
+						case 'ur_bad':
+							if(ratingPercent < 0.2 && !practiceMode) {
 								unlock = true;
 							}
-						}
-					case 'toastie':
-						if(/*ClientPrefs.framerate <= 60 &&*/ !ClientPrefs.shaders && ClientPrefs.lowQuality && !ClientPrefs.globalAntialiasing) {
-							unlock = true;
-						}
-					case 'debugger':
-						if(Paths.formatToSongPath(SONG.song) == 'test' && !usedPractice) {
-							unlock = true;
-						}
+						case 'ur_good':
+							if(ratingPercent >= 1 && !usedPractice) {
+								unlock = true;
+							}
+						case 'roadkill_enthusiast':
+							if(Achievements.henchmenDeath >= 100) {
+								unlock = true;
+							}
+						case 'oversinging':
+							if(boyfriend.holdTimer >= 10 && !usedPractice) {
+								unlock = true;
+							}
+						case 'hype':
+							if(!boyfriendIdled && !usedPractice) {
+								unlock = true;
+							}
+						case 'two_keys':
+							if(!usedPractice) {
+								var howManyPresses:Int = 0;
+								for (j in 0...keysPressed.length) {
+									if(keysPressed[j]) howManyPresses++;
+								}
+
+								if(howManyPresses <= 2) {
+									unlock = true;
+								}
+							}
+						case 'toastie':
+							if(/*ClientPrefs.framerate <= 60 &&*/ !ClientPrefs.shaders && ClientPrefs.lowQuality && !ClientPrefs.globalAntialiasing) {
+								unlock = true;
+							}
+						case 'debugger':
+							if(Paths.formatToSongPath(SONG.song) == 'test' && !usedPractice) {
+								unlock = true;
+							}
+						default: // json achievements
+							var ret:Dynamic = callOnLuas('onCheckForAchievement', [achievementName]);
+							if (ret == FunkinLua.Function_Continue) {
+								unlock = true;
+							}
+					}
 				}
 
 				if(unlock) {

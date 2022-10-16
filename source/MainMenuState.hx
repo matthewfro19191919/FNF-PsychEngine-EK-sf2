@@ -18,7 +18,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import lime.app.Application;
-import Achievements;
+import achievements.Achievements;
 import editors.MasterEditorMenu;
 import flixel.input.keyboard.FlxKey;
 
@@ -156,11 +156,12 @@ class MainMenuState extends MusicBeatState
 
 		#if ACHIEVEMENTS_ALLOWED
 		Achievements.loadAchievements();
+		mods.ModManager.loadModAchievements();
 		var leDate = Date.now();
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18) {
 			var achieveID:Int = Achievements.getAchievementIndex('friday_night_play');
-			if(!Achievements.isAchievementUnlocked(Achievements.achievementsStuff[achieveID][2])) { //It's a friday night. WEEEEEEEEEEEEEEEEEE
-				Achievements.achievementsMap.set(Achievements.achievementsStuff[achieveID][2], true);
+			if(!Achievements.isAchievementUnlocked(Achievements.baseGameAchievements[achieveID][2])) { //It's a friday night. WEEEEEEEEEEEEEEEEEE
+				Achievements.achievementsMap.set(Achievements.baseGameAchievements[achieveID][2], true);
 				giveAchievement();
 				ClientPrefs.saveSettings();
 			}
@@ -236,7 +237,7 @@ class MainMenuState extends MusicBeatState
 			}
 			#end
 
-			if (FlxG.keys.justPressed.F8) MusicBeatState.switchState(new replays.ui.ReplayMenu());
+			if (FlxG.keys.justPressed.F8 && ClientPrefs.replays) MusicBeatState.switchState(new replays.ui.ReplayMenu());
 		}
 
 		super.update(elapsed);
@@ -287,7 +288,7 @@ class MainMenuState extends MusicBeatState
 								MusicBeatState.switchState(new ModsMenuState());
 							#end
 							case 'awards':
-								MusicBeatState.switchState(new AchievementsMenuState());
+								MusicBeatState.switchState(new achievements.AchievementsMenuState());
 							case 'credits':
 								MusicBeatState.switchState(new CreditsState());
 							case 'options':

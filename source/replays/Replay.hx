@@ -30,12 +30,14 @@ class Replay {
     public static function register(time:Float, data:Int, event:String, holdNoteDuration:Float) {
         var duration:Float = 0;
         if (event == 'keyUp') duration = holdNoteDuration;
-        recordedReplay.hits.push({
-            time: time,
-            keyNum: data,
-            event: event,
-            holdNoteDuration: duration
-        });
+        if (recordedReplay != null) {
+            recordedReplay.hits.push({
+                time: time,
+                keyNum: data,
+                event: event,
+                holdNoteDuration: duration
+            });
+        }
     }
 
     // stole this from ralsei engine anget killed :shadowtroll:

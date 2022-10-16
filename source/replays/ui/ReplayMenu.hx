@@ -1,5 +1,6 @@
 package replays.ui;
 
+import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
 import flixel.text.FlxText;
 import flixel.FlxCamera;
@@ -61,13 +62,11 @@ class ReplayMenu extends MusicBeatState
 			repOption.isMenuItem = true;
 			repOption.targetY = i - curSelected;
             grpOptions.add(repOption);
-            repOption.scaleX = 0.7;
-            repOption.scaleY = 0.7;
             
-            var maxWidth = 980;
+            var maxWidth = 1100;
 			if (repOption.width > maxWidth)
 			{
-				repOption.scaleX = (maxWidth / repOption.width) - 0.3;
+				repOption.scaleX = (maxWidth / repOption.width);
 			}
 			repOption.snapToPosition();
         }
@@ -155,8 +154,8 @@ class ReplayMenu extends MusicBeatState
 
         if (updateTexts) {
             if (loadedPaths[curSelected] != 'select from ' + hostUsername) {
-                statusText.text = 'Size: ' + Std.int(FileSystem.stat(loadedPaths[curSelected]).size / 1024) + 'KB';
-                createdText.text = 'Created ' + FileSystem.stat(loadedPaths[curSelected]).ctime;
+                statusText.text = 'Size: ' + FlxStringUtil.formatBytes(FileSystem.stat(loadedPaths[curSelected]).size);
+                createdText.text = 'Created at: ' + FileSystem.stat(loadedPaths[curSelected]).ctime;
                 dateText.y = 64;
             } else {
                 statusText.text = 'Select a replay';
@@ -217,46 +216,59 @@ class ReplayMenu extends MusicBeatState
                 var lePath:String = Paths.replays() + replay;
                 loadedPaths.push(lePath);
             } else {
-                trace(replay + ' is not a .json file.');
+                trace(replay+ ' excluded');
             }
         }
     }
 
 
     function deleteReplay() {
-            //if (FileSystem.exists(loadedReplays[curSelected])) {
-                updateTexts = false;
-                FileSystem.deleteFile(loadedPaths[curSelected]);
+        updateTexts = false;
+        FileSystem.deleteFile(loadedPaths[curSelected]);
 
-                trace('deleting replay at ' + loadedPaths[curSelected]);
+        trace('deleting replay at ' + loadedPaths[curSelected]);
 
-                var dots:String = '';
-                var daTimes:Int = 1;
-                new FlxTimer().start(0.1, function(tmr:FlxTimer)
-                    {   
-                        daTimes++;
-                        if (daTimes > 3) {
-                            daTimes = 1;
-                            dots = '';
-                        }
+        var dots:String = '';
+        var daTimes:Int = 1;
+        var dotTimer:FlxTimer = new FlxTimer().start(0.1, function(tmr:FlxTimer)
+        {   
+            daTimes++;
+            if (daTimes > 3) {
+                daTimes = 1;
+                dots = '';
+            }
 
-                        for (i in 0...daTimes)
-                            dots += '.';
+            for (i in 0...daTimes)
+                dots += '.';
 
-                        grpOptions.members[curSelected].text = 'Deleting replay' + dots;
+            grpOptions.members[curSelected].text = 'Deleting replay' + dots;
 
-                        tmr.reset();
-                    });
+            tmr.reset();
+        });
 
-                new FlxTimer().start(1, function(tmr:FlxTimer)
-                    {   
-                        grpOptions.members[curSelected].text = 'Reloading...';
-                        FlxG.sound.play(Paths.sound('cancelMenu'));
-                        MusicBeatState.resetState();
-                    });
+        new FlxTimer().start(1, function(tmr:FlxTimer)
+        {
+            dotTimer.cancel();
+            dots = '';
+            daTimes = 1;
+            var dotTimer2:FlxTimer = new FlxTimer().start(0.1, function(tmr:FlxTimer) {
+                daTimes++;
+                if (daTimes > 3) {
+                    daTimes = 1;
+                    dots = '';
+                }
+    
+                for (i in 0...daTimes)
+                    dots += '.';
 
-            //} else {
-                //trace('could not find replay to delete in ' + loadedPaths[curSelected]);
-            //}
+                grpOptions.members[curSelected].text = 'Checking existance' + dots; 
+                if (FileSystem.exists(loadedPaths[curSelected])) {
+                    deleteReplay();
+                } else {
+                    FlxG.sound.play(Paths.sound('cancelMenu'));
+                    MusicBeatState.resetState();
+                }
+            });
+        });
     }
 }

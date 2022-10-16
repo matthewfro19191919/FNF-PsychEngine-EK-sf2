@@ -75,6 +75,14 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.isFps = true;
 		#end
 
+		var option:Option = new Option('Stretch Game',
+			"Stretches the game to the window's size.",
+			'stretchScreen',
+			'bool',
+			false);
+		addOption(option);
+		option.onChange = MusicBeatState.changeScaleMode;
+
 		super();
 
 		onChangeFramerate();

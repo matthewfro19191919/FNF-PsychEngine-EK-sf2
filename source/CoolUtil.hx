@@ -69,6 +69,13 @@ class CoolUtil
 		return Math.max(min, Math.min(max, value));
 	}
 
+	public static function wrapTo(value:Float, min:Float, max:Float) {
+		value -= min;
+		value %= (max - min);
+		if (value < 0) value = (max - min) - value;
+		return value + min;
+	}
+
 	public static function coolTextFile(path:String):Array<String>
 	{
 		var daList:Array<String> = [];

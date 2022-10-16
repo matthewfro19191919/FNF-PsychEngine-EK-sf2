@@ -1,3 +1,5 @@
+package achievements;
+
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxCamera;
@@ -10,7 +12,7 @@ import flixel.text.FlxText;
 using StringTools;
 
 class Achievements {
-	public static var achievementsStuff:Array<Dynamic> = [ //Name, Description, Achievement save tag, Hidden achievement
+	public static var baseGameAchievements:Array<Dynamic> = [ //Name, Description, Achievement save tag, Hidden achievement
 		["Freaky on a Friday Night",	"Play on a Friday... Night.",						'friday_night_play',	 true],
 		["She Calls Me Daddy Too",		"Beat Week 1 on Hard with no Misses.",				'week1_nomiss',			false],
 		["No More Tricks",				"Beat Week 2 on Hard with no Misses.",				'week2_nomiss',			false],
@@ -29,6 +31,7 @@ class Achievements {
 		["Debugger",					"Beat the \"Test\" Stage from the Chart Editor.",	'debugger',				 true]
 	];
 	public static var achievementsMap:Map<String, Bool> = new Map<String, Bool>();
+	public static var modAchievements:Map<String, Array<Dynamic>> = new Map<String, Array<Dynamic>>();
 
 	public static var henchmenDeath:Int = 0;
 	public static function unlockAchievement(name:String):Void {
@@ -57,8 +60,8 @@ class Achievements {
 	];
 	public static function updateAchievementsLocalization() {
 		for (i in 0...achievementLanguageArray.length) {
-			achievementsStuff[i][0] = Language.g('ach_' + achievementLanguageArray[i], achievementsStuff[i][0] + ' (translation not found)');
-			achievementsStuff[i][1] = Language.g('ach_' + achievementLanguageArray[i] + '_desc', achievementsStuff[i][1] + ' (translation not found)');
+			baseGameAchievements[i][0] = Language.g('ach_' + achievementLanguageArray[i], baseGameAchievements[i][0] + ' (9)');
+			baseGameAchievements[i][1] = Language.g('ach_' + achievementLanguageArray[i] + '_desc', baseGameAchievements[i][1] + ' (9)');
 		}
 	}
 
@@ -70,8 +73,8 @@ class Achievements {
 	}
 
 	public static function getAchievementIndex(name:String) {
-		for (i in 0...achievementsStuff.length) {
-			if(achievementsStuff[i][2] == name) {
+		for (i in 0...baseGameAchievements.length) {
+			if(baseGameAchievements[i][2] == name) {
 				return i;
 			}
 		}
@@ -91,8 +94,8 @@ class Achievements {
 	}
 
 	public static function completeAll():Void {
-		for (i in 0...achievementsStuff.length) {
-			unlockAchievement(achievementsStuff[i][2]);
+		for (i in 0...baseGameAchievements.length) {
+			unlockAchievement(baseGameAchievements[i][2]);
 		}
 	}
 }
@@ -138,7 +141,30 @@ class AchievementObject extends FlxSpriteGroup {
 		super(x, y);
 		ClientPrefs.saveSettings();
 
-		var id:Int = Achievements.getAchievementIndex(name);
+		var achievementName:String = "";
+		var achievementDescription:String = "";
+		var isModAchievement:Bool = false;
+
+		var thisAward:Array<Dynamic> = [];
+
+		for (modAwards in Achievements.modAchievements) {
+			for (award in modAwards) {
+				if (award[2] == name) {
+					thisAward = award;
+					isModAchievement = true;
+				}
+			}
+		}
+
+		if (isModAchievement) {
+			achievementName = thisAward[0];
+			achievementDescription = thisAward[1];
+		} else {
+			var id:Int = Achievements.getAchievementIndex(name);
+			achievementName = Achievements.baseGameAchievements[id][0];
+			achievementDescription = Achievements.baseGameAchievements[id][1];
+		}
+
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
 		achievementBG.scrollFactor.set();
 
@@ -148,11 +174,11 @@ class AchievementObject extends FlxSpriteGroup {
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = ClientPrefs.globalAntialiasing;
 
-		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, Achievements.achievementsStuff[id][0], 16);
+		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievementName, 16);
 		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementName.scrollFactor.set();
 
-		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, Achievements.achievementsStuff[id][1], 16);
+		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, achievementDescription, 16);
 		achievementText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementText.scrollFactor.set();
 

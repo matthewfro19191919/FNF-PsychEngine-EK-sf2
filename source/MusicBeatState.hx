@@ -1,5 +1,6 @@
 package;
 
+import flixel.system.scaleModes.*;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
 import flixel.addons.ui.FlxUIState;
@@ -46,6 +47,14 @@ class MusicBeatState extends FlxUIState
 			}
 		}
 		FlxTransitionableState.skipNextTransOut = false;
+		changeScaleMode();
+	}
+
+	public static function changeScaleMode() {
+		if (ClientPrefs.stretchScreen)
+			FlxG.scaleMode = new FillScaleMode();
+		else
+			FlxG.scaleMode = new RatioScaleMode();
 	}
 
 	override function update(elapsed:Float)

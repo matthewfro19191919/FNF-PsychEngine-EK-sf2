@@ -1,5 +1,7 @@
 package;
 
+import openfl.ui.Keyboard;
+import openfl.events.KeyboardEvent;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
 import flixel.FlxGame;
@@ -98,6 +100,11 @@ class Main extends Sprite
 		FlxG.autoPause = false;
 		FlxG.mouse.visible = false;
 		#end
+
+		// Full screen yay
+		addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) {
+			if (e.keyCode == Keyboard.F11) FlxG.fullscreen = !FlxG.fullscreen;
+		});
 		
 		#if CRASH_HANDLER
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);

@@ -84,6 +84,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			false);
 		addOption(option);
 
+		var option:Option = new Option('Replays',
+			"Enables replays. Access the replay menu from the main menu with F8.",
+			'replays',
+			'bool',
+			true);
+		addOption(option);
+
 		var option:Option = new Option('Hitsound Volume',
 			'Funny notes does \"Tick!\" when you hit them."',
 			'hitsoundVolume',
