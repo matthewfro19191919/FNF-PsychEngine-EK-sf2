@@ -1,5 +1,7 @@
 package editors;
 
+import openfl.ui.MouseCursor;
+import openfl.ui.Mouse;
 import flixel.FlxCamera;
 #if desktop
 import Discord.DiscordClient;
@@ -1808,6 +1810,29 @@ class ChartingState extends MusicBeatState
 					blockInput = true;
 					break;
 				}
+			}
+		}
+
+		if (blockInput) {
+			if (FlxG.mouse.overlaps(gridBG)) Mouse.cursor = MouseCursor.ARROW;
+			else Mouse.cursor = MouseCursor.AUTO;
+			for (dropDownMenu in blockPressWhileScrolling) {
+				if(dropDownMenu.dropPanel.visible && FlxG.mouse.overlaps(dropDownMenu.dropPanel)) {
+					Mouse.cursor = MouseCursor.BUTTON;
+				} else Mouse.cursor = MouseCursor.AUTO;
+			}
+			for (stepper in blockPressWhileTypingOnStepper) {
+				@:privateAccess
+					if (FlxG.mouse.overlaps(stepper.button_plus) ||
+						FlxG.mouse.overlaps(stepper.button_minus)) {
+					Mouse.cursor = MouseCursor.BUTTON;
+				} else Mouse.cursor = MouseCursor.AUTO;
+			}
+			for (inputText in blockPressWhileTypingOn) {
+				@:privateAccess
+					if (FlxG.mouse.overlaps(inputText)) {
+					Mouse.cursor = MouseCursor.IBEAM;
+				} else Mouse.cursor = MouseCursor.AUTO;
 			}
 		}
 

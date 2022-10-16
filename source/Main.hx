@@ -100,6 +100,7 @@ class Main extends Sprite
 		FlxG.autoPause = false;
 		FlxG.mouse.visible = false;
 		#end
+		FlxG.mouse.useSystemCursor = true;
 
 		// Full screen yay
 		addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent) {
