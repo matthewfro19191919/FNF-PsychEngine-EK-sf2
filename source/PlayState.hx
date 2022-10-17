@@ -59,6 +59,7 @@ import openfl.events.KeyboardEvent;
 import flixel.effects.particles.FlxEmitter;
 import flixel.effects.particles.FlxParticle;
 import flixel.util.FlxSave;
+import flixel.animation.FlxAnimationController;
 import animateatlas.AtlasFrameMaker;
 import achievements.Achievements;
 import StageData;
@@ -82,9 +83,6 @@ import vlc.MP4Handler;
 #end
 
 using StringTools;
-
-@:access(flixel.system.FlxSound._sound)
-@:access(openfl.media.Sound.__buffer)
 
 class PlayState extends MusicBeatState
 {
@@ -145,7 +143,7 @@ class PlayState extends MusicBeatState
 
 	var waveformSprite:FlxSprite;
 	var waveformBG:FlxSprite;
-	public var playbackRate(default, set):Float = ClientPrefs.getGameplaySetting('songspeed', 1);
+	public var playbackRate(default, set):Float = 1;
 
 	public var boyfriendGroup:FlxSpriteGroup;
 	public var dadGroup:FlxSpriteGroup;
@@ -361,6 +359,7 @@ class PlayState extends MusicBeatState
 		debugKeysChart = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'));
 		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
 		PauseSubState.songName = null; //Reset to default
+		playbackRate = ClientPrefs.getGameplaySetting('songspeed', 1);
 
 		keysArray = [
 			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_left')),
@@ -1110,8 +1109,7 @@ class PlayState extends MusicBeatState
 			waveformBG = new FlxSprite(0, 0).makeGraphic(Std.int(Note.swagWidth * 4), FlxG.height);
 			add(waveformBG);
 			waveformBG.alpha = 0.5;
-			//if (ClientPrefs.chartWaveformOnGame) {}
-			waveformSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0x00FFFFFF);
+			waveformSprite = new WaveformSprite(0, 0, Std.int(Note.swagWidth * 4), FlxG.height, FlxG.sound.music).makeGraphic(FlxG.width, FlxG.height, 0x00FFFFFF);
 			add(waveformSprite);
 			waveformBG.cameras = [camHUD];
 			waveformSprite.cameras = [camHUD];
@@ -1545,6 +1543,8 @@ class PlayState extends MusicBeatState
 			songSpeed = songSpeed * value;
 		}
 		playbackRate = value;
+		FlxAnimationController.globalSpeed = value;
+		trace('Anim speed: ' + FlxAnimationController.globalSpeed);
 		Conductor.safeZoneOffset = (ClientPrefs.safeFrames / 60) * 1000 * value;
 		setOnLuas('playbackRate', playbackRate);
 		return value;
@@ -3111,8 +3111,6 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		updateWaveform();
-
 		setOnLuas('curDecStep', curDecStep);
 		setOnLuas('curDecBeat', curDecBeat);
 
@@ -3137,11 +3135,11 @@ class PlayState extends MusicBeatState
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
 
-		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, CoolUtil.boundTo(1 - (elapsed * 9), 0, 1));
+		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, CoolUtil.boundTo(1 - (elapsed * 9 * playbackRate), 0, 1));
 		iconP1.scale.set(mult, mult);
 		iconP1.updateHitbox();
 
-		var mult:Float = FlxMath.lerp(1, iconP2.scale.x, CoolUtil.boundTo(1 - (elapsed * 9), 0, 1));
+		var mult:Float = FlxMath.lerp(1, iconP2.scale.x, CoolUtil.boundTo(1 - (elapsed * 9 * playbackRate), 0, 1));
 		iconP2.scale.set(mult, mult);
 		iconP2.updateHitbox();
 
@@ -3930,7 +3928,7 @@ class PlayState extends MusicBeatState
 				}
 				else
 				{
-					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {ease: FlxEase.linear, onComplete:
+					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2 / playbackRate, {ease: FlxEase.linear, onComplete:
 						function (twn:FlxTween)
 						{
 							songSpeedTween = null;
@@ -5320,6 +5318,7 @@ class PlayState extends MusicBeatState
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 		}
+		FlxAnimationController.globalSpeed = 1;
 		FlxG.sound.music.pitch = 1;
 		super.destroy();
 	}
@@ -5653,7 +5652,7 @@ class PlayState extends MusicBeatState
 	}
 	#end
 
-	var waveformPrinted:Bool = true;
+	/*var waveformPrinted:Bool = true;
 	var wavData:Array<Array<Array<Float>>> = [[[0], [0]], [[0], [0]]];
 	function updateWaveform() {
 		#if desktop
@@ -5869,7 +5868,7 @@ class PlayState extends MusicBeatState
 		#else
 		return [[[0], [0]], [[0], [0]]];
 		#end
-	}
+	}*/
 
 	var curLight:Int = -1;
 	var curLightEvent:Int = -1;

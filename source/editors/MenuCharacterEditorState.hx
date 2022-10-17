@@ -163,7 +163,6 @@ class MenuCharacterEditorState extends MusicBeatState
 	var imageInputText:FlxUIInputText;
 	var idleInputText:FlxUIInputText;
 	var confirmInputText:FlxUIInputText;
-	var confirmDescText:FlxText;
 	var scaleStepper:FlxUINumericStepper;
 	var flipXCheckbox:FlxUICheckBox;
 	function addCharacterUI() {
@@ -190,10 +189,10 @@ class MenuCharacterEditorState extends MusicBeatState
 		
 		scaleStepper = new FlxUINumericStepper(140, imageInputText.y, 0.05, 1, 0.1, 30, 2);
 
-		confirmDescText = new FlxText(10, confirmInputText.y - 18, 0, Lang.g('menu_char_editor_press_anim'));
-		tab_group.add(new FlxText(10, imageInputText.y - 18, 0, Lang.g('menu_char_editor_image')));
-		tab_group.add(new FlxText(10, idleInputText.y - 18, 0, Lang.g('menu_char_editor_idle_anim')));
-		tab_group.add(new FlxText(scaleStepper.x, scaleStepper.y - 18, 0, Lang.g('menu_char_editor_scale')));
+		var confirmDescText = new FlxText(10, confirmInputText.y - 18, 0, 'Start Press animation on the .XML:');
+		tab_group.add(new FlxText(10, imageInputText.y - 18, 0, 'Image file name:'));
+		tab_group.add(new FlxText(10, idleInputText.y - 18, 0, 'Idle animation on the .XML:'));
+		tab_group.add(new FlxText(scaleStepper.x, scaleStepper.y - 18, 0, 'Scale:'));
 		tab_group.add(flipXCheckbox);
 		tab_group.add(reloadImageButton);
 		tab_group.add(confirmDescText);
@@ -243,9 +242,6 @@ class MenuCharacterEditorState extends MusicBeatState
 		char.scale.set(characterFile.scale, characterFile.scale);
 		char.updateHitbox();
 		char.animation.play('idle');
-
-		confirmDescText.visible = (curTypeSelected == 1);
-		confirmInputText.visible = (curTypeSelected == 1);
 		updateOffset();
 		
 		#if desktop
