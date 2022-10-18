@@ -52,6 +52,7 @@ class FlxUISlider extends FlxUIGroup {
         add(this.maxLabel);
         add(bar);
         add(sliderSprite);
+        add(this.valueLabel);
     }
 
     public override function update(elapsed:Float) {

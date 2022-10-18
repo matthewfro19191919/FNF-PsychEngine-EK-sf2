@@ -655,7 +655,7 @@ class ChartingState extends MusicBeatState
 			}));
 		});
 
-		var gfVersionText:FlxText = new FlxText(10, player1ChangeChar.y + 32, 0, _song.player1);
+		var gfVersionText:FlxText = new FlxText(10, player1ChangeChar.y + 32, 0, _song.gfVersion);
 		var gfVersionChangeChar = new FlxUIButton(player1ChangeChar.x, player1ChangeChar.y + 30, 'Change', function()
 		{
 			openSubState(new ChangeCharacter(function(mod:String, character:String) {
@@ -666,7 +666,7 @@ class ChartingState extends MusicBeatState
 			}));
 		});
 
-		var player2Text:FlxText = new FlxText(10, gfVersionChangeChar.y + 32, 0, _song.player1);
+		var player2Text:FlxText = new FlxText(10, gfVersionChangeChar.y + 32, 0, _song.player2);
 		var player2ChangeChar = new FlxUIButton(player1ChangeChar.x, gfVersionChangeChar.y + 30, 'Change', function()
 		{
 			openSubState(new ChangeCharacter(function(mod:String, character:String) {
@@ -1319,12 +1319,8 @@ class ChartingState extends MusicBeatState
 	var waveformUseInstrumental:FlxUICheckBox;
 	var waveformUseVoices:FlxUICheckBox;
 	#end
-	var instVolume:FlxUINumericStepper;
-	var voicesVolume:FlxUINumericStepper;
-
-	var display_girlfriend:FlxUIInputText;
-	var display_boyfriend:FlxUIInputText;
-	var display_enemy:FlxUIInputText;
+	var instVolume:FlxUISlider;
+	var voicesVolume:FlxUISlider;
 
 	var fixSectionToScreen:FlxUICheckBox;
 	var beatBars:FlxUICheckBox;
@@ -1332,121 +1328,6 @@ class ChartingState extends MusicBeatState
 	function addChartingUI() {
 		var tab_group_chart = new FlxUI(null, UI_box);
 		tab_group_chart.name = 'Charting';
-
-		#if desktop
-		if (FlxG.save.data.chart_waveformInst == null) FlxG.save.data.chart_waveformInst = false;
-		if (FlxG.save.data.chart_waveformVoices == null) FlxG.save.data.chart_waveformVoices = false;
-
-		waveformUseInstrumental = new FlxUICheckBox(10, 90, null, null, "Waveform for Instrumental", 100);
-		waveformUseInstrumental.checked = FlxG.save.data.chart_waveformInst;
-		waveformUseInstrumental.callback = function()
-		{
-			waveformUseVoices.checked = false;
-			FlxG.save.data.chart_waveformVoices = false;
-			FlxG.save.data.chart_waveformInst = waveformUseInstrumental.checked;
-			updateWaveform();
-		};
-
-		waveformUseVoices = new FlxUICheckBox(waveformUseInstrumental.x + 120, waveformUseInstrumental.y, null, null, "Waveform for Voices", 100);
-		waveformUseVoices.checked = FlxG.save.data.chart_waveformVoices;
-		waveformUseVoices.callback = function()
-		{
-			waveformUseInstrumental.checked = false;
-			FlxG.save.data.chart_waveformInst = false;
-			FlxG.save.data.chart_waveformVoices = waveformUseVoices.checked;
-			updateWaveform();
-		};
-		#end
-
-		check_mute_inst = new FlxUICheckBox(10, 310, null, null, "Mute Instrumental (in editor)", 100);
-		check_mute_inst.checked = false;
-		check_mute_inst.callback = function()
-		{
-			var vol:Float = 1;
-
-			if (check_mute_inst.checked)
-				vol = 0;
-
-			FlxG.sound.music.volume = vol;
-		};
-		mouseScrollingQuant = new FlxUICheckBox(10, 200, null, null, "Mouse Scrolling Quantization", 100);
-		if (FlxG.save.data.mouseScrollingQuant == null) FlxG.save.data.mouseScrollingQuant = false;
-		mouseScrollingQuant.checked = FlxG.save.data.mouseScrollingQuant;
-
-		mouseScrollingQuant.callback = function()
-		{
-			FlxG.save.data.mouseScrollingQuant = mouseScrollingQuant.checked;
-			mouseQuant = FlxG.save.data.mouseScrollingQuant;
-		};
-
-		check_vortex = new FlxUICheckBox(10, 160, null, null, "Vortex Editor (BETA)", 100);
-		if (FlxG.save.data.chart_vortex == null) FlxG.save.data.chart_vortex = false;
-		check_vortex.checked = FlxG.save.data.chart_vortex;
-
-		check_vortex.callback = function()
-		{
-			FlxG.save.data.chart_vortex = check_vortex.checked;
-			vortex = FlxG.save.data.chart_vortex;
-			reloadGridLayer();
-		};
-
-		display_girlfriend = new FlxUIInputText(check_vortex.x + 120, check_vortex.y - 30, 100, _song.gfVersion);
-		blockPressWhileTypingOn.push(display_girlfriend);
-
-		display_enemy = new FlxUIInputText(display_girlfriend.x, display_girlfriend.y + 40, 100, _song.player2);
-		blockPressWhileTypingOn.push(display_enemy);
-
-		display_boyfriend = new FlxUIInputText(display_girlfriend.x, display_enemy.y + 40, 100, _song.player1);
-		blockPressWhileTypingOn.push(display_boyfriend);
-
-		var apply_display_characters:FlxUIButton = new FlxUIButton(display_girlfriend.x, display_boyfriend.y + 20, "Apply", function() {
-			//applies these
-			//trace("APPLIED DISPLAY CHARACTERS");
-
-			var chars:Array<Character> = [girlfriend, boyfriend, enemy];
-			for (char in chars) remove(char);
-			reloadChars(display_girlfriend.text, display_boyfriend.text, display_enemy.text);
-		});
-
-		check_warnings = new FlxUICheckBox(10, 120, null, null, "Ignore Progress Warnings", 100);
-		if (FlxG.save.data.ignoreWarnings == null) FlxG.save.data.ignoreWarnings = false;
-		check_warnings.checked = FlxG.save.data.ignoreWarnings;
-
-		check_warnings.callback = function()
-		{
-			FlxG.save.data.ignoreWarnings = check_warnings.checked;
-			ignoreWarnings = FlxG.save.data.ignoreWarnings;
-		};
-
-		var check_mute_vocals = new FlxUICheckBox(check_mute_inst.x + 120, check_mute_inst.y, null, null, "Mute Vocals (in editor)", 100);
-		check_mute_vocals.checked = false;
-		check_mute_vocals.callback = function()
-		{
-			if(vocals != null) {
-				var vol:Float = 1;
-
-				if (check_mute_vocals.checked)
-					vol = 0;
-
-				vocals.volume = vol;
-			}
-		};
-
-		playSoundBf = new FlxUICheckBox(check_mute_inst.x, check_mute_vocals.y + 30, null, null, 'Play Sound (Boyfriend notes)', 100,
-			function() {
-				FlxG.save.data.chart_playSoundBf = playSoundBf.checked;
-			}
-		);
-		if (FlxG.save.data.chart_playSoundBf == null) FlxG.save.data.chart_playSoundBf = false;
-		playSoundBf.checked = FlxG.save.data.chart_playSoundBf;
-
-		playSoundDad = new FlxUICheckBox(check_mute_inst.x + 120, playSoundBf.y, null, null, 'Play Sound (Opponent notes)', 100,
-			function() {
-				FlxG.save.data.chart_playSoundDad = playSoundDad.checked;
-			}
-		);
-		if (FlxG.save.data.chart_playSoundDad == null) FlxG.save.data.chart_playSoundDad = false;
-		playSoundDad.checked = FlxG.save.data.chart_playSoundDad;
 
 		metronome = new FlxUICheckBox(10, 15, null, null, "Metronome Enabled", 100,
 			function() {
@@ -1469,21 +1350,156 @@ class ChartingState extends MusicBeatState
 		if (FlxG.save.data.chart_noAutoScroll == null) FlxG.save.data.chart_noAutoScroll = false;
 		disableAutoScrolling.checked = FlxG.save.data.chart_noAutoScroll;
 
-		instVolume = new FlxUINumericStepper(metronomeStepper.x, apply_display_characters.y + 5, 0.1, 1, 0, 1, 1);
-		instVolume.value = FlxG.sound.music.volume;
-		instVolume.name = 'inst_volume';
-		blockPressWhileTypingOnStepper.push(instVolume);
+		check_warnings = new FlxUICheckBox(10, 120, null, null, "Ignore Progress Warnings", 100);
+		if (FlxG.save.data.ignoreWarnings == null) FlxG.save.data.ignoreWarnings = false;
+		check_warnings.checked = FlxG.save.data.ignoreWarnings;
 
-		voicesVolume = new FlxUINumericStepper(instVolume.x, instVolume.y + 40, 0.1, 1, 0, 1, 1);
-		voicesVolume.value = vocals.volume;
-		voicesVolume.name = 'voices_volume';
-		blockPressWhileTypingOnStepper.push(voicesVolume);
+		check_warnings.callback = function()
+		{
+			FlxG.save.data.ignoreWarnings = check_warnings.checked;
+			ignoreWarnings = FlxG.save.data.ignoreWarnings;
+		};
 
-		fixSectionToScreen = new FlxUICheckBox(display_boyfriend.x, voicesVolume.y, null, null, "Fix section to screen", 100, function() {
-			FlxG.save.data.chart_fixSection = fixSectionToScreen.checked;
+		check_vortex = new FlxUICheckBox(10, check_warnings.y + 30, null, null, "Vortex Editor (BETA)", 100);
+		if (FlxG.save.data.chart_vortex == null) FlxG.save.data.chart_vortex = false;
+		check_vortex.checked = FlxG.save.data.chart_vortex;
+
+		check_vortex.callback = function()
+		{
+			FlxG.save.data.chart_vortex = check_vortex.checked;
+			vortex = FlxG.save.data.chart_vortex;
+			reloadGridLayer();
+		};
+
+		mouseScrollingQuant = new FlxUICheckBox(10, check_vortex.y+30, null, null, "Mouse Scrolling Quantization", 100);
+		if (FlxG.save.data.mouseScrollingQuant == null) FlxG.save.data.mouseScrollingQuant = false;
+		mouseScrollingQuant.checked = FlxG.save.data.mouseScrollingQuant;
+
+		mouseScrollingQuant.callback = function()
+		{
+			FlxG.save.data.mouseScrollingQuant = mouseScrollingQuant.checked;
+			mouseQuant = FlxG.save.data.mouseScrollingQuant;
+		};
+
+		var displayGFText:FlxText = new FlxText(check_vortex.x + 120, check_vortex.y - 28, 0, _song.gfVersion);
+		var apply_girlfriend:FlxUIButton = new FlxUIButton(displayGFText.x, check_vortex.y - 26, "Change", function() {
+			openSubState(new ChangeCharacter(function(mod, char) {
+				var chars:Array<Character> = [girlfriend, boyfriend, enemy];
+				var cur:Array<String> = [girlfriend.curCharacter, boyfriend.curCharacter, enemy.curCharacter];
+				for (char in chars) remove(char);
+				reloadChars(char, cur[1], cur[2]);
+				displayGFText.text = char;
+			}));
 		});
-		if (FlxG.save.data.chart_fixSection == null) FlxG.save.data.chart_fixSection = false;
-		fixSectionToScreen.checked = FlxG.save.data.chart_fixSection;
+
+		var displayEnemyText:FlxText = new FlxText(displayGFText.x, apply_girlfriend.y + 32, 0, _song.player2);
+		var apply_enemy:FlxUIButton = new FlxUIButton(displayGFText.x, apply_girlfriend.y + 30, "Change", function() {
+			openSubState(new ChangeCharacter(function(mod, char) {
+				var chars:Array<Character> = [girlfriend, boyfriend, enemy];
+				var cur:Array<String> = [girlfriend.curCharacter, boyfriend.curCharacter, enemy.curCharacter];
+				for (char in chars) remove(char);
+				reloadChars(cur[0], cur[1], char);
+				displayEnemyText.text = char;
+			}));
+		});
+
+		var displayBFText:FlxText = new FlxText(displayGFText.x, apply_enemy.y + 32, 0, _song.player1);
+		var apply_bf:FlxUIButton = new FlxUIButton(displayGFText.x + 50, apply_enemy.y + 30, "Change", function() {
+			openSubState(new ChangeCharacter(function(mod, char) {
+				var chars:Array<Character> = [girlfriend, boyfriend, enemy];
+				var cur:Array<String> = [girlfriend.curCharacter, boyfriend.curCharacter, enemy.curCharacter];
+				for (char in chars) remove(char);
+				reloadChars(cur[0], char, cur[2]);
+				displayBFText.text = char;
+			}));
+		});
+		apply_girlfriend.x = UI_box.width - 10;
+		apply_girlfriend.x -= apply_girlfriend.width;
+		apply_enemy.x = UI_box.width - 10;
+		apply_enemy.x -= apply_enemy.width;
+		apply_bf.x = UI_box.width - 10;
+		apply_bf.x -= apply_bf.width;
+
+		instVolume = new FlxUISlider(metronomeStepper.x, apply_bf.y + 50, 
+			100, 10, 
+			FlxG.sound.music, 'volume',
+			0, 1);
+
+		voicesVolume = new FlxUISlider(130, instVolume.y, 
+			100, 10,
+			vocals, 'volume',
+			0, 1);
+
+		check_mute_inst = new FlxUICheckBox(10, instVolume.y + 60, null, null, "Mute Instrumental (in editor)", 100);
+		check_mute_inst.checked = false;
+		check_mute_inst.callback = function()
+		{
+			var vol:Float = 1;
+
+			if (check_mute_inst.checked)
+				vol = 0;
+
+			FlxG.sound.music.volume = vol;
+		};
+
+		var check_mute_vocals = new FlxUICheckBox(voicesVolume.x, check_mute_inst.y, null, null, "Mute Vocals (in editor)", 100);
+		check_mute_vocals.checked = false;
+		check_mute_vocals.callback = function()
+		{
+			if(vocals != null) {
+				var vol:Float = 1;
+
+				if (check_mute_vocals.checked)
+					vol = 0;
+
+				vocals.volume = vol;
+			}
+		};
+
+		#if desktop
+		if (FlxG.save.data.chart_waveformInst == null) FlxG.save.data.chart_waveformInst = false;
+		if (FlxG.save.data.chart_waveformVoices == null) FlxG.save.data.chart_waveformVoices = false;
+
+		waveformUseInstrumental = new FlxUICheckBox(10, check_mute_inst.y + 30, null, null, "Waveform for Instrumental", 100);
+		waveformUseInstrumental.checked = FlxG.save.data.chart_waveformInst;
+		waveformUseInstrumental.callback = function()
+		{
+			waveformUseVoices.checked = false;
+			FlxG.save.data.chart_waveformVoices = false;
+			FlxG.save.data.chart_waveformInst = waveformUseInstrumental.checked;
+			updateWaveform();
+		};
+
+		waveformUseVoices = new FlxUICheckBox(waveformUseInstrumental.x + 120, waveformUseInstrumental.y, null, null, "Waveform for Voices", 100);
+		waveformUseVoices.checked = FlxG.save.data.chart_waveformVoices;
+		waveformUseVoices.callback = function()
+		{
+			waveformUseInstrumental.checked = false;
+			FlxG.save.data.chart_waveformInst = false;
+			FlxG.save.data.chart_waveformVoices = waveformUseVoices.checked;
+			updateWaveform();
+		};
+		#end
+
+		var lal:Float = check_mute_inst.y + 30;
+		var lal2:Float = 0;
+		#if desktop lal2 = waveformUseVoices.height + 20; #end
+ 
+		playSoundBf = new FlxUICheckBox(check_mute_inst.x, lal+lal2, null, null, 'Play Sound (Boyfriend notes)', 100,
+			function() {
+				FlxG.save.data.chart_playSoundBf = playSoundBf.checked;
+			}
+		);
+		if (FlxG.save.data.chart_playSoundBf == null) FlxG.save.data.chart_playSoundBf = false;
+		playSoundBf.checked = FlxG.save.data.chart_playSoundBf;
+
+		playSoundDad = new FlxUICheckBox(check_mute_inst.x + 120, playSoundBf.y, null, null, 'Play Sound (Opponent notes)', 100,
+			function() {
+				FlxG.save.data.chart_playSoundDad = playSoundDad.checked;
+			}
+		);
+		if (FlxG.save.data.chart_playSoundDad == null) FlxG.save.data.chart_playSoundDad = false;
+		playSoundDad.checked = FlxG.save.data.chart_playSoundDad;
 
 		beatBars = new FlxUICheckBox(playSoundBf.x, playSoundBf.y + 40, null, null, "Show beat & step bars", 100, function() {
 			FlxG.save.data.chart_beatBars = beatBars.checked;
@@ -1493,10 +1509,16 @@ class ChartingState extends MusicBeatState
 		if (FlxG.save.data.chart_beatBars == null) FlxG.save.data.chart_beatBars = false;
 		beatBars.checked = FlxG.save.data.chart_beatBars;
 
+		fixSectionToScreen = new FlxUICheckBox(displayGFText.x, beatBars.y, null, null, "Fix section to screen", 100, function() {
+			FlxG.save.data.chart_fixSection = fixSectionToScreen.checked;
+		});
+		if (FlxG.save.data.chart_fixSection == null) FlxG.save.data.chart_fixSection = false;
+		fixSectionToScreen.checked = FlxG.save.data.chart_fixSection;
+
 		tab_group_chart.add(new FlxText(metronomeStepper.x, metronomeStepper.y - 15, 0, 'BPM:'));
-		tab_group_chart.add(new FlxText(metronomeOffsetStepper.x, metronomeOffsetStepper.y - 15, 0, 'Offset (ms):'));
-		tab_group_chart.add(new FlxText(instVolume.x, instVolume.y - 15, 0, 'Inst Volume'));
-		tab_group_chart.add(new FlxText(voicesVolume.x, voicesVolume.y - 15, 0, 'Voices Volume'));
+		tab_group_chart.add(new FlxText(metronomeOffsetStepper.x, metronomeOffsetStepper.y - 15, 0, 'Metronome offset (ms):'));
+		tab_group_chart.add(new FlxText(instVolume.x, instVolume.y - 20, 0, 'Inst Volume'));
+		tab_group_chart.add(new FlxText(voicesVolume.x, voicesVolume.y - 20, 0, 'Voices Volume'));
 		tab_group_chart.add(metronome);
 		tab_group_chart.add(disableAutoScrolling);
 		tab_group_chart.add(metronomeStepper);
@@ -1514,13 +1536,15 @@ class ChartingState extends MusicBeatState
 		tab_group_chart.add(check_warnings);
 		tab_group_chart.add(playSoundBf);
 		tab_group_chart.add(playSoundDad);
-		tab_group_chart.add(display_girlfriend);
-		tab_group_chart.add(display_enemy);
-		tab_group_chart.add(display_boyfriend);
-		tab_group_chart.add(new FlxText(display_girlfriend.x, display_girlfriend.y - 15, 0, 'Display Girlfriend:'));
-		tab_group_chart.add(new FlxText(display_enemy.x, display_enemy.y - 15, 0, 'Display Opponent:'));
-		tab_group_chart.add(new FlxText(display_boyfriend.x, display_boyfriend.y - 15, 0, 'Display Boyfriend:'));
-		tab_group_chart.add(apply_display_characters);
+		tab_group_chart.add(new FlxText(displayGFText.x, apply_girlfriend.y - 15, 0, 'Display Girlfriend:'));
+		tab_group_chart.add(new FlxText(displayEnemyText.x, apply_enemy.y - 15, 0, 'Display Opponent:'));
+		tab_group_chart.add(new FlxText(displayBFText.x, apply_bf.y - 15, 0, 'Display Boyfriend:'));
+		tab_group_chart.add(displayGFText);
+		tab_group_chart.add(displayBFText);
+		tab_group_chart.add(displayEnemyText);
+		tab_group_chart.add(apply_girlfriend);
+		tab_group_chart.add(apply_enemy);
+		tab_group_chart.add(apply_bf);
 		tab_group_chart.add(fixSectionToScreen);
 		tab_group_chart.add(beatBars);
 		UI_box.addGroup(tab_group_chart);
@@ -1548,7 +1572,7 @@ class ChartingState extends MusicBeatState
 
 	function generateSong() {
 		FlxG.sound.playMusic(Paths.inst(currentSongName), 0.6/*, false*/);
-		if (instVolume != null) FlxG.sound.music.volume = instVolume.value;
+		//if (instVolume != null) FlxG.sound.music.volume = instVolume.value;
 		if (check_mute_inst != null && check_mute_inst.checked) FlxG.sound.music.volume = 0;
 
 		FlxG.sound.music.onComplete = function()
