@@ -18,9 +18,9 @@ import openfl.utils.Assets as OpenFlAssets;
 using StringTools;
 
 /**
- * yce change char with psych support
+ * yce change char but stage! with psych support
 **/
-class ChangeCharacter extends MusicBeatSubstate {
+class ChangeStage extends MusicBeatSubstate {
     // dpmt modify !!!
     public var modsScroll:FlxSpriteGroup;
     public var charsScroll:FlxSpriteGroup;
@@ -119,47 +119,33 @@ class ChangeCharacter extends MusicBeatSubstate {
 
         #if MODS_ALLOWED
         if (mod != fnf) Paths.currentModDirectory = mod;
-        
-        var pathToModChars:String = "characters/";
-        var path:String = Paths.mods(mod + '/' + pathToModChars);
+
+        var pathToModStages:String = "stages/";
+        var path:String = Paths.mods(mod + '/' + pathToModStages);
 		if (!FileSystem.exists(path)) {
-			path = Paths.getPreloadPath(pathToModChars);
+			path = Paths.getPreloadPath(pathToModStages);
 		}
-        var characters:Array<String> = FileSystem.readDirectory(path);
+        var stages:Array<String> = FileSystem.readDirectory(path);
         #else
-        var path:String = Paths.getPreloadPath('characters/');
-        var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+        var stages:Array<String> = CoolUtil.coolTextFile(Paths.txt('stageList'));
         #end
 
         var i:Int = 0;
-        for(char in characters) {
-            if (char.endsWith('.json')) {
+        for(stage in stages) {
+            if (stage.endsWith('.json')) {
                 i++;
 
-                var charName:String = char.replace('.json', '');
+                var stageName:String = stage.replace('.json', '');
 
-                var button = new FlxUIButton(Std.int(FlxG.width / 2), 0 + ((i + 1) * 50), charName, function() {
+                var button = new FlxUIButton(Std.int(FlxG.width / 2), 0 + ((i + 1) * 50), stageName, function() {
                     close();
-                    if (callback != null) callback(mod, charName);
+                    if (callback != null) callback(mod, stageName);
                 });
                 button.label.alignment = LEFT;
-                button.label.offset.x = -50;
+                button.label.offset.x = -10;
                 button.resize(300, 50);
 
-                var pathToCharFile:String = path + char;
-                #if MODS_ALLOWED var rawJson = File.getContent(pathToCharFile);
-                #else var rawJson = OpenFlAssets.getText(pathToCharFile); #end
-                var json:Character.CharacterFile = cast Json.parse(rawJson);
-                var healthIconPath:String = json.healthicon;
-
-                var healthIcon:HealthIcon = new HealthIcon(healthIconPath);
-                healthIcon.setGraphicSize(40, 40);
-                healthIcon.updateHitbox();
-                healthIcon.x = button.x - 50;
-                healthIcon.y = button.y - 50;
-
                 charsScroll.add(button);
-                charsScroll.add(healthIcon);
             }
         }
         trace(mod);

@@ -442,10 +442,10 @@ class FlxInputText extends FlxText
 			// Backspace
 			else if (key == 8)
 			{
-				#if windows
-				if (e.ctrlKey) {
-				#elseif macos
+				#if macos
 				if (e.commandKey) {
+				#else
+				if (e.ctrlKey) {
 				#end
 					if (caretIndex > 0)
 					{

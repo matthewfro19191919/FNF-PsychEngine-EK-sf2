@@ -5,16 +5,19 @@ import flixel.util.FlxTimer;
 import flixel.text.FlxText;
 import flixel.FlxCamera;
 import replays.Replay;
+#if MODS_ALLOWED
 import sys.io.File;
+import sys.FileSystem;
+#end
 import flixel.util.FlxColor;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import sys.FileSystem;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import haxe.Json;
 
 using StringTools;
 
+#if MODS_ALLOWED
 class ReplayMenu extends MusicBeatState
 {
     var loadedReplays:Array<String> = [];
@@ -272,3 +275,4 @@ class ReplayMenu extends MusicBeatState
         });
     }
 }
+#end

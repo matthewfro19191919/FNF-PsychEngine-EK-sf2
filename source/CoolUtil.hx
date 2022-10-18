@@ -49,6 +49,22 @@ class CoolUtil
 		return Paths.formatToSongPath(fileSuffix);
 	}
 
+	public static function buildTarget():String {
+		#if windows
+		return 'windows';
+		#elseif linux
+		return 'linux';
+		#elseif mac
+		return 'mac';
+		#elseif html5
+		return 'browser';
+		#elseif android
+		return 'android';
+		#else
+		return 'unknown';
+		#end
+	}
+
 	public static function getHostUsername():String
 	{
 		#if (macos || linux)
@@ -56,6 +72,7 @@ class CoolUtil
 		#elseif windows
 		return Sys.getEnv("USERNAME");
 		#end
+		return buildTarget();
 	}
 
 	public static function difficultyString(diff:Int = null):String

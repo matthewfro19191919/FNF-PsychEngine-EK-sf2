@@ -11,22 +11,39 @@ class FlxUISlider extends FlxUIGroup {
     public var min:Float = 0;
     public var max:Float = 100;
 
+    public var value:Float;
+
     public var sliderSprite:FlxSprite;
     public var bar:FlxBar;
 
     public var minLabel:FlxUIText;
     public var maxLabel:FlxUIText;
     public var valueLabel:FlxUIText;
+    public var nameLabel:FlxUIText;
 
     private var __isBeingMoved:Bool = false;
+    public var callback:Void->Void;
+
+    public static inline var CHANGE_EVENT:String = "change_slider"; // change in any way
 
     public var step:Float = 0;
-    public override function new(x:Float, y:Float, width:Int, height:Int, object:Dynamic, variable:String, min:Float, max:Float, gradientBar:Bool = true) {
-        super(x, y);
-        this.object = object;
-        this.variable = variable;
-        this.min = min;
-        this.max = max;
+
+    /**
+        dangle
+	*/
+    public override function new(X:Float, Y:Float, Width:Int, Height:Int, Object:Dynamic, Variable:String, MinValue:Float, MaxValue:Float, 
+        GradientBar:Bool = true, ?ColorEmpty:FlxColor, ?ColorFull:Array<FlxColor>) {
+        super(X, Y);
+
+        if (MinValue == MaxValue)
+        {
+            FlxG.log.error("FlxUISlider: MinValue and MaxValue can't be the same (" + MinValue + ")");
+        }
+
+        this.object = Object;
+        this.variable = Variable;
+        this.min = MinValue;
+        this.max = MaxValue;
 
         var btnSizeStr:Array<String> = FlxUIAssets.SLIDER_BUTTON.split(",");
         var btnSize:Array<Int> = [Std.parseInt(btnSizeStr[0]), Std.parseInt(btnSizeStr[1])];
@@ -35,24 +52,39 @@ class FlxUISlider extends FlxUIGroup {
         sliderSprite.animation.add('hover', [1]);
         sliderSprite.animation.add('click', [2]);
 
-        bar = new FlxBar(0, sliderSprite.y + sliderSprite.height, LEFT_TO_RIGHT, width, height, object, variable, min, max);
-        if (gradientBar)
-            bar.createGradientBar([0x88222222], [FlxColor.RED, 0xFF00FF1E], 1, 0, true, 0xFF000000);
+        if (ColorEmpty == null)
+            ColorEmpty = 0x88222222;
+        if (ColorFull == null) {
+            if (GradientBar)
+                ColorFull = [FlxColor.RED, 0xFF00FF1E];
+            else
+                ColorFull = [0xFF00FF1E];
+        }
+
+        bar = new FlxBar(0, sliderSprite.y + sliderSprite.height, LEFT_TO_RIGHT, Width, Height, Object, Variable, MinValue, MaxValue);
+
+        if (GradientBar)
+            bar.createGradientBar([ColorEmpty], ColorFull, 1, 0, true, 0xFF000000);
         else
-            bar.createFilledBar(0x88222222, FlxColor.WHITE, true, FlxColor.BLACK);
+            bar.createFilledBar(ColorEmpty, ColorFull[0], true, FlxColor.BLACK);
 
         bar.y -= bar.height / 2;
 
         this.minLabel = new FlxUIText(bar.x, bar.y + bar.height + 5, 0, Std.string(min));
-        this.maxLabel = new FlxUIText(bar.x + bar.width, bar.y + bar.height + 5, 0, Std.string(max));
+        this.maxLabel = new FlxUIText(bar.x + bar.width, this.minLabel.y, 0, Std.string(max));
         this.maxLabel.x -= this.maxLabel.width;
-        this.valueLabel = new FlxUIText(sliderSprite.x, sliderSprite.y - 8, 0, '');
+        this.valueLabel = new FlxUIText(bar.x, this.minLabel.y, 0, '');
+
+        nameLabel = new FlxUIText(bar.x, 0, 0, Variable);
+        nameLabel.y -= nameLabel.height;
+        nameLabel.x += ((bar.width / 2) - (nameLabel.width / 2));
 
         add(this.minLabel);
         add(this.maxLabel);
         add(bar);
         add(sliderSprite);
         add(this.valueLabel);
+        add(nameLabel);
     }
 
     public override function update(elapsed:Float) {
@@ -71,8 +103,10 @@ class FlxUISlider extends FlxUIGroup {
         }
 
         if (FlxG.mouse.justReleased) __isBeingMoved = false;
+
         if (__isBeingMoved) {
             var cursorX = FlxG.mouse.getScreenPosition(camera).x - bar.x;
+
             if (object != null && variable != null) {
                 if (step != 0)
                     Reflect.setProperty(object, variable, CoolUtil.boundTo(min + (Math.floor((max-min) / bar.width * cursorX / step) * step), min, max));
@@ -82,9 +116,25 @@ class FlxUISlider extends FlxUIGroup {
                   trace("object is null");
         }
 
-        if (object != null && variable != null) bar.value = Reflect.getProperty(object, variable);
+        if (object != null && variable != null) {
+            value = Reflect.getProperty(object, variable);
+            bar.value = Reflect.getProperty(object, variable);
+        }
+
         sliderSprite.x = bar.x + ((bar.percent / 100) * bar.width) - (sliderSprite.width / 2);
         valueLabel.text = Std.string(bar.value);
-        valueLabel.x = sliderSprite.x + (sliderSprite.width / 2) - (valueLabel.width / 2);
+
+        this.valueLabel.x = bar.x + (bar.width / 2);
+        this.valueLabel.x -= this.valueLabel.width / 2;
+
+        nameLabel.x = bar.x;
+        nameLabel.x += ((bar.width / 2) - (nameLabel.width / 2));
+    }
+
+    public function onChanged() {
+        if (callback != null)
+            callback();
+
+        FlxUI.event(CHANGE_EVENT, this, value, null);
     }
 }

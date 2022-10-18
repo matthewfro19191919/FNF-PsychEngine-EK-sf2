@@ -5,7 +5,9 @@ import openfl.events.IOErrorEvent;
 import openfl.events.Event;
 import openfl.net.FileReference;
 import openfl.net.FileFilter;
+#if MODS_ALLOWED
 import sys.io.File;
+#end
 
 typedef ReplayData = {
     var hits:Array<ReplayHit>;
@@ -42,6 +44,7 @@ class Replay {
 
     // stole this from ralsei engine anget killed :shadowtroll:
     public static function save() {
+        #if MODS_ALLOWED
         var date = Date.now();
         var leDate = StringTools.replace(date.toString(), ':', '-');
 
@@ -50,6 +53,7 @@ class Replay {
 
         File.write(filename + '.json', false);
         File.saveContent(filename + '.json', haxe.Json.stringify(recordedReplay));
+        #end
 
         recordedReplay = null;
     }
