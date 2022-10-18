@@ -164,6 +164,8 @@ class ChartingState extends MusicBeatState
 
 	var tempBpm:Float = 0;
 	var playbackSpeed:Float = 1;
+	var playerHitVol:Float = 1;
+	var opponentHitVol:Float = 1;
 
 	var vocals:FlxSound = null;
 
@@ -614,7 +616,21 @@ class ChartingState extends MusicBeatState
 			10, stepperBPM.y + 70, 
 			Std.int(UI_box.width - 20), 10, 
 			this._song, 'speed',
-			0.1, 10);
+			0.1, 10,
+			1, '', '',
+			true, FlxColor.BLACK,
+			[	
+				FlxColor.RED, 
+				0xFF00FF1E,
+				0xFF00FF1E,
+				0xFF00FF1E,
+				FlxColor.YELLOW,
+				FlxColor.ORANGE,
+				FlxColor.RED,
+				FlxColor.RED,
+				FlxColor.RED,
+				FlxColor.RED
+			]);
 		sliderSpeed.step = 0.1;
 		sliderSpeed.nameLabel.text = 'Song Speed';
 
@@ -1359,7 +1375,21 @@ class ChartingState extends MusicBeatState
 				
 		var shit:Int = 120;
 		#if !html5
-		sliderRate = new FlxUISlider(10, metronomeStepper.y + 35, Std.int(UI_box.width - 20), 10, this, 'playbackSpeed', 0.25, 5, true);
+		sliderRate = new FlxUISlider(
+			10, metronomeStepper.y + 35, 
+			Std.int(UI_box.width - 20), 10, 
+			this, 'playbackSpeed', 
+			0.25, 5, 1,
+			'', '', true,
+			FlxColor.BLACK,
+			[ // i added 1 more because the 1 looked ugly
+				FlxColor.RED,
+				0xFF00FF1E,
+				FlxColor.YELLOW,
+				FlxColor.ORANGE,
+				FlxColor.RED,
+				FlxColor.RED
+			]);
 		sliderRate.nameLabel.text = 'Playback Rate';
 		sliderRate.step = 0.25;
 		tab_group_chart.add(sliderRate);
@@ -1440,16 +1470,16 @@ class ChartingState extends MusicBeatState
 		instVolume = new FlxUISlider(metronomeStepper.x, apply_bf.y + 50, 
 			100, 10, 
 			FlxG.sound.music, 'volume',
-			0, 1);
+			0, 1, 100, '', '%');
 		instVolume.nameLabel.text = 'Inst Volume';
-		instVolume.step = 0.25;
+		instVolume.decimals = 2;
 
 		voicesVolume = new FlxUISlider(130, instVolume.y, 
 			100, 10,
 			vocals, 'volume',
-			0, 1);
+			0, 1, 100, '', '%');
 		voicesVolume.nameLabel.text = 'Voices Volume';
-		voicesVolume.step = 0.25;
+		voicesVolume.decimals = 2;
 
 		check_mute_inst = new FlxUICheckBox(10, instVolume.y + 60, null, null, "Mute Instrumental (in editor)", 100);
 		check_mute_inst.checked = false;
@@ -1461,6 +1491,14 @@ class ChartingState extends MusicBeatState
 				vol = 0;
 
 			FlxG.sound.music.volume = vol;
+
+			var alpha:Float = 1;
+			if (check_mute_inst.checked) {
+				alpha = 0.5;
+			}
+
+			instVolume.usable = !check_mute_inst.checked;
+			instVolume.alpha = alpha;
 		};
 
 		var check_mute_vocals = new FlxUICheckBox(voicesVolume.x, check_mute_inst.y, null, null, "Mute Vocals (in editor)", 100);
@@ -1474,6 +1512,14 @@ class ChartingState extends MusicBeatState
 					vol = 0;
 
 				vocals.volume = vol;
+
+				var alpha:Float = 1;
+				if (check_mute_vocals.checked) {
+					alpha = 0.5;
+				}
+
+				voicesVolume.usable = !check_mute_vocals.checked;
+				voicesVolume.alpha = alpha;
 			}
 		};
 
@@ -1506,23 +1552,35 @@ class ChartingState extends MusicBeatState
 		var lal2:Float = 0;
 		#if desktop lal2 = waveformUseVoices.height + 20; #end
  
-		playSoundBf = new FlxUICheckBox(check_mute_inst.x, lal+lal2, null, null, 'Play Sound (Boyfriend notes)', 100,
-			function() {
-				FlxG.save.data.chart_playSoundBf = playSoundBf.checked;
-			}
-		);
+		playSoundBf = new FlxUICheckBox(check_mute_inst.x, lal+lal2, null, null, 'Play Sound (Boyfriend notes)', 100);
 		if (FlxG.save.data.chart_playSoundBf == null) FlxG.save.data.chart_playSoundBf = false;
 		playSoundBf.checked = FlxG.save.data.chart_playSoundBf;
 
-		playSoundDad = new FlxUICheckBox(check_mute_inst.x + 120, playSoundBf.y, null, null, 'Play Sound (Opponent notes)', 100,
-			function() {
-				FlxG.save.data.chart_playSoundDad = playSoundDad.checked;
-			}
-		);
+		var hitVolumeBF:FlxUISlider = new FlxUISlider(playSoundBf.x, playSoundBf.y + 30, 100, 10, this, 'playerHitVol',
+			0, 1, 100, '', '%');
+		hitVolumeBF.decimals = 2;
+		hitVolumeBF.nameLabel.text = 'Boyfriend Hit Volume';
+		playSoundBf.callback = function() {
+			hitVolumeBF.alpha = playSoundBf.checked ? 1 : 0.5;
+			hitVolumeBF.usable = playSoundBf.checked;
+			FlxG.save.data.chart_playSoundBf = playSoundBf.checked;
+		}
+
+		playSoundDad = new FlxUICheckBox(check_mute_inst.x + 120, playSoundBf.y, null, null, 'Play Sound (Opponent notes)', 100);
 		if (FlxG.save.data.chart_playSoundDad == null) FlxG.save.data.chart_playSoundDad = false;
 		playSoundDad.checked = FlxG.save.data.chart_playSoundDad;
 
-		beatBars = new FlxUICheckBox(playSoundBf.x, playSoundBf.y + 40, null, null, "Show beat & step bars", 100, function() {
+		var hitVolumeDad:FlxUISlider = new FlxUISlider(playSoundDad.x, playSoundDad.y + 30, 100, 10, this, 'opponentHitVol',
+			0, 1, 100, '', '%');
+		hitVolumeDad.decimals = 2;
+		hitVolumeDad.nameLabel.text = 'Opponent Hit Volume';
+		playSoundDad.callback = function() {
+			hitVolumeDad.alpha = playSoundDad.checked ? 1 : 0.5;
+			hitVolumeDad.usable = playSoundDad.checked;
+			FlxG.save.data.chart_playSoundDad = playSoundDad.checked;
+		}
+
+		beatBars = new FlxUICheckBox(hitVolumeBF.x, hitVolumeBF.y + 60, null, null, "Show beat & step bars", 100, function() {
 			FlxG.save.data.chart_beatBars = beatBars.checked;
 			showBeatBars = beatBars.checked;
 			reloadGridLayer();
@@ -1555,6 +1613,8 @@ class ChartingState extends MusicBeatState
 		tab_group_chart.add(check_warnings);
 		tab_group_chart.add(playSoundBf);
 		tab_group_chart.add(playSoundDad);
+		tab_group_chart.add(hitVolumeBF);
+		tab_group_chart.add(hitVolumeDad);
 		tab_group_chart.add(new FlxText(displayGFText.x, apply_girlfriend.y - 15, 0, 'Display Girlfriend:'));
 		tab_group_chart.add(new FlxText(displayEnemyText.x, apply_enemy.y - 15, 0, 'Display Opponent:'));
 		tab_group_chart.add(new FlxText(displayBFText.x, apply_bf.y - 15, 0, 'Display Boyfriend:'));
@@ -2337,7 +2397,7 @@ class ChartingState extends MusicBeatState
 								soundToPlay = 'GF_' + Std.string(data + 1);
 							}
 
-							FlxG.sound.play(Paths.sound(soundToPlay)).pan = note.noteData < 4? -0.3 : 0.3; //would be coolio
+							FlxG.sound.play(Paths.sound(soundToPlay), note.mustPress ? playerHitVol : opponentHitVol).pan = note.noteData < 4? -0.3 : 0.3; //would be coolio
 							playedSound[data] = true;
 						}
 

@@ -1,5 +1,6 @@
 package flixel.addons.ui;
 
+import flixel.math.FlxMath;
 import flixel.ui.FlxBar;
 import flixel.addons.ui.FlxUIAssets;
 import flixel.util.FlxColor;
@@ -27,12 +28,19 @@ class FlxUISlider extends FlxUIGroup {
     public static inline var CHANGE_EVENT:String = "change_slider"; // change in any way
 
     public var step:Float = 0;
+    public var decimals:Int = -1;
+
+    public var usable:Bool = true;
+
+    public var valueMultiplier:Float = 1;
+    public var labelPrefix:String = '';
+    public var labelSuffix:String = '';
 
     /**
         dangle
 	*/
-    public override function new(X:Float, Y:Float, Width:Int, Height:Int, Object:Dynamic, Variable:String, MinValue:Float, MaxValue:Float, 
-        GradientBar:Bool = true, ?ColorEmpty:FlxColor, ?ColorFull:Array<FlxColor>) {
+    public override function new(X:Float, Y:Float, Width:Int, Height:Int, Object:Dynamic, Variable:String, MinValue:Float, MaxValue:Float,
+        LabelValueMultiplier:Float = 1, LabelPrefix:String = '', LabelSuffix:String = '', GradientBar:Bool = true, ?ColorEmpty:FlxColor, ?ColorFull:Array<FlxColor>) {
         super(X, Y);
 
         if (MinValue == MaxValue)
@@ -44,6 +52,9 @@ class FlxUISlider extends FlxUIGroup {
         this.variable = Variable;
         this.min = MinValue;
         this.max = MaxValue;
+        this.valueMultiplier = LabelValueMultiplier;
+        this.labelPrefix = LabelPrefix;
+        this.labelSuffix = LabelSuffix;
 
         var btnSizeStr:Array<String> = FlxUIAssets.SLIDER_BUTTON.split(",");
         var btnSize:Array<Int> = [Std.parseInt(btnSizeStr[0]), Std.parseInt(btnSizeStr[1])];
@@ -53,10 +64,10 @@ class FlxUISlider extends FlxUIGroup {
         sliderSprite.animation.add('click', [2]);
 
         if (ColorEmpty == null)
-            ColorEmpty = 0x88222222;
+            ColorEmpty = FlxColor.BLACK;
         if (ColorFull == null) {
             if (GradientBar)
-                ColorFull = [FlxColor.RED, 0xFF00FF1E];
+                ColorFull = [FlxColor.RED, FlxColor.YELLOW, 0xFF00FF1E];
             else
                 ColorFull = [0xFF00FF1E];
         }
@@ -70,8 +81,8 @@ class FlxUISlider extends FlxUIGroup {
 
         bar.y -= bar.height / 2;
 
-        this.minLabel = new FlxUIText(bar.x, bar.y + bar.height + 5, 0, Std.string(min));
-        this.maxLabel = new FlxUIText(bar.x + bar.width, this.minLabel.y, 0, Std.string(max));
+        this.minLabel = new FlxUIText(bar.x, bar.y + bar.height + 5, 0, labelPrefix + Std.string(min * valueMultiplier) + labelSuffix);
+        this.maxLabel = new FlxUIText(bar.x + bar.width, this.minLabel.y, 0, labelPrefix + Std.string(max * valueMultiplier) + labelSuffix);
         this.maxLabel.x -= this.maxLabel.width;
         this.valueLabel = new FlxUIText(bar.x, this.minLabel.y, 0, '');
 
@@ -90,45 +101,52 @@ class FlxUISlider extends FlxUIGroup {
     public override function update(elapsed:Float) {
         super.update(elapsed);
 
-        if (FlxG.mouse.justPressed && (FlxG.mouse.overlaps(sliderSprite, camera) || FlxG.mouse.overlaps(bar, camera))) {
-            __isBeingMoved = true;
-        } 
-        
-        if (__isBeingMoved) { 
-            sliderSprite.animation.play('click');
-        } else if (FlxG.mouse.overlaps(sliderSprite, camera)) {
-            sliderSprite.animation.play('hover');
+        if (usable) {
+            if (FlxG.mouse.justPressed && (FlxG.mouse.overlaps(sliderSprite, camera) || FlxG.mouse.overlaps(bar, camera))) {
+                __isBeingMoved = true;
+            } 
+            
+            if (__isBeingMoved) { 
+                sliderSprite.animation.play('click');
+            } else if (FlxG.mouse.overlaps(sliderSprite, camera)) {
+                sliderSprite.animation.play('hover');
+            } else {
+                sliderSprite.animation.play('normal');
+            }
+    
+            if (FlxG.mouse.justReleased) __isBeingMoved = false;
+    
+            if (__isBeingMoved) {
+                var cursorX = FlxG.mouse.getScreenPosition(camera).x - bar.x;
+    
+                if (object != null && variable != null) {
+                    if (step != 0)
+                        Reflect.setProperty(object, variable, CoolUtil.boundTo(min + (Math.floor((max-min) / bar.width * cursorX / step) * step), min, max));
+                    else
+                        Reflect.setProperty(object, variable, CoolUtil.boundTo(min + ((max-min) / bar.width * cursorX), min, max));
+                } else
+                      trace("object is null");
+            }
+    
+            if (object != null && variable != null) {
+                value = Reflect.getProperty(object, variable);
+                bar.value = Reflect.getProperty(object, variable);
+            }
+    
+            sliderSprite.x = bar.x + ((bar.percent / 100) * bar.width) - (sliderSprite.width / 2);
+    
+            var valueDec:Float = bar.value;
+            if (decimals > 0) valueDec = FlxMath.roundDecimal(valueDec, decimals);
+            valueLabel.text = labelPrefix + Std.string(valueDec * valueMultiplier) + labelSuffix;
+    
+            this.valueLabel.x = bar.x + (bar.width / 2);
+            this.valueLabel.x -= this.valueLabel.width / 2;
+    
+            nameLabel.x = bar.x;
+            nameLabel.x += ((bar.width / 2) - (nameLabel.width / 2));
         } else {
             sliderSprite.animation.play('normal');
         }
-
-        if (FlxG.mouse.justReleased) __isBeingMoved = false;
-
-        if (__isBeingMoved) {
-            var cursorX = FlxG.mouse.getScreenPosition(camera).x - bar.x;
-
-            if (object != null && variable != null) {
-                if (step != 0)
-                    Reflect.setProperty(object, variable, CoolUtil.boundTo(min + (Math.floor((max-min) / bar.width * cursorX / step) * step), min, max));
-                else
-                    Reflect.setProperty(object, variable, CoolUtil.boundTo(min + ((max-min) / bar.width * cursorX), min, max));
-            } else
-                  trace("object is null");
-        }
-
-        if (object != null && variable != null) {
-            value = Reflect.getProperty(object, variable);
-            bar.value = Reflect.getProperty(object, variable);
-        }
-
-        sliderSprite.x = bar.x + ((bar.percent / 100) * bar.width) - (sliderSprite.width / 2);
-        valueLabel.text = Std.string(bar.value);
-
-        this.valueLabel.x = bar.x + (bar.width / 2);
-        this.valueLabel.x -= this.valueLabel.width / 2;
-
-        nameLabel.x = bar.x;
-        nameLabel.x += ((bar.width / 2) - (nameLabel.width / 2));
     }
 
     public function onChanged() {
