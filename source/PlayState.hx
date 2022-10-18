@@ -3213,8 +3213,12 @@ class PlayState extends MusicBeatState
 					var secondsTotal:Int = Math.floor(songCalc / 1000);
 					if(secondsTotal < 0) secondsTotal = 0;
 
-					if(ClientPrefs.timeBarType != 'Song Name')
+					if(ClientPrefs.timeBarType != 'Song Name') {
 						timeTxt.text = FlxStringUtil.formatTime(secondsTotal, false);
+						if (playbackRate != 1) {
+							timeTxt.text += ' (' + FlxStringUtil.formatTime((songCalc / 1000) * (1 / playbackRate), false) + ')';
+						} //TODO: add an option for this
+					}
 				}
 			}
 
