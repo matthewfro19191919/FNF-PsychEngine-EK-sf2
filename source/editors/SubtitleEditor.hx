@@ -53,7 +53,7 @@ import sys.io.File;
 import sys.FileSystem;
 import flash.media.Sound;
 #end
-import editors.ChartingState.AttachedFlxText;
+import editors.charter.ChartingState.AttachedFlxText;
 
 using StringTools;
 

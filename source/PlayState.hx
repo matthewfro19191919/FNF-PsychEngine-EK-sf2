@@ -50,7 +50,7 @@ import openfl.display.BlendMode;
 import openfl.display.StageQuality;
 import openfl.filters.BitmapFilter;
 import openfl.utils.Assets as OpenFlAssets;
-import editors.ChartingState;
+import editors.charter.ChartingState;
 import editors.CharacterEditorState;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.keyboard.FlxKey;
@@ -83,6 +83,9 @@ import vlc.MP4Handler;
 #end
 
 using StringTools;
+
+@:access(flixel.system.FlxSound._sound)
+@:access(openfl.media.Sound.__buffer)
 
 class PlayState extends MusicBeatState
 {
@@ -1109,9 +1112,10 @@ class PlayState extends MusicBeatState
 			waveformBG = new FlxSprite(0, 0).makeGraphic(Std.int(Note.swagWidth * 4), FlxG.height);
 			add(waveformBG);
 			waveformBG.alpha = 0.5;
-			waveformSprite = new WaveformSprite(0, 0, Std.int(Note.swagWidth * 4), FlxG.height, FlxG.sound.music).makeGraphic(FlxG.width, FlxG.height, 0x00FFFFFF);
-			add(waveformSprite);
 			waveformBG.cameras = [camHUD];
+
+			waveformSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0x00FFFFFF);
+			add(waveformSprite);
 			waveformSprite.cameras = [camHUD];
 		}
 
@@ -2583,7 +2587,7 @@ class PlayState extends MusicBeatState
 				swagNote.sustainLength = songNotes[2];
 				swagNote.gfNote = (section.gfSection && (songNotes[1]<4));
 				swagNote.noteType = songNotes[3];
-				if(!Std.isOfType(songNotes[3], String)) swagNote.noteType = editors.ChartingState.noteTypeList[songNotes[3]]; //Backward compatibility + compatibility with Week 7 charts
+				if(!Std.isOfType(songNotes[3], String)) swagNote.noteType = ChartingState.noteTypeList[songNotes[3]]; //Backward compatibility + compatibility with Week 7 charts
 
 				swagNote.scrollFactor.set();
 
@@ -3110,6 +3114,8 @@ class PlayState extends MusicBeatState
 		}
 
 		super.update(elapsed);
+
+		updateWaveform();
 
 		setOnLuas('curDecStep', curDecStep);
 		setOnLuas('curDecBeat', curDecBeat);
@@ -5652,7 +5658,7 @@ class PlayState extends MusicBeatState
 	}
 	#end
 
-	/*var waveformPrinted:Bool = true;
+	var waveformPrinted:Bool = true;
 	var wavData:Array<Array<Array<Float>>> = [[[0], [0]], [[0], [0]]];
 	function updateWaveform() {
 		#if desktop
@@ -5868,7 +5874,7 @@ class PlayState extends MusicBeatState
 		#else
 		return [[[0], [0]], [[0], [0]]];
 		#end
-	}*/
+	}
 
 	var curLight:Int = -1;
 	var curLightEvent:Int = -1;

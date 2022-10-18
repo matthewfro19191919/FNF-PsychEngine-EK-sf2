@@ -6,7 +6,7 @@ import flixel.FlxBasic;
 #if desktop
 import Discord.DiscordClient;
 #end
-import editors.ChartingState;
+import editors.charter.ChartingState;
 import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;

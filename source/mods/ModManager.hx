@@ -45,6 +45,10 @@ class ModManager {
         };
     }
 
+    public static function getModIconPath(mod:String):String {
+        return Paths.mods(mod + '/pack.png');
+    }
+
     public static function loadModAchievements() {
         for (mod in Paths.getGlobalMods()) {
             var thisModAchievements:Array<Dynamic> = [];

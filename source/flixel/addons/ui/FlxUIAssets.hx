@@ -35,7 +35,7 @@ class FlxUIAssets
 	public static inline var IMG_FINGER_SMALL:String = "flixel/flixel-ui/img/finger_small.png";
 	public static inline var IMG_FINGER_BIG:String = "flixel/flixel-ui/img/finger_big.png";
 
-    public static inline var IMG_SLIDER:String = "assets/shared/images/flixel-ui/img/slider";
+    public static inline var IMG_SLIDER:String = "flixel-ui/img/slider";
 
 	// slice9 rules
 	public static inline var SLICE9_BUTTON:String = "6,6,11,11";
