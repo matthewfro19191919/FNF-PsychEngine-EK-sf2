@@ -20,29 +20,27 @@ typedef EventNote = {
 
 class Note extends FlxSprite
 {
-	public var extraData:Map<String,Dynamic> = [];
-
+	//////////////////////////////////////////////////
 	//Extra keys stuff
 
 	//Important stuff
 	public static var gfxLetter:Array<String> = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
 												'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'];
-	public static var ammo:Array<Int> = [
-		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
-	];
+	public static var ammo:Array<Int> = EKData.gun;
 	public static var minMania:Int = 0;
-	public static var maxMania:Int = 12;
+	public static var maxMania:Int = 14; // key value is this + 1
 
-	public static var scales:Array<Float> = [0.9, 0.85, 0.8, 0.7, 0.66, 0.6, 0.55, 0.50, 0.46, 0.39, 0.36, 0.32, 0.31, 0.31];
-	public static var lessX:Array<Int> = [0, 0, 0, 0, 0, 8, 7, 8, 8, 7, 6, 6, 8, 7];
-	public static var separator:Array<Int> = [0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 6, 6];
-	public static var xtra:Array<Int> = [150, 89, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-	public static var posRest:Array<Int> = [0, 0, 0, 0, 25, 32, 46, 52, 60, 40, 45, 30, 30];
-	public static var gridSizes:Array<Int> = [40, 40, 40, 40, 40, 40, 40, 40, 40, 35, 30, 25, 25, 20];
-	public static var offsets:Map<Int, Array<Int>> = [
+	public static var scales:Array<Float> = EKData.scales;
+	public static var lessX:Array<Int> = EKData.lessX;
+	public static var separator:Array<Int> = EKData.noteSep;
+	public static var xtra:Array<Float> = EKData.offsetX;
+	public static var posRest:Array<Float> = EKData.restPosition;
+	public static var gridSizes:Array<Int> = EKData.gridSizes;
+	public static var noteSplashOffsets:Map<Int, Array<Int>> = [
 		0 => [20, 10],
 		9 => [10, 20]
 	];
+	public static var noteSplashScales:Array<Float> = EKData.splashScales;
 
 	public static var xmlMax:Int = 17; // This specifies the max of the splashes can go
 
@@ -51,13 +49,16 @@ class Note extends FlxSprite
 
 	public static var defaultMania:Int = 3;
 
+	// pixel notes
 	public static var pixelNotesDivisionValue:Int = 18;
-
-	public static var pixelScales:Array<Float> = [1.2, 1.15, 1.1, 1, 0.9, 0.83, 0.8, 0.74, 0.7, 0.6, 0.55, 0.5, 0.48, 0.48];
+	public static var pixelScales:Array<Float> = EKData.pixelScales;
 
 	public static var keysShit:Map<Int, Map<String, Dynamic>> = EKData.keysShit;
-	// End of extra keys stuff
 
+	// End of extra keys stuff
+	//////////////////////////////////////////////////
+
+	public var extraData:Map<String,Dynamic> = [];
 	public var strumTime:Float = 0;
 
 	public var mustPress:Bool = false;
