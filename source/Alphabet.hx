@@ -45,8 +45,9 @@ class Alphabet extends FlxSpriteGroup
 	public var targetY:Int = 0;
 	public var changeX:Bool = true;
 	public var changeY:Bool = true;
+
 	public var whiteText:Bool = false;
-	public var outline:Bool = true;
+	public var outline:Bool = false;
 
 	public var alignment(default, set):Alignment = LEFT;
 	public var scaleX(default, set):Float = 1;
@@ -57,6 +58,8 @@ class Alphabet extends FlxSpriteGroup
 
 	public var distancePerItem:FlxPoint = new FlxPoint(20, 120);
 	public var startPosition:FlxPoint = new FlxPoint(0, 0); //for the calculations
+
+	public var outlines:FlxSpriteGroup;
 
 	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true)
 	{
@@ -234,6 +237,13 @@ class Alphabet extends FlxSpriteGroup
 		var xPos:Float = 0;
 		var rowData:Array<Float> = [];
 		rows = 0;
+
+		if (outline)
+			remove(outlines);
+
+		outlines = new FlxSpriteGroup(0, 0); // outlines lemefao
+		add(outlines);
+
 		for (character in newText.split(''))
 		{
 			
@@ -267,24 +277,28 @@ class Alphabet extends FlxSpriteGroup
 					rowData[rows] = xPos;
 
 					var letterColor:FlxColor = FlxColor.WHITE;
-					if (!bold && whiteText) {
-						letterColor = 0xFFFFFFFF;
-			
-						colorTransform.redMultiplier = 0;
-						colorTransform.greenMultiplier = 0;
-						colorTransform.blueMultiplier = 0;
-				
-						colorTransform.redOffset = letterColor.red;
-						colorTransform.greenOffset = letterColor.green;
-						colorTransform.blueOffset = letterColor.blue;
-			
-						color = letterColor;
-					}
 
-					/*if (outline) {
-						var letterShader:OutlineShaders = new OutlineShaders();
-						letter.shader = letterShader;
-					}*/
+					if (outline || whiteText && !bold) {
+						letter.updateLetterColor(FlxColor.WHITE);
+
+						if (outline) {
+							var letterOutline:AlphaCharacter = new AlphaCharacter(xPos, rows * Y_PER_ROW * scaleY, character, bold, this);
+							letterOutline.x = letter.x;
+							letterOutline.y = letter.y;
+							letterOutline.scale.x *= 1.5;
+							letterOutline.scale.y *= 1.5;
+							letterOutline.updateLetterColor(FlxColor.BLACK);
+							outlines.add(letterOutline);
+							letters.push(letterOutline);
+
+							var letterOutline2:AlphaCharacter = new AlphaCharacter(xPos, rows * Y_PER_ROW * scaleY, character, bold, this);
+							letterOutline2.x = letter.x + 2;
+							letterOutline2.y = letter.y + 2;
+							letterOutline2.updateLetterColor(FlxColor.BLACK);
+							outlines.add(letterOutline2);
+							letters.push(letterOutline2);
+						}
+					}
 
 					add(letter);
 					letters.push(letter);
@@ -518,6 +532,20 @@ class AlphaCharacter extends FlxSprite
 		{
 			offset.y += -(110 - height);
 		}
+	}
+
+	public function updateLetterColor(color:FlxColor) {
+		letterColor = color;
+			
+		colorTransform.redMultiplier = 0;
+		colorTransform.greenMultiplier = 0;
+		colorTransform.blueMultiplier = 0;
+
+		colorTransform.redOffset = letterColor.red;
+		colorTransform.greenOffset = letterColor.green;
+		colorTransform.blueOffset = letterColor.blue;
+
+		color = letterColor;
 	}
 }
 

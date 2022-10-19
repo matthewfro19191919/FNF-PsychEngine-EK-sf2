@@ -1,5 +1,6 @@
 package editors.charter;
 
+import editors.files.FileExplorer;
 import flixel.addons.ui.FlxUISlider;
 import flixel.addons.ui.FlxUIButton;
 import openfl.ui.MouseCursor;
@@ -2559,22 +2560,24 @@ class ChartingState extends MusicBeatState
 		var gridBlackLine:FlxSprite = new FlxSprite(gridBG.x + gridBG.width - (GRID_SIZE * 4)).makeGraphic(2, leHeight, FlxColor.WHITE);
 		gridLayer.add(gridBlackLine);
 
-		var sectionsToDo:Array<Int> = [-1, 0, 1];
+		if (showBeatBars) {
+			var sectionsToDo:Array<Int> = [-1, 0, 1];
 
-		for (i in 0...sectionsToDo.length) {
-			for (j in 0...Math.floor(getSectionBeats())) {
-				var beatSepY:Float = (GRID_SIZE * (4 * curZoom) * j) / 2;
-				if (sectionsToDo[i] < 0) beatSepY -= prevGridBG.height;
-				if (sectionsToDo[i] > 0) beatSepY += gridBG.height;
-	
-				var beatsep:FlxSprite = new FlxSprite(gridBG.x - GRID_SIZE, beatSepY).makeGraphic(Std.int(gridBG.width + GRID_SIZE), 5, 0xFFC3C3C3);
-				for (k in 0...4) {
-	
-					var stepSepY:Float = beatSepY + (GRID_SIZE * (k * curZoom)) / 2;
-					var stepsep:FlxSprite = new FlxSprite(gridBG.x - (GRID_SIZE / 2), stepSepY).makeGraphic(Std.int(GRID_SIZE / 2), 3, 0xFFC3C3C3);
-					gridLayer.add(stepsep);
+			for (i in 0...sectionsToDo.length) {
+				for (j in 0...Math.floor(getSectionBeats())) {
+					var beatSepY:Float = (GRID_SIZE * (4 * curZoom) * j) / 2;
+					if (sectionsToDo[i] < 0) beatSepY -= prevGridBG.height;
+					if (sectionsToDo[i] > 0) beatSepY += gridBG.height;
+		
+					var beatsep:FlxSprite = new FlxSprite(gridBG.x - GRID_SIZE, beatSepY).makeGraphic(Std.int(gridBG.width + GRID_SIZE), 5, 0xFFC3C3C3);
+					for (k in 0...4) {
+		
+						var stepSepY:Float = beatSepY + (GRID_SIZE * (k * curZoom)) / 33;
+						var stepsep:FlxSprite = new FlxSprite(gridBG.x - (GRID_SIZE / 2), stepSepY).makeGraphic(Std.int(GRID_SIZE / 2), 3, 0xFFC3C3C3);
+						gridLayer.add(stepsep);
+					}
+					gridLayer.add(beatsep);
 				}
-				gridLayer.add(beatsep);
 			}
 		}
 

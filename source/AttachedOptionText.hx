@@ -7,9 +7,9 @@ class AttachedOptionText extends Alphabet {
 	public var copyVisible:Bool = true;
 	public var copyAlpha:Bool = false;
 	public function new(text:String = "", ?offsetX:Float = 0, ?offsetY:Float = 0, ?bold = false, ?scale:Float = 1, widthPerLine:Float = 0) {
-        this.whiteText = true;
-		this.outline = true;
 		super(0, 0, text, bold);
+		this.whiteText = true;
+		this.outline = true;
 
 		this.scaleX = scale;
 		this.scaleY = scale;
@@ -17,6 +17,7 @@ class AttachedOptionText extends Alphabet {
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
 		this.maxNormalWidthPerLine = widthPerLine;
+		this.text = text;
 	}
 
 	override function update(elapsed:Float) {

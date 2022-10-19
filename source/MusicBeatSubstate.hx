@@ -1,5 +1,6 @@
 package;
 
+import tools.ToolboxMessage;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
 import flixel.FlxSubState;
@@ -125,4 +126,10 @@ class MusicBeatSubstate extends FlxSubState
 		if(PlayState.SONG != null && PlayState.SONG.notes[curSection] != null) val = PlayState.SONG.notes[curSection].sectionBeats;
 		return val == null ? 4 : val;
 	}
+
+	function showMsg(title:String, text:String) {
+        var m = ToolboxMessage.showMessage(title, text);
+        m.cameras = cameras;
+        openSubState(m);
+    }
 }

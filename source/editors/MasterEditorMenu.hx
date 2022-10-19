@@ -28,6 +28,7 @@ class MasterEditorMenu extends MusicBeatState
 		'Dialogue Portrait Editor',
 		'Character Editor',
 		'Subtitle Editor',
+		'File Explorer',
 		'Chart Editor'
 	];
 	private var grpTexts:FlxTypedGroup<Alphabet>;
@@ -58,7 +59,7 @@ class MasterEditorMenu extends MusicBeatState
 			var leText:Alphabet = new Alphabet(90, 320, Language.g("master_" + Language.convert(options[i]), options[i]), true);
 			leText.isMenuItem = true;
 			leText.targetY = i;
-			leText.scroll = D_SHARP;
+			leText.scroll = D;
 			grpTexts.add(leText);
 			leText.snapToPosition();
 		}
@@ -131,12 +132,22 @@ class MasterEditorMenu extends MusicBeatState
 					LoadingState.loadAndSwitchState(new editors.charter.ChartingState(), false);
 				case 'Subtitle Editor':
 					LoadingState.loadAndSwitchState(new SubtitleEditor(), false);
+				case 'File Explorer':
+					openSubState(new editors.files.FileExplorer(
+						Paths.currentModDirectory,
+						BrowseAround,
+						"",
+						null
+					));
+
 			}
-			FlxG.sound.music.volume = 0;
-			PlayerSubstate.destroyFreeplayVocals();
-			#if PRELOAD_ALL
-			FreeplayState.destroyFreeplayVocals();
-			#end
+			if (options[curSelected] != 'File Explorer') {
+				FlxG.sound.music.volume = 0;
+				PlayerSubstate.destroyFreeplayVocals();
+				#if PRELOAD_ALL
+				FreeplayState.destroyFreeplayVocals();
+				#end
+			}
 		}
 		
 		var bullShit:Int = 0;
