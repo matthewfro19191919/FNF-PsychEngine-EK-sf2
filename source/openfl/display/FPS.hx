@@ -171,7 +171,7 @@ class FPS extends TextField
 			alpha = 0.8;
 		}
 		
-		#if debug
+		#if (debug && stats)
 		text += "\n";
 		text += "\nDEBUG:";
 
