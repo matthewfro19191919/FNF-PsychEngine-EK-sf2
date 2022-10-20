@@ -56,17 +56,22 @@ class FlxSound extends FlxBasic
 	/**
 	 * Stores the average wave amplitude of both stereo channels
 	 */
-	public var amplitude(default, null):Float;
+	public var amplitude(get, null):Float;
 
 	/**
 	 * Just the amplitude of the left stereo channel
 	 */
-	public var amplitudeLeft(default, null):Float;
+	public var amplitudeLeft(get, null):Float;
 
 	/**
 	 * Just the amplitude of the left stereo channel
 	 */
-	public var amplitudeRight(default, null):Float;
+	public var amplitudeRight(get, null):Float;
+
+	/**
+	 * Just the number of audio channels
+	**/
+	public var channels:Int;
 
 	/**
 	 * Whether to call `destroy()` when the sound has finished playing.
@@ -167,6 +172,26 @@ class FlxSound extends FlxBasic
 	var _volume:Float;
 
 	/**
+	 * Internal tracker for amplitudeLeft.
+	 */
+	var _amplitudeLeft:Float;
+
+	/**
+	* Internal tracker for amplitudeRight.
+	*/
+	var _amplitudeRight:Float;
+	
+	/**
+	* Internal tracker for sound last position on when amplitude was used.
+	*/
+	var _amplitudeTime:Float;
+	
+	/**
+	* Internal tracker for amplitude update debounce.
+	*/
+	var _amplitudeUpdate:Bool;
+
+	/**
 	 * Internal tracker for sound channel position.
 	 */
 	var _time:Float = 0;
@@ -237,9 +262,11 @@ class FlxSound extends FlxBasic
 		_radius = 0;
 		_proximityPan = false;
 		visible = false;
-		amplitude = 0;
-		amplitudeLeft = 0;
-		amplitudeRight = 0;
+
+		_amplitudeLeft = 0.0;
+		_amplitudeRight = 0.0;
+		_amplitudeUpdate = true;
+
 		autoDestroy = false;
 
 		if (_transform == null)
@@ -279,6 +306,8 @@ class FlxSound extends FlxBasic
 	 */
 	override public function update(elapsed:Float):Void
 	{
+		_amplitudeUpdate = true;
+
 		if (!playing)
 			return;
 
@@ -303,19 +332,6 @@ class FlxSound extends FlxBasic
 
 		_volumeAdjust = radialMultiplier;
 		updateTransform();
-
-		if (_transform.volume > 0)
-		{
-			amplitudeLeft = _channel.leftPeak / _transform.volume;
-			amplitudeRight = _channel.rightPeak / _transform.volume;
-			amplitude = (amplitudeLeft + amplitudeRight) * 0.5;
-		}
-		else
-		{
-			amplitudeLeft = 0;
-			amplitudeRight = 0;
-			amplitude = 0;
-		}
 
 		if (endTime != null && _time >= endTime)
 			stopped();
@@ -619,6 +635,7 @@ class FlxSound extends FlxBasic
 		_channel = _sound.play(_time, 0, _transform);
 		if (_channel != null)
 		{
+			_amplitudeTime = -1;
 			#if (sys && openfl_legacy)
 			pitch = _pitch;
 			#end
@@ -744,6 +761,47 @@ class FlxSound extends FlxBasic
 		_volume = FlxMath.bound(Volume, 0, 1);
 		updateTransform();
 		return Volume;
+	}
+
+	function get_channels():Int
+	{
+		@:privateAccess return (_channel == null || !_channel.__isValid) ? 0 : _channel.__source.buffer.channels;
+	}
+	
+	function get_stereo():Bool
+	{
+		return channels > 1;
+	}
+
+	function update_amplitude()
+	{
+		if (_channel == null || _time == _amplitudeTime || !_amplitudeUpdate) return;
+		@:privateAccess{
+			_channel.__updatePeaks();
+			
+			_amplitudeLeft = _channel.__leftPeak;
+			_amplitudeRight = _channel.__rightPeak;
+		}
+
+		_amplitudeTime = _time;
+		_amplitudeUpdate = false;
+	}
+	
+	function get_amplitudeLeft():Float
+	{
+		update_amplitude();
+		return _amplitudeLeft * 1.2;
+	}
+	
+	function get_amplitudeRight():Float
+	{
+		update_amplitude();
+		return _amplitudeRight * 1.2;
+	}
+	
+	function get_amplitude():Float {
+		update_amplitude();
+		return channels > 1 ? (_amplitudeLeft + _amplitudeRight) * 0.5 : _amplitudeLeft;
 	}
 
 	inline function get_pitch():Float

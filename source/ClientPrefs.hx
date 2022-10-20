@@ -43,6 +43,7 @@ class ClientPrefs {
 	public static var transition:String = "Vertical Fade";
 	public static var replays:Bool = true;
 	public static var stretchScreen:Bool = true;
+	public static var gameFilter:String = 'None';
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -149,6 +150,8 @@ class ClientPrefs {
 		FlxG.save.data.camMovementForce = camMovementForce;
 		FlxG.save.data.replays = replays;
 		FlxG.save.data.stretchScreen = stretchScreen;
+		FlxG.save.data.gameFilter = gameFilter;
+		options.GraphicsSettingsSubState.onChangeFilter();
 
 		FlxG.save.data.language = language;
 	
@@ -308,6 +311,9 @@ class ClientPrefs {
 			replays = FlxG.save.data.replays;
 		if (FlxG.save.data.stretchScreen != null)
 			stretchScreen = FlxG.save.data.stretchScreen;
+		if (FlxG.save.data.gameFilter != null)
+			gameFilter = FlxG.save.data.gameFilter;
+		options.GraphicsSettingsSubState.onChangeFilter();
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99');

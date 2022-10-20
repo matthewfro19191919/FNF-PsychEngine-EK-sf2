@@ -1,5 +1,6 @@
 package options;
 
+import flixel.system.FlxAssets.FlxShader;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -26,6 +27,11 @@ import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
 import openfl.Lib;
+
+import openfl.filters.BitmapFilter;
+import openfl.filters.BlurFilter;
+import openfl.filters.ColorMatrixFilter;
+import openfl.filters.ShaderFilter;
 
 using StringTools;
 
@@ -83,9 +89,82 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = MusicBeatState.changeScaleMode;
 
+		var option:Option = new Option('Filter',
+			"Changes the filter on the game. Press ACCEPT to apply.",
+			'gameFilter',
+			'string',
+			'None',
+			['None', 'Scanline', 'Grayscale', 'Invert', 'Deuteranopia', 'Protanopia', 'Tritanopia']
+		);
+		addOption(option);
+		option.onEnter = onChangeFilter;	
 		super();
 
 		onChangeFramerate();
+	}
+
+	public static function onChangeFilter()
+	{
+		var filterMap:Map<String, {filter: BitmapFilter}> = [
+			"Scanline" => {
+				filter: new ShaderFilter(new Scanline())
+			},
+			"Grayscale" => {
+				var matrix:Array<Float> = [
+					0.5, 0.5, 0.5, 0, 0,
+					0.5, 0.5, 0.5, 0, 0,
+					0.5, 0.5, 0.5, 0, 0,
+					  0,   0,   0, 1, 0,
+				];
+
+				{filter: new ColorMatrixFilter(matrix)}
+			},
+			"Invert" => {
+				var matrix:Array<Float> = [
+					-1,  0,  0, 0, 255,
+					 0, -1,  0, 0, 255,
+					 0,  0, -1, 0, 255,
+					 0,  0,  0, 1,   0,
+				];
+
+				{filter: new ColorMatrixFilter(matrix)}
+			},
+			"Deuteranopia" => {
+				var matrix:Array<Float> = [
+					0.43, 0.72, -.15, 0, 0,
+					0.34, 0.57, 0.09, 0, 0,
+					-.02, 0.03,    1, 0, 0,
+					   0,    0,    0, 1, 0,
+				];
+
+				{filter: new ColorMatrixFilter(matrix)}
+			},
+			"Protanopia" => {
+				var matrix:Array<Float> = [
+					0.20, 0.99, -.19, 0, 0,
+					0.16, 0.79, 0.04, 0, 0,
+					0.01, -.01,    1, 0, 0,
+					   0,    0,    0, 1, 0,
+				];
+
+				{filter: new ColorMatrixFilter(matrix)}
+			},
+			"Tritanopia" => {
+				var matrix:Array<Float> = [
+					0.97, 0.11, -.08, 0, 0,
+					0.02, 0.82, 0.16, 0, 0,
+					0.06, 0.88, 0.18, 0, 0,
+					   0,    0,    0, 1, 0,
+				];
+
+				{filter: new ColorMatrixFilter(matrix)}
+			}
+		];
+
+		if (ClientPrefs.gameFilter != 'None')
+			FlxG.game.setFilters([filterMap.get(ClientPrefs.gameFilter).filter]);
+		else
+			FlxG.game.setFilters([]);
 	}
 
 	function onChangeAntiAliasing()
@@ -132,5 +211,24 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 				}
 			}
 		}
+	}
+}
+
+class Scanline extends FlxShader
+{
+	@:glFragmentSource('
+		#pragma header
+		const float scale = 1.0;
+
+		void main()
+		{
+			if (mod(floor(openfl_TextureCoordv.y * openfl_TextureSize.y / scale), 2.0) == 0.0)
+				gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+			else
+				gl_FragColor = texture2D(bitmap, openfl_TextureCoordv);
+		}')
+	public function new()
+	{
+		super();
 	}
 }

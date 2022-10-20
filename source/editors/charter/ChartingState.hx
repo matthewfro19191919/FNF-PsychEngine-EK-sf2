@@ -471,6 +471,24 @@ class ChartingState extends MusicBeatState
 			add(object);
 		}
 
+		var daY:Float = UI_box.y;
+		var daX:Float = FlxG.width - 10;
+		var ampInstL:AmplitudeBar = new AmplitudeBar(daX, daY + 30, 200, 10, FlxG.sound.music, 'amplitudeLeft');
+		var ampInstR:AmplitudeBar = new AmplitudeBar(daX, daY + 40, 200, 10, FlxG.sound.music, 'amplitudeRight');
+
+		var ampVocL:AmplitudeBar = new AmplitudeBar(daX, daY + 60, 200, 10, vocals, 'amplitudeLeft');
+		var ampVocR:AmplitudeBar = new AmplitudeBar(daX, daY + 70, 200, 10, vocals, 'amplitudeRight');
+
+		add(ampInstL);
+		add(ampInstR);
+		add(ampVocL);
+		add(ampVocR);
+
+		var bars:Array<AmplitudeBar> = [ampInstL, ampInstR, ampVocL, ampVocR];
+		for (b in bars) {
+			b.scrollFactor.set();
+			b.x = 10;
+		}
 		super.create();
 	}
 
