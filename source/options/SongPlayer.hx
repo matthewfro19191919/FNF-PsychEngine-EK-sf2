@@ -1,5 +1,6 @@
 package options;
 
+import song.Song;
 import flixel.util.FlxStringUtil;
 import flixel.ui.FlxBar;
 import flixel.FlxBasic;
@@ -24,6 +25,7 @@ import WeekData;
 #if MODS_ALLOWED
 import sys.FileSystem;
 #end
+import alphabet.Alphabet;
 
 using StringTools;
 

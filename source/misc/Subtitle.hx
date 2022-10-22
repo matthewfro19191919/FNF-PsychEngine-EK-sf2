@@ -1,4 +1,4 @@
-package;
+package misc;
 
 import flixel.math.FlxRect;
 import flixel.FlxG;

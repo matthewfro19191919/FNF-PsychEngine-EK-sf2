@@ -15,6 +15,7 @@ import flixel.util.FlxColor;
 import lime.utils.Assets;
 import flixel.FlxSubState;
 import achievements.Achievements;
+import alphabet.Alphabet;
 
 using StringTools;
 

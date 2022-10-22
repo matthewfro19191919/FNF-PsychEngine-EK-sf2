@@ -1,5 +1,7 @@
 package;
 
+import song.Song;
+import alphabet.Alphabet;
 import Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;

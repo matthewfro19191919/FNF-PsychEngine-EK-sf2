@@ -1,5 +1,6 @@
 package editors;
 
+import alphabet.TypedAlphabet;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -29,7 +30,7 @@ import DialogueBoxPsych;
 import flixel.FlxCamera;
 import flixel.group.FlxSpriteGroup;
 import lime.system.Clipboard;
-import Alphabet;
+import alphabet.Alphabet;
 #if sys
 import sys.io.File;
 #end

@@ -1,7 +1,7 @@
-package;
+package song;
 
-import Subtitle.SubProperties;
-import Section.SwagSection;
+import misc.Subtitle.SubProperties;
+import song.Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
 import lime.utils.Assets;

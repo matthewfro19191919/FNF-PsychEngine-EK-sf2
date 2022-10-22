@@ -14,6 +14,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import haxe.Json;
+import alphabet.Alphabet;
 
 using StringTools;
 

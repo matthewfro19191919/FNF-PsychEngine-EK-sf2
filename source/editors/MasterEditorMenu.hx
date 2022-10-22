@@ -16,6 +16,7 @@ import flixel.system.FlxSound;
 import sys.FileSystem;
 #end
 import options.SongPlayer.PlayerSubstate;
+import alphabet.Alphabet;
 
 using StringTools;
 

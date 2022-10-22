@@ -1,5 +1,7 @@
 package;
 
+import alphabet.AttachedText;
+import options.CheckboxThingie;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -24,6 +26,7 @@ import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
+import alphabet.Alphabet;
 
 using StringTools;
 

@@ -1,5 +1,6 @@
 package;
 
+import song.Song;
 import editors.charter.ChartingState;
 #if desktop
 import Discord.DiscordClient;
@@ -21,6 +22,7 @@ import WeekData;
 #if MODS_ALLOWED
 import sys.FileSystem;
 #end
+import alphabet.Alphabet;
 
 using StringTools;
 

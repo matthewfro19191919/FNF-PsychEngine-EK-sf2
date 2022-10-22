@@ -1,5 +1,7 @@
 package options;
 
+import alphabet.AttachedText;
+import alphabet.Alphabet;
 #if desktop
 import Discord.DiscordClient;
 #end

@@ -1,5 +1,7 @@
 package editors.charter;
 
+import song.StageData;
+import song.Song;
 import editors.files.FileExplorer;
 import flixel.addons.ui.FlxUISlider;
 import flixel.addons.ui.FlxUIButton;
@@ -14,8 +16,8 @@ import haxe.Json;
 import haxe.format.JsonParser;
 import haxe.io.Bytes;
 import Conductor.BPMChangeEvent;
-import Section.SwagSection;
-import Song.SwagSong;
+import song.Section.SwagSection;
+import song.Song.SwagSong;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -51,6 +53,7 @@ import openfl.media.Sound;
 import openfl.net.FileReference;
 import openfl.utils.Assets as OpenFlAssets;
 import openfl.utils.ByteArray;
+import notes.StrumNote;
 
 using StringTools;
 #if sys

@@ -1,5 +1,6 @@
 package editors;
 
+import background.BGSprite;
 #if desktop
 import Discord.DiscordClient;
 #end

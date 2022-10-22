@@ -1,4 +1,6 @@
 package;
+import flixel.addons.ui.FlxUI;
+import flixel.addons.ui.FlxUITabMenu;
 import flixel.*;
 import flixel.FlxSubState;
 import flixel.addons.ui.FlxUIButton;
@@ -10,10 +12,6 @@ import flixel.util.FlxTimer;
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
 
-/**
- * ...
- * @author 
- */
 class Prompt extends MusicBeatSubstate
 {
 	var selected = 0;
@@ -25,10 +23,17 @@ class Prompt extends MusicBeatSubstate
 	var UI_box:FlxUIPopup;
 	var panel:FlxSprite;
 	var panelbg:FlxSprite;
-	var buttonAccept:FlxButton;
-	var buttonNo:FlxButton;
+	var buttonAccept:FlxUIButton;
+	var buttonNo:FlxUIButton;
 	var cornerSize:Int = 10;
-	public function new(promptText:String='', defaultSelected:Int = 0, okCallback:Void->Void, cancelCallback:Void->Void,acceptOnDefault:Bool=false,option1:String=null,option2:String=null) 
+	public function new(
+		promptText:String='', 
+		defaultSelected:Int = 0, 
+		okCallback:Void->Void, 
+		cancelCallback:Void->Void,
+		acceptOnDefault:Bool = false,
+		option1:String = null,
+		option2:String = null)
 	{
 		selected = defaultSelected;
 		okc = okCallback;
@@ -37,24 +42,64 @@ class Prompt extends MusicBeatSubstate
 		goAnyway = acceptOnDefault;
 		
 		var op1 = 'OK';
-		var op2 = 'CANCEL';
+		var op2 = 'Cancel';
 		
-		if (option1 != null) op1 = option1;
-		if (option2 != null) op2 = option2;
-		buttonAccept = new FlxButton(473.3, 450, op1, function(){if(okc != null)okc();
-		close();} );
-		buttonNo = new FlxButton(633.3,450,op2,function(){if(cancelc != null)cancelc();
-		close();});
-		super();	
+		if (option1 != null) 
+			op1 = option1;
+		if (option2 != null) 
+			op2 = option2;
+		
+		var UI_Tabs = new FlxUITabMenu(null, 
+            [
+                {
+                    name: 'name',
+                    label: 'Warning'
+                }
+            ], true );
+        var tab = new FlxUI(null, UI_Tabs);
+        tab.name = "name";
+
+		var textshit:FlxText = new FlxText(10, 10, 290, promptText, 16);
+		textshit.alignment = 'center';
+		add(textshit);
+		textshit.screenCenter();
+
+		buttonAccept = new FlxUIButton(150, 110, op1, 
+			function() {
+				if(okc != null)
+					okc();
+				close();
+			});
+		buttonNo = new FlxUIButton(10, 110, op2,
+			function() {
+				if(cancelc != null)
+					cancelc();
+				close();
+			});
+		tab.add(buttonAccept);
+		tab.add(buttonNo);
+
+		UI_Tabs.addGroup(tab);
+		UI_Tabs.resize(300, 150);
+		UI_Tabs.scrollFactor.set();
+		UI_Tabs.screenCenter();
+		add(UI_Tabs);
+
+		if (goAnyway){
+			if(okc != null)
+				okc();
+			close();
+		}
+
+		super();
 	}
 	
-	override public function create():Void 
+	/*override public function create():Void 
 	{
 		super.create();
 		if (goAnyway){
-			
-			
-				if(okc != null)okc();
+			if(okc != null)
+				okc();
 			close();
 			
 		}else{
@@ -64,12 +109,12 @@ class Prompt extends MusicBeatSubstate
 		makeSelectorGraphic(panelbg,304,154,0xff000000);
 		//panel.makeGraphic(300, 150, 0xff999999);
 		//panel.loadGraphic(Paths.image('ui/promptbg'));
-		/*
+
 		buttons.frames = Paths.getSparrowAtlas('ui/prompt_buttons');
 		buttons.animation.addByIndices('but0', 'buttons', [0], '', 0);
 		buttons.animation.addByIndices('but1', 'buttons', [1], '', 0);
 		buttons.animation.play('but0');
-		buttons.scrollFactor.set();*/
+		buttons.scrollFactor.set();
 		panel.scrollFactor.set();
 		panel.screenCenter();
 		panelbg.scrollFactor.set();
@@ -130,7 +175,6 @@ class Prompt extends MusicBeatSubstate
 		
 		}
 	}
-	*/
 	
 	function makeSelectorGraphic(panel:FlxSprite,w,h,color:FlxColor)
 	{
@@ -164,5 +208,5 @@ class Prompt extends MusicBeatSubstate
 		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 6), Std.int(Math.abs(antiY - 2)),  5, 1), color);
 		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Std.int(Math.abs(antiY - 1)),  3, 1), color);
 	}
-	
+	*/
 }

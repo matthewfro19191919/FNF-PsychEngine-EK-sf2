@@ -1,4 +1,4 @@
-package characters;
+package yce;
 
 typedef CharacterJSON = {
     var anims:Array<CharacterAnim>;

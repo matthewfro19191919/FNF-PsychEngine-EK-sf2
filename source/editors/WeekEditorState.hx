@@ -30,6 +30,7 @@ import haxe.Json;
 #if sys
 import sys.io.File;
 import sys.FileSystem;
+import alphabet.Alphabet;
 #end
 import WeekData;
 import Language as Lang;

@@ -1,5 +1,7 @@
 package options;
 
+import alphabet.Alphabet;
+import background.BGSprite;
 import flixel.math.FlxMath;
 import flixel.FlxObject;
 import flixel.util.FlxStringUtil;

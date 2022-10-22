@@ -1,5 +1,8 @@
 package;
 
+import song.Song;
+import background.TankmenBG;
+import flixel.util.FlxColor;
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -8,10 +11,11 @@ import flixel.animation.FlxBaseAnimation;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxSort;
-import Section.SwagSection;
+import song.Section.SwagSection;
 #if MODS_ALLOWED
 import sys.io.File;
 import sys.FileSystem;
+import yce.YCECharacter;
 #end
 import openfl.utils.AssetType;
 import openfl.utils.Assets;
@@ -92,127 +96,208 @@ class Character extends FlxSprite
 		this.isPlayer = isPlayer;
 		antialiasing = ClientPrefs.globalAntialiasing;
 		var library:String = null;
+		var characterType:String = 'psych';
+		#if (MODS_ALLOWED && YOSHI_ENGINE_NATIVE)
+		var characterPath:String = 'characters/' + curCharacter + '/';
+		var path:String = Paths.modFolders(characterPath);
+		if (FileSystem.isDirectory(path)) {
+			characterType = 'yce';
+		}
+		#end
+
 		switch (curCharacter)
 		{
 			//case 'your character name in case you want to hardcode them instead':
 
 			default:
-				var characterPath:String = 'characters/' + curCharacter + '.json';
+				switch (characterType) {
+					#if (MODS_ALLOWED && YOSHI_ENGINE_NATIVE)
+					case 'yce':
+						var characterPath:String = 'characters/' + curCharacter + '/';
+						var path:String = Paths.modFolders(characterPath);
 
-				#if MODS_ALLOWED
-				var path:String = Paths.modFolders(characterPath);
-				if (!FileSystem.exists(path)) {
-					path = Paths.getPreloadPath(characterPath);
-				}
+						var cJsonPath:String = path + 'Character.json';
+						if (FileSystem.exists(cJsonPath)) {
+							var rawJson = File.getContent(cJsonPath);
 
-				if (!FileSystem.exists(path))
-				#else
-				var path:String = Paths.getPreloadPath(characterPath);
-				if (!Assets.exists(path))
-				#end
-				{
-					path = Paths.getPreloadPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
-				}
+							var json:CharacterJSON = cast Json.parse(rawJson);
 
-				#if MODS_ALLOWED
-				var rawJson = File.getContent(path);
-				#else
-				var rawJson = Assets.getText(path);
-				#end
+							var jsonImg:String = 'spritesheet';
+							frames = Paths.getSparrowAtlas(jsonImg);
+							imageFile = jsonImg;
+	
+							if(json.scale != 1) {
+								jsonScale = json.scale;
+								setGraphicSize(Std.int(width * jsonScale));
+								updateHitbox();
+							}
+	
+							positionArray = [json.globalOffset.x, json.globalOffset.y];
+							cameraPosition = [json.camOffset.x, json.camOffset.y];
+	
+							healthIcon = curCharacter;
+							flipX = !!json.flipX;
+							antialiasing = json.antialiasing;
+	
+							if(json.healthbarColor != null) {
+								var rgb:FlxColor = Std.parseInt(json.healthbarColor.replace('#', '0xFF'));
+								var hcA:Array<Int> = [rgb.red, rgb.green, rgb.blue];
+								healthColorArray = hcA;
+							}
 
-				var json:CharacterFile = cast Json.parse(rawJson);
-				var spriteType = "sparrow";
-				//sparrow
-				//packer
-				//texture
-				#if MODS_ALLOWED
-				var modTxtToFind:String = Paths.modsTxt(json.image);
-				var txtToFind:String = Paths.getPath('images/' + json.image + '.txt', TEXT);
-				
-				//var modTextureToFind:String = Paths.modFolders("images/"+json.image);
-				//var textureToFind:String = Paths.getPath('images/' + json.image, new AssetType();
-				
-				if (FileSystem.exists(modTxtToFind) || FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
-				#else
-				if (Assets.exists(Paths.getPath('images/' + json.image + '.txt', TEXT)))
-				#end
-				{
-					spriteType = "packer";
-				}
-				
-				#if MODS_ALLOWED
-				var modAnimToFind:String = Paths.modFolders('images/' + json.image + '/Animation.json');
-				var animToFind:String = Paths.getPath('images/' + json.image + '/Animation.json', TEXT);
-				
-				//var modTextureToFind:String = Paths.modFolders("images/"+json.image);
-				//var textureToFind:String = Paths.getPath('images/' + json.image, new AssetType();
-				
-				if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind) || Assets.exists(animToFind))
-				#else
-				if (Assets.exists(Paths.getPath('images/' + json.image + '/Animation.json', TEXT)))
-				#end
-				{
-					spriteType = "texture";
-				}
+							if(!ClientPrefs.globalAntialiasing) antialiasing = false;
+	
+							var shitSet:Array<CharacterAnim> = json.anims;
+							if(shitSet != null && shitSet.length > 0) {
+								for (anim in shitSet) {
+									var animAnim:String = '' + anim.anim;
+									var animName:String = '' + anim.name;
+									var animFps:Int = anim.framerate;
+									var animLoop:Bool = !!anim.loop; //Bruh
+									var animIndices:Array<Int> = anim.indices;
+									if(animIndices != null && animIndices.length > 0) {
+										animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
+									} else {
+										animation.addByPrefix(animAnim, animName, animFps, animLoop);
+									}
+	
+									addOffset(anim.anim, anim.x, anim.y);
 
-				switch (spriteType){
-					
-					case "packer":
-						frames = Paths.getPackerAtlas(json.image);
-					
-					case "sparrow":
-						frames = Paths.getSparrowAtlas(json.image);
-					
-					case "texture":
-						frames = AtlasFrameMaker.construct(json.image);
-				}
-				imageFile = json.image;
+									animationsArray.push({
+										name: animName,
+										anim: animAnim,
+										fps: animFps,
+										loop: animLoop,
+										indices: animIndices,
+										offsets: [Std.int(anim.x), Std.int(anim.y)]
+									});
+								}
+							} else {
+								quickAnimAdd('idle', 'BF idle dance');
+							}
+						}
+					#end
 
-				if(json.scale != 1) {
-					jsonScale = json.scale;
-					setGraphicSize(Std.int(width * jsonScale));
-					updateHitbox();
-				}
+					default:
+						var characterPath:String = 'characters/' + curCharacter + '.json';
 
-				positionArray = json.position;
-				cameraPosition = json.camera_position;
+						#if MODS_ALLOWED
+						var path:String = Paths.modFolders(characterPath);
+						if (!FileSystem.exists(path)) {
+							path = Paths.getPreloadPath(characterPath);
+						}
 
-				healthIcon = json.healthicon;
-				singDuration = json.sing_duration;
-				flipX = !!json.flip_x;
-				if(json.no_antialiasing) {
-					antialiasing = false;
-					noAntialiasing = true;
-				}
+						if (!FileSystem.exists(path))
+						#else
+						var path:String = Paths.getPreloadPath(characterPath);
+						if (!Assets.exists(path))
+						#end
+						{
+							path = Paths.getPreloadPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+						}
 
-				if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
-					healthColorArray = json.healthbar_colors;
+						#if MODS_ALLOWED
+						var rawJson = File.getContent(path);
+						#else
+						var rawJson = Assets.getText(path);
+						#end
 
-				antialiasing = !noAntialiasing;
-				if(!ClientPrefs.globalAntialiasing) antialiasing = false;
+						var charData:CharacterFile = cast Json.parse(rawJson);
+						var spriteType = "sparrow";
+						//sparrow
+						//packer
+						//texture
 
-				animationsArray = json.animations;
-				if(animationsArray != null && animationsArray.length > 0) {
-					for (anim in animationsArray) {
-						var animAnim:String = '' + anim.anim;
-						var animName:String = '' + anim.name;
-						var animFps:Int = anim.fps;
-						var animLoop:Bool = !!anim.loop; //Bruh
-						var animIndices:Array<Int> = anim.indices;
-						if(animIndices != null && animIndices.length > 0) {
-							animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
+						var json:CharacterFile = charData;
+						#if MODS_ALLOWED
+						var modTxtToFind:String = Paths.modsTxt(json.image);
+						var txtToFind:String = Paths.getPath('images/' + json.image + '.txt', TEXT);
+						
+						//var modTextureToFind:String = Paths.modFolders("images/"+json.image);
+						//var textureToFind:String = Paths.getPath('images/' + json.image, new AssetType();
+						
+						if (FileSystem.exists(modTxtToFind) || FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
+						#else
+						if (Assets.exists(Paths.getPath('images/' + json.image + '.txt', TEXT)))
+						#end
+						{
+							spriteType = "packer";
+						}
+						
+						#if MODS_ALLOWED
+						var modAnimToFind:String = Paths.modFolders('images/' + json.image + '/Animation.json');
+						var animToFind:String = Paths.getPath('images/' + json.image + '/Animation.json', TEXT);
+						
+						//var modTextureToFind:String = Paths.modFolders("images/"+json.image);
+						//var textureToFind:String = Paths.getPath('images/' + json.image, new AssetType();
+						
+						if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind) || Assets.exists(animToFind))
+						#else
+						if (Assets.exists(Paths.getPath('images/' + json.image + '/Animation.json', TEXT)))
+						#end
+						{
+							spriteType = "texture";
+						}
+
+						switch (spriteType){
+							
+							case "packer":
+								frames = Paths.getPackerAtlas(json.image);
+							
+							case "sparrow":
+								frames = Paths.getSparrowAtlas(json.image);
+							
+							case "texture":
+								frames = AtlasFrameMaker.construct(json.image);
+						}
+						imageFile = json.image;
+
+						if(json.scale != 1) {
+							jsonScale = json.scale;
+							setGraphicSize(Std.int(width * jsonScale));
+							updateHitbox();
+						}
+
+						positionArray = json.position;
+						cameraPosition = json.camera_position;
+
+						healthIcon = json.healthicon;
+						singDuration = json.sing_duration;
+						flipX = !!json.flip_x;
+						if(json.no_antialiasing) {
+							antialiasing = false;
+							noAntialiasing = true;
+						}
+
+						if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
+							healthColorArray = json.healthbar_colors;
+
+						antialiasing = !noAntialiasing;
+						if(!ClientPrefs.globalAntialiasing) antialiasing = false;
+
+						animationsArray = json.animations;
+						if(animationsArray != null && animationsArray.length > 0) {
+							for (anim in animationsArray) {
+								var animAnim:String = '' + anim.anim;
+								var animName:String = '' + anim.name;
+								var animFps:Int = anim.fps;
+								var animLoop:Bool = !!anim.loop; //Bruh
+								var animIndices:Array<Int> = anim.indices;
+								if(animIndices != null && animIndices.length > 0) {
+									animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
+								} else {
+									animation.addByPrefix(animAnim, animName, animFps, animLoop);
+								}
+
+								if(anim.offsets != null && anim.offsets.length > 1) {
+									addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
+								}
+							}
 						} else {
-							animation.addByPrefix(animAnim, animName, animFps, animLoop);
+							quickAnimAdd('idle', 'BF idle dance');
 						}
-
-						if(anim.offsets != null && anim.offsets.length > 1) {
-							addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-						}
-					}
-				} else {
-					quickAnimAdd('idle', 'BF idle dance');
+						//trace('Loaded file to character ' + curCharacter);
 				}
-				//trace('Loaded file to character ' + curCharacter);
 		}
 		originalFlipX = flipX;
 

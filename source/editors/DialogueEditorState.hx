@@ -1,5 +1,6 @@
 package editors;
 
+import alphabet.TypedAlphabet;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -27,10 +28,10 @@ import flash.net.FileFilter;
 import haxe.Json;
 import DialogueBoxPsych;
 import lime.system.Clipboard;
-import Alphabet;
 #if sys
 import sys.io.File;
 #end
+import alphabet.Alphabet;
 
 using StringTools;
 

@@ -1,5 +1,7 @@
 package;
 
+import alphabet.Alphabet;
+import song.Song;
 import openfl.display.BitmapData;
 #if LUA_ALLOWED
 import llua.Lua;
@@ -33,6 +35,7 @@ import flixel.math.FlxMath;
 import flixel.util.FlxSave;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.system.FlxAssets.FlxShader;
+import notes.StrumNote;
 
 #if (!flash && sys)
 import flixel.addons.display.FlxRuntimeShader;

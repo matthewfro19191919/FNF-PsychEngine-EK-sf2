@@ -18,6 +18,7 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 import lime.utils.Assets;
+import alphabet.Alphabet;
 
 using StringTools;
 

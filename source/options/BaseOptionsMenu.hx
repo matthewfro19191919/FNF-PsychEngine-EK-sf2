@@ -1,5 +1,6 @@
 package options;
 
+import alphabet.AttachedOptionText;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -25,6 +26,8 @@ import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
 import Language as Lang;
+import alphabet.Alphabet;
+import alphabet.AttachedText;
 
 using StringTools;
 

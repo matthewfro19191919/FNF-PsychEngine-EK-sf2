@@ -1,14 +1,15 @@
 package editors;
 
+import song.Song;
 import flixel.FlxCamera;
-import Subtitle.SubProperties;
-import Subtitle.SubtitleHandler;
+import misc.Subtitle.SubProperties;
+import misc.Subtitle.SubtitleHandler;
 #if desktop
 import Discord.DiscordClient;
 #end
 import Conductor.BPMChangeEvent;
-import Section.SwagSection;
-import Song.SwagSong;
+import song.Section.SwagSection;
+import song.Song.SwagSong;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxObject;

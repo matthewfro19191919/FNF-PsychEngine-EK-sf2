@@ -1,5 +1,6 @@
 package replays;
 
+import song.Song;
 import haxe.Json;
 import openfl.events.IOErrorEvent;
 import openfl.events.Event;

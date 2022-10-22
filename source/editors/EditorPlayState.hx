@@ -1,11 +1,13 @@
 package editors;
 
+import notes.NoteSplash;
+import song.Section.SwagSection;
+import song.StageData.StageFile;
+import song.StageData;
+import notes.StrumNote;
 import editors.charter.ChartingState;
 import flixel.FlxObject;
-import StageData.StageFile;
 import flixel.FlxCamera;
-import Section.SwagSection;
-import Song.SwagSong;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.util.FlxColor;

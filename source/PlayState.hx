@@ -1,8 +1,17 @@
 package;
 
+import misc.Subtitle;
+import misc.Subtitle.*;
+import background.TankmenBG;
+import song.Song;
+import notes.NoteSplash;
+import notes.StrumNote;
+import misc.Subtitle.SubProperties;
+import background.BackgroundGirls;
+import background.BackgroundDancer;
+import background.BGSprite;
 import replays.Replay;
-import Subtitle.SubProperties;
-import Subtitle.SubtitleHandler;
+import misc.Subtitle.*;
 import lime.utils.Bytes;
 import openfl.geom.Rectangle;
 import lime.media.AudioBuffer;
@@ -10,8 +19,8 @@ import flixel.graphics.FlxGraphic;
 #if desktop
 import Discord.DiscordClient;
 #end
-import Section.SwagSection;
-import Song.SwagSong;
+import song.Section.SwagSection;
+import song.Song.SwagSong;
 import WiggleEffect.WiggleEffectType;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -62,7 +71,7 @@ import flixel.util.FlxSave;
 import flixel.animation.FlxAnimationController;
 import animateatlas.AtlasFrameMaker;
 import achievements.Achievements;
-import StageData;
+import song.StageData;
 import FunkinLua;
 import DialogueBoxPsych;
 import Conductor.Rating;
@@ -260,8 +269,8 @@ class PlayState extends MusicBeatState
 	var phillyWindowEvent:BGSprite;
 	var trainSound:FlxSound;
 
-	var phillyGlowGradient:PhillyGlow.PhillyGlowGradient;
-	var phillyGlowParticles:FlxTypedGroup<PhillyGlow.PhillyGlowParticle>;
+	var phillyGlowGradient:background.PhillyGlow.PhillyGlowGradient;
+	var phillyGlowParticles:FlxTypedGroup<background.PhillyGlow.PhillyGlowParticle>;
 
 	var limoKillingState:Int = 0;
 	var limo:BGSprite;
@@ -1136,7 +1145,7 @@ class PlayState extends MusicBeatState
 		opponentStrums = new FlxTypedGroup<StrumNote>();
 		playerStrums = new FlxTypedGroup<StrumNote>();
 
-		Subtitle.SubtitleHandler.camera = camOther;
+		SubtitleHandler.camera = camOther;
 
 		// startCountdown();
 
@@ -2736,13 +2745,13 @@ class PlayState extends MusicBeatState
 				insert(members.indexOf(blammedLightsBlack) + 1, phillyWindowEvent);
 
 
-				phillyGlowGradient = new PhillyGlow.PhillyGlowGradient(-400, 225); //This shit was refusing to properly load FlxGradient so fuck it
+				phillyGlowGradient = new background.PhillyGlow.PhillyGlowGradient(-400, 225); //This shit was refusing to properly load FlxGradient so fuck it
 				phillyGlowGradient.visible = false;
 				insert(members.indexOf(blammedLightsBlack) + 1, phillyGlowGradient);
 				if(!ClientPrefs.flashing) phillyGlowGradient.intendedAlpha = 0.7;
 
 				precacheList.set('philly/particle', 'image'); //precache particle image
-				phillyGlowParticles = new FlxTypedGroup<PhillyGlow.PhillyGlowParticle>();
+				phillyGlowParticles = new FlxTypedGroup<background.PhillyGlow.PhillyGlowParticle>();
 				phillyGlowParticles.visible = false;
 				insert(members.indexOf(phillyGlowGradient) + 1, phillyGlowParticles);
 		}
@@ -3721,7 +3730,7 @@ class PlayState extends MusicBeatState
 						{
 							who.color = charColor;
 						}
-						phillyGlowParticles.forEachAlive(function(particle:PhillyGlow.PhillyGlowParticle)
+						phillyGlowParticles.forEachAlive(function(particle:background.PhillyGlow.PhillyGlowParticle)
 						{
 							particle.color = color;
 						});
@@ -3741,7 +3750,7 @@ class PlayState extends MusicBeatState
 							{
 								for (i in 0...particlesNum)
 								{
-									var particle:PhillyGlow.PhillyGlowParticle = new PhillyGlow.PhillyGlowParticle(-400 + width * i + FlxG.random.float(-width / 5, width / 5), phillyGlowGradient.originalY + 200 + (FlxG.random.float(0, 125) + j * 40), color);
+									var particle:background.PhillyGlow.PhillyGlowParticle = new background.PhillyGlow.PhillyGlowParticle(-400 + width * i + FlxG.random.float(-width / 5, width / 5), phillyGlowGradient.originalY + 200 + (FlxG.random.float(0, 125) + j * 40), color);
 									phillyGlowParticles.add(particle);
 								}
 							}
