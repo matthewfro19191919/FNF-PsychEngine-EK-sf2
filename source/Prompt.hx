@@ -1,4 +1,6 @@
 package;
+import flixel.group.FlxSpriteGroup;
+import flixel.group.FlxSpriteGroup;
 import flixel.addons.ui.FlxUI;
 import flixel.addons.ui.FlxUITabMenu;
 import flixel.*;
@@ -15,27 +17,26 @@ import openfl.geom.Rectangle;
 class Prompt extends MusicBeatSubstate
 {
 	var selected = 0;
+	var startedUsingKeyboard:Bool = false;
+
 	public var okc:Void->Void;
 	public var cancelc:Void->Void;
-	var buttons:FlxSprite = new FlxSprite(473.3, 450);
+
 	var theText:String = '';
 	var goAnyway:Bool = false;
-	var UI_box:FlxUIPopup;
-	var panel:FlxSprite;
-	var panelbg:FlxSprite;
+	var option1:String = '';
+	var option2:String = '';
+
 	var buttonAccept:FlxUIButton;
 	var buttonNo:FlxUIButton;
-	var cornerSize:Int = 10;
-	public function new(
-		promptText:String='', 
-		defaultSelected:Int = 0, 
+	public function new (
+		promptText:String = '', 
 		okCallback:Void->Void, 
 		cancelCallback:Void->Void,
 		acceptOnDefault:Bool = false,
 		option1:String = null,
 		option2:String = null)
 	{
-		selected = defaultSelected;
 		okc = okCallback;
 		cancelc = cancelCallback;
 		theText = promptText;
@@ -48,165 +49,114 @@ class Prompt extends MusicBeatSubstate
 			op1 = option1;
 		if (option2 != null) 
 			op2 = option2;
-		
-		var UI_Tabs = new FlxUITabMenu(null, 
-            [
-                {
-                    name: 'name',
-                    label: 'Warning'
-                }
-            ], true );
-        var tab = new FlxUI(null, UI_Tabs);
-        tab.name = "name";
 
-		var textshit:FlxText = new FlxText(10, 10, 290, promptText, 16);
-		textshit.alignment = 'center';
-		add(textshit);
-		textshit.screenCenter();
+		this.option1 = op1;
+		this.option2 = op2;
 
-		buttonAccept = new FlxUIButton(150, 110, op1, 
-			function() {
-				if(okc != null)
-					okc();
-				close();
-			});
-		buttonNo = new FlxUIButton(10, 110, op2,
-			function() {
-				if(cancelc != null)
-					cancelc();
-				close();
-			});
-		tab.add(buttonAccept);
-		tab.add(buttonNo);
-
-		UI_Tabs.addGroup(tab);
-		UI_Tabs.resize(300, 150);
-		UI_Tabs.scrollFactor.set();
-		UI_Tabs.screenCenter();
-		add(UI_Tabs);
-
-		if (goAnyway){
-			if(okc != null)
-				okc();
-			close();
-		}
+		if (!FlxG.mouse.visible)
+			FlxG.mouse.visible = true;
 
 		super();
 	}
 	
-	/*override public function create():Void 
+	override public function create():Void 
 	{
 		super.create();
-		if (goAnyway){
-			if(okc != null)
-				okc();
-			close();
-			
-		}else{
-		panel = new FlxSprite(0, 0);
-		panelbg = new FlxSprite(0, 0);
-		makeSelectorGraphic(panel,300,150,0xff999999);
-		makeSelectorGraphic(panelbg,304,154,0xff000000);
-		//panel.makeGraphic(300, 150, 0xff999999);
-		//panel.loadGraphic(Paths.image('ui/promptbg'));
+		if (goAnyway) {
+			onAccept();
+		} else {
+			var UI_Tabs = new FlxUITabMenu(null, 
+				[
+					{
+						name: 'name',
+						label: 'Warning'
+					}
+				], true );
+			var tab = new FlxUI(null, UI_Tabs);
+			tab.name = "name";
+	
+			var textshit:FlxText = new FlxText(10, 10, 290, theText, 10);
+			textshit.alignment = 'center';
+			tab.add(textshit);
+	
+			buttonAccept = new FlxUIButton(0, 110, option1, onAccept);
+			buttonNo = new FlxUIButton(0, 110, option2, onCancel);
 
-		buttons.frames = Paths.getSparrowAtlas('ui/prompt_buttons');
-		buttons.animation.addByIndices('but0', 'buttons', [0], '', 0);
-		buttons.animation.addByIndices('but1', 'buttons', [1], '', 0);
-		buttons.animation.play('but0');
-		buttons.scrollFactor.set();
-		panel.scrollFactor.set();
-		panel.screenCenter();
-		panelbg.scrollFactor.set();
-		panelbg.screenCenter();
-		
-		add(panelbg);
-		add(panel);
-		add(buttonAccept);
-		add(buttonNo);
-		//add(buttons);
-		var textshit:FlxText = new FlxText(buttonNo.width*2, panel.y, 300, theText, 16);
-		textshit.alignment = 'center';
-		add(textshit);
-		textshit.screenCenter();
-		buttonAccept.screenCenter();
-		buttonNo.screenCenter();
-		buttonAccept.x -= buttonNo.width/1.5;
-		buttonAccept.y = panel.y + panel.height-30;
-		buttonNo.x += buttonNo.width/1.5;
-		buttonNo.y = panel.y + panel.height-30;
-		textshit.scrollFactor.set();
+			buttonNo.x = 110 - buttonNo.width;
+			buttonNo.x -= 10;
+			buttonNo.y = 100;
+
+			buttonAccept.x = 110 + buttonAccept.width;
+			buttonAccept.x += 10;
+			buttonAccept.y = 100;
+
+			var closeButton = new FlxUIButton(300, -15, "X", onCancel);
+			closeButton.label.size = 10;
+			closeButton.label.color = 0xFFFFFFFF;
+			closeButton.color = 0xFFFF4444;
+			closeButton.resize(20, 20);
+			closeButton.scrollFactor.set();
+			closeButton.x -= closeButton.width;
+			closeButton.x -= 5;
+
+			tab.add(closeButton);
+			tab.add(buttonAccept);
+			tab.add(buttonNo);
+	
+			UI_Tabs.addGroup(tab);
+			UI_Tabs.resize(300, 150);
+			UI_Tabs.scrollFactor.set();
+			UI_Tabs.screenCenter();
+			add(UI_Tabs);
 		}
 	}
-	/*
-	override public function update(elapsed:Float):Void 
-	{
+
+	override function update(elapsed:Float) {
+		if (controls.UI_LEFT_P)
+			changeSelected(-1);
+		if (controls.UI_RIGHT_P)
+			changeSelected(1);
+		if (controls.ACCEPT && startedUsingKeyboard) {
+			switch (selected) {
+				case 1: onAccept();
+				default: onCancel();
+			}
+		}
+
+		if (startedUsingKeyboard) {
+			buttonNo.color = FlxColor.WHITE;
+			buttonAccept.color = FlxColor.WHITE;
+			buttonNo.label.color = FlxColor.BLACK;
+			buttonAccept.label.color = FlxColor.BLACK;
+			if (selected == 0) {
+				buttonNo.color = 0xFF00A2FF;
+				buttonNo.label.color = FlxColor.WHITE;
+			} else if (selected == 1) {
+				buttonAccept.color = 0xFF00A2FF;
+				buttonAccept.label.color = FlxColor.WHITE;
+			}
+		}
+
 		super.update(elapsed);
-		
-		
-		
-		if (!goAnyway){
-			
-			
-			
-		if (controls.UI_LEFT_P || controls.UI_RIGHT_P){
-			if (selected == 0){
-				selected = 1;
-			}else{
-				selected = 0;
-			}
-			FlxG.sound.play(Paths.sound('scrollMenu'));
-			//buttons.animation.play('but' + selected);
-		}
-		buttonAccept.color.brightness = 0.5;
-		buttonNo.color.brightness = 0.5;
-		if (selected == 0 ) buttonAccept.color.brightness = 0.9;
-		if (selected == 1 ) buttonNo.color.brightness = 0.9;
-		if (controls.ACCEPT ){
-			if (selected == 0){
-				FlxG.sound.play(Paths.sound('confirmMenu'));
-				if(okc != null)okc();
-			}else{
-				FlxG.sound.play(Paths.sound('cancelMenu'));
-				if(cancelc != null)cancelc();
-			}
-			close();
-		}
-		
-		}
+	}
+
+	public function changeSelected(c:Int) {
+		selected += c;
+		if (selected > 1) selected = 0;
+		if (selected < 0) selected = 1;
+
+		startedUsingKeyboard = true;
 	}
 	
-	function makeSelectorGraphic(panel:FlxSprite,w,h,color:FlxColor)
-	{
-		panel.makeGraphic(w, h, color);
-		panel.pixels.fillRect(new Rectangle(0, 190, panel.width, 5), 0x0);
-		
-		// Why did i do this? Because i'm a lmao stupid, of course
-		// also i wanted to understand better how fillRect works so i did this shit lol???
-		panel.pixels.fillRect(new Rectangle(0, 0, cornerSize, cornerSize), 0x0);														 //top left
-		drawCircleCornerOnSelector(panel,false, false,color);
-		panel.pixels.fillRect(new Rectangle(panel.width - cornerSize, 0, cornerSize, cornerSize), 0x0);							 //top right
-		drawCircleCornerOnSelector(panel,true, false,color);
-		panel.pixels.fillRect(new Rectangle(0, panel.height - cornerSize, cornerSize, cornerSize), 0x0);							 //bottom left
-		drawCircleCornerOnSelector(panel,false, true,color);
-		panel.pixels.fillRect(new Rectangle(panel.width - cornerSize, panel.height - cornerSize, cornerSize, cornerSize), 0x0); //bottom right
-		drawCircleCornerOnSelector(panel,true, true,color);
+	public function onCancel() {
+		if(cancelc != null)
+			cancelc();
+		close();
 	}
 
-	function drawCircleCornerOnSelector(panel:FlxSprite,flipX:Bool, flipY:Bool,color:FlxColor)
-	{
-		var antiX:Float = (panel.width - cornerSize);
-		var antiY:Float = flipY ? (panel.height - 1) : 0;
-		if(flipY) antiY -= 2;
-		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 1), Std.int(Math.abs(antiY - 8)), 10, 3), color);
-		if(flipY) antiY += 1;
-		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 2), Std.int(Math.abs(antiY - 6)),  9, 2), color);
-		if(flipY) antiY += 1;
-		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 3), Std.int(Math.abs(antiY - 5)),  8, 1), color);
-		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 4), Std.int(Math.abs(antiY - 4)),  7, 1), color);
-		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 5), Std.int(Math.abs(antiY - 3)),  6, 1), color);
-		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 6), Std.int(Math.abs(antiY - 2)),  5, 1), color);
-		panel.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Std.int(Math.abs(antiY - 1)),  3, 1), color);
+	public function onAccept() {
+		if(okc != null)
+			okc();
+		close();
 	}
-	*/
 }
