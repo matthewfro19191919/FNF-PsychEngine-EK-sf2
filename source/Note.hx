@@ -7,6 +7,7 @@ import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flash.display.BitmapData;
 import editors.charter.ChartingState;
+import WiggleEffect;
 
 using StringTools;
 
@@ -49,6 +50,8 @@ class Note extends FlxSprite
 	public var eventVal2:String = '';
 
 	public var colorSwap:ColorSwap;
+	
+	public var wiggleShader:WiggleEffect;
 	public var inEditor:Bool = false;
 
 	public var animSuffix:String = '';
@@ -164,6 +167,16 @@ class Note extends FlxSprite
 		noteSplashHue = colorSwap.hue;
 		noteSplashSat = colorSwap.saturation;
 		noteSplashBrt = colorSwap.brightness;
+
+		if (wiggly) {
+			wiggleShader = new WiggleEffect();
+			wiggleShader.effectType = WiggleEffectType.DREAMY;
+			wiggleShader.waveAmplitude = 0.002;
+			wiggleShader.waveFrequency = 94;
+			wiggleShader.waveSpeed = 6;
+			shader = wiggleShader.shader;
+		}
+
 		return value;
 	}
 
@@ -355,8 +368,6 @@ class Note extends FlxSprite
 	var curTimePerChange:Float = 0;
 	var changedNoteData:Int = 0;
 	public var randomNoteYModifier:Float = 400;
-
-	public var wigglySinTime:Float = 0;
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -390,9 +401,8 @@ class Note extends FlxSprite
 				alpha = 0.3;
 		}
 
-		if (wiggly && isSustainNote) {
-			wigglySinTime += elapsed * 120;
-			angle = 10 * Math.sin(wigglySinTime);
+		if (wiggly) {
+			wiggleShader.update(elapsed);
 		}
 
 		if (frozen && !inEditor)
