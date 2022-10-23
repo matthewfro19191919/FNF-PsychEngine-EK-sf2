@@ -578,7 +578,7 @@ class FlxGame extends Sprite
 		FlxG.signals.preGameReset.dispatch();
 
 		#if FLX_DEBUG
-		_skipSplash = true;
+		//_skipSplash = true;
 		#end
 
 		if (_skipSplash || FlxSplash.nextState != null) // already played
