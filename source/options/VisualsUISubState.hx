@@ -160,15 +160,12 @@ class VisualsUISubState extends BaseOptionsMenu
 
 	var changedMusic:Bool = false;
 	function onPreviewTransition() {
-		var fadeTransition:CustomFadeTransition = new CustomFadeTransition(0.4, false);
-		add(fadeTransition);
+		var daFade:CustomFadeTransition = new CustomFadeTransition(0.4, false);
+		openSubState(daFade);
 		CustomFadeTransition.finishCallback = function() {
-			var fadeTransition2:CustomFadeTransition = new CustomFadeTransition(0.5, true);
-			add(fadeTransition2);
-			remove(fadeTransition);
-			CustomFadeTransition.finishCallback = function() {
-				remove(fadeTransition2);
-			}
+			daFade.close();
+			daFade = new CustomFadeTransition(0.5, true);
+			openSubState(daFade);
 		}
 	}
 

@@ -631,6 +631,8 @@ class PlayerSubstate extends MusicBeatSubstate {
         if (back && canPause) {
             initClose(); 
             canPause = false; 
+            FlxG.sound.music.pitch = 1;
+            vocals.pitch = 1;
             songSpeed = 1; 
         }
         if ((FlxG.keys.justPressed.ENTER || (FlxG.mouse.overlaps(pauseIcon) && FlxG.mouse.justPressed)) && canPause) 
@@ -678,6 +680,9 @@ class PlayerSubstate extends MusicBeatSubstate {
         if (allSeconds < 0) allSeconds = 0;
 
         timeTxt.text = FlxStringUtil.formatTime(secondsTotal, false) + ' - ' + FlxStringUtil.formatTime(allSeconds, false); 
+        if (playbackSpeed != 1) {
+            timeTxt.text += ' (' + FlxStringUtil.formatTime((songCalc / 1000) * (1 / playbackSpeed), false) + ')';
+        }
     }
 
     function changeTime(change:Float = 0) {

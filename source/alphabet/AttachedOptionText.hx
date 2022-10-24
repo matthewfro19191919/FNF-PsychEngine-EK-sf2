@@ -11,7 +11,6 @@ class AttachedOptionText extends Alphabet {
 	public function new(text:String = "", ?offsetX:Float = 0, ?offsetY:Float = 0, ?bold = false, ?scale:Float = 1, widthPerLine:Float = 0) {
 		super(0, 0, text, bold);
 		this.whiteText = true;
-		this.outline = true;
 
 		this.scaleX = scale;
 		this.scaleY = scale;

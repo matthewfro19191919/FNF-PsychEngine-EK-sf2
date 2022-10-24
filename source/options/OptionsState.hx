@@ -43,10 +43,8 @@ class OptionsState extends MusicBeatState
 		if (!opening) {
 			var dumb:String = label.toLowerCase().replace(' ', '');
 			if (dumb != 'adjustdelayandcombo' && dumb != 'songplayer') {
-				var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.4, false);
-				add(fadeTrans);
+				openSubState(new CustomFadeTransition(0.4, false));
 				CustomFadeTransition.finishCallback = function() {
-					remove(fadeTrans);
 					switch(label) {
 						case 'Note Colors':
 							openSubState(new options.NotesSubState());
@@ -132,12 +130,10 @@ class OptionsState extends MusicBeatState
 	override function closeSubState() {
 		super.closeSubState();
 
-		var fadeTrans:CustomFadeTransition = new CustomFadeTransition(0.5, true);
-		add(fadeTrans);
-		CustomFadeTransition.finishCallback = function() {
-			remove(fadeTrans);
-		}
 		persistentUpdate = true;
+		if (opening) 
+			openSubState(new CustomFadeTransition(0.5, true));
+
 		opening = false;
 		ClientPrefs.saveSettings();
 		Language.initLanguage();

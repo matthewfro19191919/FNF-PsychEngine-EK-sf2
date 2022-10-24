@@ -17,7 +17,7 @@ import flixel.FlxCamera;
 
 using StringTools;
 
-class CustomFadeTransition extends FlxSpriteGroup {
+class CustomFadeTransition extends MusicBeatSubstate {
 	public static var finishCallback:Void->Void;
 	private var leTween:FlxTween = null;
 	public static var nextCamera:FlxCamera;
@@ -52,10 +52,8 @@ class CustomFadeTransition extends FlxSpriteGroup {
 		transBlack = new FlxSprite().makeGraphic(shit[0] + 200, shit[1], FlxColor.BLACK);
 		transBlack.scrollFactor.set();
 
-		if (!this.transition.startsWith('Zoom')) {
-			add(transGradient);
-			add(transBlack);
-		}
+		add(transGradient);
+		add(transBlack);
 
 		switch (this.transition) {
 			default:
@@ -64,7 +62,7 @@ class CustomFadeTransition extends FlxSpriteGroup {
 				
 				if(isTransIn) {
 					transGradient.y = transBlack.y - transBlack.height;
-					FlxTween.tween(transGradient, {y: transGradient.height + 50}, duration, {onComplete: mf, ease: FlxEase.linear});
+					FlxTween.tween(transGradient, {y: transGradient.height + 50}, duration, {onComplete: mf2, ease: FlxEase.linear});
 				} else {
 					transGradient.y = -transGradient.height;
 					transBlack.y = transGradient.y - transBlack.height + 50;
@@ -76,7 +74,7 @@ class CustomFadeTransition extends FlxSpriteGroup {
 				
 				if(isTransIn) {
 					transGradient.x = transBlack.x - transBlack.width;
-					FlxTween.tween(transGradient, {x: transGradient.width + 50}, duration, {onComplete: mf, ease: FlxEase.linear});
+					FlxTween.tween(transGradient, {x: transGradient.width + 50}, duration, {onComplete: mf2, ease: FlxEase.linear});
 				} else {
 					transGradient.x = -transGradient.width;
 					transBlack.x = transGradient.x - transBlack.width;
@@ -92,9 +90,13 @@ class CustomFadeTransition extends FlxSpriteGroup {
 	}
 
 	function mf(_) {
-		if(CustomFadeTransition.finishCallback != null) {
-			CustomFadeTransition.finishCallback();
+		if(finishCallback != null) {
+			finishCallback();
 		}
+	}
+
+	function mf2(_) {
+		close();
 	}
 
 	override function update(elapsed:Float) {

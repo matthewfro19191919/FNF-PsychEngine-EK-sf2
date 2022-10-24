@@ -47,7 +47,6 @@ class Alphabet extends FlxSpriteGroup
 	public var changeY:Bool = true;
 
 	public var whiteText:Bool = false;
-	public var outline:Bool = false;
 
 	public var alignment(default, set):Alignment = LEFT;
 	public var scaleX(default, set):Float = 1;
@@ -58,8 +57,6 @@ class Alphabet extends FlxSpriteGroup
 
 	public var distancePerItem:FlxPoint = new FlxPoint(20, 120);
 	public var startPosition:FlxPoint = new FlxPoint(0, 0); //for the calculations
-
-	public var outlines:FlxSpriteGroup;
 
 	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = true)
 	{
@@ -238,12 +235,6 @@ class Alphabet extends FlxSpriteGroup
 		var rowData:Array<Float> = [];
 		rows = 0;
 
-		if (outline)
-			remove(outlines);
-
-		outlines = new FlxSpriteGroup(0, 0); // outlines lemefao
-		add(outlines);
-
 		for (character in newText.split(''))
 		{
 			
@@ -278,26 +269,8 @@ class Alphabet extends FlxSpriteGroup
 
 					var letterColor:FlxColor = FlxColor.WHITE;
 
-					if (outline || whiteText && !bold) {
+					if (whiteText && !bold) {
 						letter.updateLetterColor(FlxColor.WHITE);
-
-						if (outline) {
-							var letterOutline:AlphaCharacter = new AlphaCharacter(xPos, rows * Y_PER_ROW * scaleY, character, bold, this);
-							letterOutline.x = letter.x;
-							letterOutline.y = letter.y;
-							letterOutline.scale.x *= 1.5;
-							letterOutline.scale.y *= 1.5;
-							letterOutline.updateLetterColor(FlxColor.BLACK);
-							outlines.add(letterOutline);
-							letters.push(letterOutline);
-
-							var letterOutline2:AlphaCharacter = new AlphaCharacter(xPos, rows * Y_PER_ROW * scaleY, character, bold, this);
-							letterOutline2.x = letter.x + 2;
-							letterOutline2.y = letter.y + 2;
-							letterOutline2.updateLetterColor(FlxColor.BLACK);
-							outlines.add(letterOutline2);
-							letters.push(letterOutline2);
-						}
 					}
 
 					add(letter);

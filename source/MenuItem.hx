@@ -31,12 +31,12 @@ class MenuItem extends FlxSprite
 		y = FlxMath.lerp(y, (targetY * 120) + 480, CoolUtil.boundTo(elapsed * 10.2, 0, 1));
 
 		time += elapsed;
-		if (time > timePerUpdate) {
+		if (time > timePerUpdate && isFlashing) {
 			time = 0.0;
 			flash = !flash;
 		}
 
-		if (flash)
+		if (flash && isFlashing)
 			color = 0xFF33ffff;
 		else
 			color = FlxColor.WHITE;
