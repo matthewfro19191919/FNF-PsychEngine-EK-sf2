@@ -5936,6 +5936,126 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
+	// these functions dont work, i think!!
+	function updateWeird() {
+		if (waveformSprite == null) return;
+		waveformSprite.makeGraphic(Std.int(Note.swagWidth * 4), FlxG.height, 0x00FFFFFF);
+		waveformSprite.pixels.fillRect(new Rectangle(0, 0, Note.swagWidth * 4, FlxG.height), 0x00FFFFFF);
+
+		var st:Float = FlxG.sound.music.time;
+
+		var stupid:Array<Array<Array<Float>>> = [[[0], [0]], [[0], [0]]];
+
+		var sound:FlxSound = vocals;
+		if (sound._sound != null && sound._sound.__buffer != null) {
+			stupid = weirdWaveform(
+				sound._sound.__buffer,
+				st,
+				1,
+				stupid,
+				FlxG.height
+			);
+		}
+
+		var length:Int = stupid[0][0].length > stupid[1][0].length ? stupid[0][0].length : stupid[1][0].length;
+
+		var gSize:Int = Std.int(Note.swagWidth * 4);
+		var hSize:Int = Std.int(gSize / 2);
+
+		var lsiz:Float = 0;
+		var rsiz:Float = 0;
+
+		var size:Float = 1;
+
+		var index:Int;
+		for (i in 0...length) {
+			index = i;
+
+			lsiz = FlxMath.bound(((index < wavData[0][0].length && index >= 0) ? wavData[0][0][index] : 0) * (gSize / 1.12), -hSize, hSize) / 2;
+			rsiz = FlxMath.bound(((index < wavData[1][0].length && index >= 0) ? wavData[1][0][index] : 0) * (gSize / 1.12), -hSize, hSize) / 2;
+
+			waveformSprite.pixels.fillRect(new Rectangle(hSize - lsiz, i * size, lsiz + rsiz, size), FlxColor.BLUE);
+		}
+	}
+
+	function weirdWaveform(buffer:AudioBuffer, time:Float, multiply:Float = 1, ?array:Array<Array<Array<Float>>>, ?steps:Float):Array<Array<Array<Float>>> {
+		#if (lime_cffi && !macro)
+		if (buffer == null || buffer.data == null) return [[[0], [0]], [[0], [0]]];
+
+		var bytes = buffer.data.buffer;
+		var length = bytes.length - 1;
+		var khz = (buffer.sampleRate / 1000);
+		var channels = buffer.channels;
+		var stereo = channels > 1;
+
+		var gotIndex:Int = 0;
+
+		var lmin:Float = 0;
+		var lmax:Float = 0;
+		var rmin:Float = 0;
+		var rmax:Float = 0;
+
+		var rows = 0;
+		var render = 0;
+		var prevRows = 0;
+
+		var index = Math.floor((time) * khz);
+		var samples = 720;
+		var samplesPerRow = samples / 720;
+
+		if (array == null) array = [[[0], [0]], [[0], [0]]];
+
+		while (index < length) {
+			if (index >= 0) {
+				var byte = bytes.getUInt16(index * channels * 2);
+
+				if (byte > 65535 / 2) byte -= 65535;
+
+				var sample = (byte / 65535);
+
+				if (sample > 0) {
+					if (sample > lmax) lmax = sample;
+				} else if (sample < 0) {
+					if (sample < lmin) lmin = sample;
+				}
+
+				if (stereo) {
+					var byte = bytes.getUInt16((index * channels * 2) + 2);
+
+					if (byte > 65535 / 2) byte -= 65535;
+
+					var sample = (byte / 65535);
+
+					if (sample > 0) {
+						if (sample > rmax) rmax = sample;
+					} else if (sample < 0) {
+						if (sample < rmin) rmin = sample;
+					}
+				}
+			}
+			
+			if (rows - prevRows >= samplesPerRow) {
+				prevRows = rows + ((rows - prevRows) - 1);
+				
+				array[0][0].push(lmax - lmin);
+				array[1][0].push(rmax - rmin);
+				
+				lmin = lmax = rmin = rmax = 0;
+				render++;
+			}
+			
+			index++;
+			rows++;
+
+			if (render > 720) break;
+		}
+
+		return array;
+		#else
+		return [[[0], [0]], [[0], [0]]];
+		#end
+	}
+
 	var curLight:Int = -1;
 	var curLightEvent:Int = -1;
 }
