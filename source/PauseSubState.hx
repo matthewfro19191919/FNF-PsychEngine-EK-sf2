@@ -1,5 +1,7 @@
 package;
 
+import achievements.Achievements.AttachedAchievement;
+import alphabet.AttachedText;
 import song.Song;
 import alphabet.Alphabet;
 import Controls.Control;
@@ -17,6 +19,8 @@ import flixel.util.FlxColor;
 import flixel.FlxCamera;
 import flixel.util.FlxStringUtil;
 
+using StringTools;
+
 class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
@@ -24,11 +28,18 @@ class PauseSubState extends MusicBeatSubstate
 	var menuItems:Array<String> = [];
 	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Exit to menu'];
 	var difficultyChoices = [];
+	var optionChoices:Array<String> = ['Note Colors', 'Controls', 'Adjust Delay and Combo', 'Graphics', 'Visuals and UI', 'Gameplay'];
 	var curSelected:Int = 0;
+
+	var bg:FlxSprite;
+	var levelInfo:FlxText;
+	var blueballedTxt:FlxText;
+	var levelDifficulty:FlxText;
+	var chartingText:FlxText;
 
 	var pauseMusic:FlxSound;
 	var practiceText:FlxText;
-	var skipTimeText:FlxText;
+	var skipTimeText:AttachedText;
 	var skipTimeTracker:Alphabet;
 	var curTime:Float = Math.max(0, Conductor.songPosition);
 	//var botplayText:FlxText;
@@ -61,7 +72,7 @@ class PauseSubState extends MusicBeatSubstate
 			difficultyChoices.push(diff);
 		}
 		difficultyChoices.push('BACK');
-
+		optionChoices.push('BACK');
 
 		pauseMusic = new FlxSound();
 		if(songName != null) {
@@ -74,12 +85,12 @@ class PauseSubState extends MusicBeatSubstate
 
 		FlxG.sound.list.add(pauseMusic);
 
-		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0;
 		bg.scrollFactor.set();
 		add(bg);
 
-		var levelInfo:FlxText = new FlxText(20, 15, 0, "", 32);
+		levelInfo = new FlxText(20, 15, 0, "", 32);
 		levelInfo.text += PlayState.SONG.song;
 		if (FlxG.random.bool(0.69)) levelInfo.text = "GAY";
 		levelInfo.scrollFactor.set();
@@ -87,14 +98,14 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "", 32);
+		levelDifficulty = new FlxText(20, 15 + 32, 0, "", 32);
 		levelDifficulty.text += CoolUtil.difficultyString();
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
 		add(levelDifficulty);
 
-		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, "", 32);
+		blueballedTxt = new FlxText(20, 15 + 64, 0, "", 32);
 		blueballedTxt.text = Language.g('pause_blueballed') + ": " + PlayState.deathCounter;
 		blueballedTxt.scrollFactor.set();
 		blueballedTxt.setFormat(Paths.font('vcr.ttf'), 32);
@@ -109,7 +120,7 @@ class PauseSubState extends MusicBeatSubstate
 		practiceText.visible = PlayState.instance.practiceMode;
 		add(practiceText);
 
-		var chartingText:FlxText = new FlxText(20, 15 + 101, 0, Language.g('pause_charting_mode'), 32);
+		chartingText = new FlxText(20, 15 + 101, 0, Language.g('pause_charting_mode'), 32);
 		chartingText.scrollFactor.set();
 		chartingText.setFormat(Paths.font('vcr.ttf'), 32);
 		chartingText.x = FlxG.width - (chartingText.width + 20);
@@ -147,7 +158,6 @@ class PauseSubState extends MusicBeatSubstate
 			pauseMusic.volume += 0.01 * elapsed;
 
 		super.update(elapsed);
-		updateSkipTextStuff();
 
 		var upP = controls.UI_UP_P;
 		var downP = controls.UI_DOWN_P;
@@ -193,7 +203,7 @@ class PauseSubState extends MusicBeatSubstate
 				}
 		}
 
-		if (accepted && (cantUnpause <= 0 || !ClientPrefs.controllerMode))
+		if (accepted && (cantUnpause <= 0 || !ClientPrefs.controllerMode) && !opening)
 		{
 			if (menuItems == difficultyChoices)
 			{
@@ -211,16 +221,28 @@ class PauseSubState extends MusicBeatSubstate
 
 				menuItems = menuItemsOG;
 				regenMenu();
+			} else if (menuItems == optionChoices) {
+				if(menuItems.length - 1 != curSelected && optionChoices.contains(daSelected)) {
+					openOptions(daSelected);
+					return;
+				}
+
+				menuItems = menuItemsOG;
+				regenMenu();
 			}
 
 			switch (daSelected)
 			{
 				case "Resume":
-					close();
+					closeEpicly();
 				case 'Change Difficulty':
 					menuItems = difficultyChoices;
 					deleteSkipTimeText();
 					regenMenu();
+				/*case 'Options': // will add em later !!
+					menuItems = optionChoices;
+					deleteSkipTimeText();
+					regenMenu();*/
 				case 'Toggle Practice Mode':
 					PlayState.instance.practiceMode = !PlayState.instance.practiceMode;
 					PlayState.changedDifficulty = true;
@@ -247,7 +269,7 @@ class PauseSubState extends MusicBeatSubstate
 						close();
 					}
 				case "End Song":
-					close();
+					closeEpicly();
 					PlayState.instance.finishSong(true);
 				case 'Toggle Botplay':
 					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
@@ -276,6 +298,25 @@ class PauseSubState extends MusicBeatSubstate
 			}
 		}
 	}
+
+	function closeEpicly() {
+		var d:Float = 0.2;
+		FlxTween.tween(bg, {alpha: 0}, d, {onComplete: tc});
+		FlxTween.tween(levelInfo, {alpha: 0}, d);
+		FlxTween.tween(blueballedTxt, {alpha: 0}, d);
+		FlxTween.tween(levelDifficulty, {alpha: 0}, d);
+		FlxTween.tween(chartingText, {alpha: 0}, d);
+
+		FlxTween.tween(practiceText, {alpha: 0}, d);
+		if (skipTimeText != null)
+			FlxTween.tween(skipTimeText, {alpha: 0}, d);
+
+		for (thing in grpMenuShit.members) {
+			FlxTween.tween(thing, {alpha: 0}, d);
+		}
+	}
+
+	function tc(?_) {close();}
 
 	function deleteSkipTimeText()
 	{
@@ -315,6 +356,7 @@ class PauseSubState extends MusicBeatSubstate
 
 	function changeSelection(change:Int = 0):Void
 	{
+		if (opening) return;
 		curSelected += change;
 
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
@@ -357,39 +399,60 @@ class PauseSubState extends MusicBeatSubstate
 		}
 
 		for (i in 0...menuItems.length) {
-			var item = new Alphabet(90, 320, Language.g('pause_' + Language.convert(menuItems[i]), menuItems[i]), true);
+			var itemTranslationStr = 'pause_' + Language.convert(menuItems[i]);
+			if (menuItems == optionChoices)
+				itemTranslationStr = Language.convert(menuItems[i]);
+
+			var item = new Alphabet(90, 320, Language.g(itemTranslationStr, menuItems[i]), true);
 			item.isMenuItem = true;
 			item.targetY = i;
 			grpMenuShit.add(item);
 
 			if(menuItems[i] == 'Skip Time')
 			{
-				skipTimeText = new FlxText(0, 0, 0, '', 64);
-				skipTimeText.setFormat(Paths.font("vcr.ttf"), 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-				skipTimeText.scrollFactor.set();
-				skipTimeText.borderSize = 2;
+				skipTimeText = new AttachedText('', item.width + 80);
+				skipTimeText.copyAlpha = true;
+				skipTimeText.sprTracker = item;
+				skipTimeText.whiteText = true;
 				skipTimeTracker = item;
 				add(skipTimeText);
-
-				updateSkipTextStuff();
 				updateSkipTimeText();
 			}
 		}
 		curSelected = 0;
 		changeSelection();
 	}
-	
-	function updateSkipTextStuff()
-	{
-		if(skipTimeText == null || skipTimeTracker == null) return;
-
-		skipTimeText.x = skipTimeTracker.x + skipTimeTracker.width + 60;
-		skipTimeText.y = skipTimeTracker.y;
-		skipTimeText.visible = (skipTimeTracker.alpha >= 1);
-	}
 
 	function updateSkipTimeText()
 	{
 		skipTimeText.text = FlxStringUtil.formatTime(Math.max(0, Math.floor(curTime / 1000)), false) + ' / ' + FlxStringUtil.formatTime(Math.max(0, Math.floor(FlxG.sound.music.length / 1000)), false);
+	}
+
+	function openOptions(label:String) {
+		if (!opening) {
+			opening = true;
+			var dumb:String = label.toLowerCase().replace(' ', '');
+			if (dumb != 'adjustdelayandcombo') {
+				switch(label) {
+					case 'Note Colors':
+						openSubState(new options.NotesSubState());
+					case 'Controls':
+						openSubState(new options.ControlsSubState());
+					case 'Graphics':
+						openSubState(new options.GraphicsSettingsSubState());
+					case 'Visuals and UI':
+						openSubState(new options.VisualsUISubState());
+					case 'Gameplay':
+						openSubState(new options.GameplaySettingsSubState());
+				}
+			} else LoadingState.loadAndSwitchState(new options.NoteOffsetState());
+		}
+	}
+
+	var opening:Bool = false;
+
+	override function closeSubState() {
+		opening = false;
+		super.closeSubState();
 	}
 }
