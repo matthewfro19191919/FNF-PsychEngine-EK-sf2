@@ -141,6 +141,15 @@ class StrumNote extends FlxSprite
 		//}
 		}
 
+		if (animation.curAnim != null) {
+			switch(animation.curAnim.name) {
+				case 'confirm' | 'pressed':
+					alpha = 1;
+				default:
+					alpha = 0.75;
+			}
+		}
+
 		super.update(elapsed);
 	}
 

@@ -410,7 +410,7 @@ class PauseSubState extends MusicBeatSubstate
 
 			if(menuItems[i] == 'Skip Time')
 			{
-				skipTimeText = new AttachedText('', item.width + 80);
+				skipTimeText = new AttachedText('', item.width + 80, -80);
 				skipTimeText.copyAlpha = true;
 				skipTimeText.sprTracker = item;
 				skipTimeText.whiteText = true;
