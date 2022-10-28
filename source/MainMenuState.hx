@@ -196,6 +196,10 @@ class MainMenuState extends MusicBeatState
 
 		for (item in menuItems.members) {
 			if (FlxG.mouse.overlaps(item)) {
+				/*if (curSelected != item.ID) {
+					curSelected = item.ID;
+					changeItem(0);
+				}*/
 				if (FlxG.mouse.justPressed) {
 					curSelected = item.ID;
 					changeItem(0);
