@@ -30,6 +30,18 @@ using StringTools;
 
 class VisualsUISubState extends BaseOptionsMenu
 {
+	var timebarOptions:Array<String> = [
+		'Time Left',
+		'Time Left (Corrected)',
+		'Time Elapsed',
+		'Time Elapsed - Length',
+		'Song Name',
+		'Song Name [Difficulty]',
+		'Song Name (xPB Rate)',
+		'Song Percent',
+		'Disabled'
+	];
+
 	public function new()
 	{
 		title = 'Visuals and UI';
@@ -56,14 +68,18 @@ class VisualsUISubState extends BaseOptionsMenu
 			'bool',
 			false);
 		addOption(option);
-		
+
+		var nums = CoolUtil.numberStringArray(timebarOptions.length);
 		var option:Option = new Option(Lang.g('options_time_bar'),
 			Lang.g('options_time_bar_desc'),
 			'timeBarType',
 			'string',
-			'Time Left',
-			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
+			'2',
+			nums);
+		//trace(nums);
 		addOption(option);
+		option.isTimebar = true;
+		option.onChange = onUpdateTimebarType;
 
 		var option:Option = new Option(Lang.g('options_flashing_lights'),
 			Lang.g('options_flashing_lights_desc'),
@@ -156,6 +172,7 @@ class VisualsUISubState extends BaseOptionsMenu
 
 		onUpdateLanguage(); //At the end of super because then it will crash
 		//(the options werent added yet)
+		onUpdateTimebarType(); // applies too
 	}
 
 	var changedMusic:Bool = false;
@@ -166,6 +183,18 @@ class VisualsUISubState extends BaseOptionsMenu
 			daFade.close();
 			daFade = new CustomFadeTransition(0.5, true);
 			openSubState(daFade);
+		}
+	}
+
+	function onUpdateTimebarType() {
+		for (option in optionsArray){
+			if (option.isTimebar) {
+				if (option.child != null) {
+					var text:String = timebarOptions[Std.parseInt(ClientPrefs.timeBarType)];
+					option.child.text = text;
+					//trace(text);
+				}
+			}
 		}
 	}
 

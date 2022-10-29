@@ -1,5 +1,7 @@
 package;
 
+import flixel.addons.ui.FlxUIAssets;
+import flixel.addons.display.FlxBackdrop;
 import flixel.math.FlxPoint;
 #if desktop
 import Discord.DiscordClient;
@@ -30,6 +32,7 @@ class MainMenuState extends MusicBeatState
 	public static var curSelected:Int = 0;
 
 	var menuItems:FlxTypedGroup<MainMenuItem>;
+	var backdrop:FlxBackdrop;
 	private var camGame:FlxCamera;
 	private var camAchievement:FlxCamera;
 	
@@ -99,6 +102,11 @@ class MainMenuState extends MusicBeatState
 		add(magenta);
 		
 		// magenta.scrollFactor.set();
+
+		backdrop = new FlxBackdrop(Paths.image(FlxUIAssets.IMG_MENU_TILE, 'shared'), 5, 5);
+		backdrop.alpha = 0.5;
+		backdrop.scrollFactor.set();
+		add(backdrop);
 
 		menuItems = new FlxTypedGroup<MainMenuItem>();
 		add(menuItems);
@@ -207,6 +215,8 @@ class MainMenuState extends MusicBeatState
 				}
 			}
 		}
+
+		backdrop.velocity.set(elapsed * 5000, elapsed * 5000);
 
 		if (!selectedSomethin)
 		{

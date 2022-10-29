@@ -37,6 +37,10 @@ class FreeplayState extends MusicBeatState
 
 	var bopIcon:Int = -1;
 
+	#if ALBUM_COVER_DEBUG
+	var albumCover:PixelatedSprite;
+	#end
+
 	var scoreBG:FlxSprite;
 	var scoreText:FlxText;
 	var diffText:FlxText;
@@ -95,7 +99,9 @@ class FreeplayState extends MusicBeatState
 				{
 					colors = [146, 113, 253];
 				}
-				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
+				var cover:String = song[3];
+				if (cover == null && cover.length < 1) cover = 'classic';
+				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]), cover);
 			}
 		}
 		WeekData.loadTheFirstEnabledMod();
@@ -181,25 +187,6 @@ class FreeplayState extends MusicBeatState
 		changeSelection();
 		changeDiff();
 
-		var swag:Alphabet = new Alphabet(1, 0, "swag");
-
-		// JUST DOIN THIS SHIT FOR TESTING!!!
-		/* 
-			var md:String = Markdown.markdownToHtml(Assets.getText('CHANGELOG.md'));
-
-			var texFel:TextField = new TextField();
-			texFel.width = FlxG.width;
-			texFel.height = FlxG.height;
-			// texFel.
-			texFel.htmlText = md;
-
-			FlxG.stage.addChild(texFel);
-
-			// scoreText.textField.htmlText = md;
-
-			trace(md);
-		 */
-
 		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
 		textBG.alpha = 0.6;
 		add(textBG);
@@ -218,6 +205,14 @@ class FreeplayState extends MusicBeatState
 
 		textBG.y = FlxG.height - text.height - 8;
 		text.y = FlxG.height - text.height - 4;
+
+		#if ALBUM_COVER_DEBUG
+		albumCover = new PixelatedSprite(FlxG.width, textBG.height);
+		albumCover.loadGraphic(Paths.image('covers/' + songs[curSelected].cover));
+		albumCover.x -= albumCover.width;
+		add(albumCover);
+		#end
+
 		super.create();
 	}
 
@@ -227,9 +222,9 @@ class FreeplayState extends MusicBeatState
 		super.closeSubState();
 	}
 
-	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int)
+	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int, cover:String)
 	{
-		songs.push(new SongMetadata(songName, weekNum, songCharacter, color));
+		songs.push(new SongMetadata(songName, weekNum, songCharacter, color, cover));
 	}
 
 	function weekIsLocked(name:String):Bool {
@@ -546,6 +541,18 @@ class FreeplayState extends MusicBeatState
 		{
 			curDifficulty = newPos;
 		}
+
+		#if ALBUM_COVER_DEBUG
+		if (albumCover != null) {
+			albumCover.startChanging(function() {
+				remove(albumCover);
+				albumCover = new PixelatedSprite(FlxG.width, 60);
+				albumCover.loadGraphic(Paths.image('covers/' + songs[curSelected].cover));
+				albumCover.x -= albumCover.width;
+				add(albumCover);
+			});
+		}
+		#end
 	}
 
 	private function positionHighscore() {
@@ -580,8 +587,9 @@ class SongMetadata
 	public var songCharacter:String = "";
 	public var color:Int = -7179779;
 	public var folder:String = "";
+	public var cover:String = "";
 
-	public function new(song:String, week:Int, songCharacter:String, color:Int)
+	public function new(song:String, week:Int, songCharacter:String, color:Int, ?cover:String)
 	{
 		this.songName = song;
 		this.week = week;
@@ -589,5 +597,32 @@ class SongMetadata
 		this.color = color;
 		this.folder = Paths.currentModDirectory;
 		if(this.folder == null) this.folder = '';
+		if(cover != null) this.cover = cover;
+	}
+}
+
+class PixelatedSprite extends FlxSprite {
+	public var pxShader:PixelEffect;
+	public function new(x,y) {
+		super(x,y);
+
+		pxShader = new PixelEffect();
+		pxShader.pixelSize = 0;
+		shader = pxShader.shader;
+	}
+
+	public function startChanging(?doneCallback:Void->Void) {
+
+		FlxTween.tween(pxShader, {pixelSize: 10}, 0.5, {onComplete: function(?_) {
+			if (doneCallback!= null) doneCallback();
+		}});
+	}
+
+	public function startPixelated(?doneCallback:Void->Void) {
+		pxShader.pixelSize = 10;
+		FlxTween.tween(pxShader, {pixelSize: 0.00001}, 0.5, {onComplete: function(?_) {
+			if (doneCallback != null)
+				doneCallback();
+		}});
 	}
 }

@@ -193,6 +193,31 @@ class CoolUtil
 		return dumbArray;
 	}
 
+	public static function numberStringArray(max:Int, ?min = 0):Array<String>
+	{
+		var dumbArray:Array<String> = [];
+		for (i in min...max)
+		{
+			dumbArray.push(Std.string(i));
+		}
+		return dumbArray;
+	}
+
+	public static function coolSongText(string:String):String {
+		var formatted:String = string;
+		string = string.replace('-', ' ');
+		var words:Array<String> = string.split(' ');
+		var newWords:Array<String> = [];
+		for (word in words) {
+			word = word.toLowerCase();
+			word = word.charAt(0).toUpperCase() + word.substr(1, word.length);
+			newWords.push(word);
+		}
+		formatted = newWords.join(' ');
+
+		return formatted;
+	}
+
 	//uhhhh does this even work at all? i'm starting to doubt
 	public static function precacheSound(sound:String, ?library:String = null):Void {
 		Paths.sound(sound, library);

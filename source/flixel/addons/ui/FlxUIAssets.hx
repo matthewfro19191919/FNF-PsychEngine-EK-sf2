@@ -36,9 +36,10 @@ class FlxUIAssets
 	public static inline var IMG_FINGER_BIG:String = "flixel/flixel-ui/img/finger_big.png";
 
     public static inline var IMG_SLIDER:String = "flixel-ui/img/slider";
-	public static inline var IMG_WIN_MINIMIZE:String = "assets/shared/flixel-ui/window_minimize";
-	public static inline var IMG_WIN_MAXIMIZE:String = "assets/shared/flixel-ui/window_maximize";
-	public static inline var IMG_WIN_CLOSE:String = "assets/shared/flixel-ui/window_close";
+	public static inline var IMG_WIN_MINIMIZE:String = "flixel-ui/window_minimize";
+	public static inline var IMG_WIN_MAXIMIZE:String = "flixel-ui/window_maximize";
+	public static inline var IMG_WIN_CLOSE:String = "flixel-ui/window_close";
+	public static inline var IMG_MENU_TILE:String = "flixel-ui/tile";
 
 	// slice9 rules
 	public static inline var SLICE9_BUTTON:String = "6,6,11,11";
