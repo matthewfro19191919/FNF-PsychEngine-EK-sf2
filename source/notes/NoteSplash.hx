@@ -36,9 +36,6 @@ class NoteSplash extends FlxSprite
 
 		if(texture == null) {
 			texture = 'noteSplashes';
-			if (PlayState.isPixelStage) {
-				texture += '-pixel';
-			}
 			if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) texture = PlayState.SONG.splashSkin;
 		}
 
@@ -67,10 +64,14 @@ class NoteSplash extends FlxSprite
 			}
 		}
 		else {
+			if (PlayState.isPixelStage) {
+				skin += '-pixel';
+			}
+
 			loadGraphic(Paths.image(skin), true, 80, 80);
             for (i in 0...4){
                 for (j in 1...3) {
-					animation.add('note$i-$j', [i,i+4,i+8,i+12,i+16,i+20], 12, false);
+					animation.add('note$i-$j', [i,i+4,i+8,i+12,i+16,i+20], 24, false);
 				}
             }
             antialiasing = false;

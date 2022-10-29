@@ -1,5 +1,6 @@
 package;
 
+import flixel.addons.ui.FlxUIButton;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -49,16 +50,16 @@ class ModsMenuState extends MusicBeatState
 	private static var curSelected:Int = 0;
 	public static var defaultColor:FlxColor = 0xFF665AFF;
 
-	var buttonDown:FlxButton;
-	var buttonTop:FlxButton;
-	var buttonDisableAll:FlxButton;
-	var buttonEnableAll:FlxButton;
-	var buttonUp:FlxButton;
-	var buttonToggle:FlxButton;
-	var buttonsArray:Array<FlxButton> = [];
+	var buttonDown:FlxUIButton;
+	var buttonTop:FlxUIButton;
+	var buttonDisableAll:FlxUIButton;
+	var buttonEnableAll:FlxUIButton;
+	var buttonUp:FlxUIButton;
+	var buttonToggle:FlxUIButton;
+	var buttonsArray:Array<FlxUIButton> = [];
 
-	var installButton:FlxButton;
-	var removeButton:FlxButton;
+	var installButton:FlxUIButton;
+	var removeButton:FlxUIButton;
 
 	var modsList:Array<Dynamic> = [];
 
@@ -131,7 +132,7 @@ class ModsMenuState extends MusicBeatState
 		//attached buttons
 		var startX:Float = 1120;
 
-		buttonToggle = new FlxButton(startX, 0, "ON", function()
+		buttonToggle = new FlxUIButton(startX, 0, "ON", function()
 		{
 			if(mods[curSelected].restart)
 			{
@@ -141,44 +142,51 @@ class ModsMenuState extends MusicBeatState
 			updateButtonToggle();
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
-		buttonToggle.setGraphicSize(50, 50);
-		buttonToggle.updateHitbox();
+		buttonToggle.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER);
 		add(buttonToggle);
+
+		buttonToggle.resize(50, 50);
+		buttonToggle.updateHitbox();
+
 		buttonsArray.push(buttonToggle);
 		visibleWhenHasMods.push(buttonToggle);
 
-		buttonToggle.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER);
-		setAllLabelsOffset(buttonToggle, -15, 10);
+		//setAllLabelsOffset(buttonToggle, -15, 10);
 		startX -= 70;
 
-		buttonUp = new FlxButton(startX, 0, "/\\", function()
+		buttonUp = new FlxUIButton(startX, 0, "/\\", function()
 		{
 			moveMod(-1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
-		buttonUp.setGraphicSize(50, 50);
-		buttonUp.updateHitbox();
+		buttonUp.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
 		add(buttonUp);
+
+		buttonUp.resize(50, 50);
+		buttonUp.updateHitbox();
+
 		buttonsArray.push(buttonUp);
 		visibleWhenHasMods.push(buttonUp);
-		buttonUp.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		setAllLabelsOffset(buttonUp, -15, 10);
 		startX -= 70;
 
-		buttonDown = new FlxButton(startX, 0, "\\/", function() {
+		buttonDown = new FlxUIButton(startX, 0, "\\/", function() {
 			moveMod(1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
-		buttonDown.setGraphicSize(50, 50);
-		buttonDown.updateHitbox();
+		buttonDown.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
 		add(buttonDown);
+
+		buttonDown.resize(50, 50);
+		buttonDown.updateHitbox();
+
 		buttonsArray.push(buttonDown);
 		visibleWhenHasMods.push(buttonDown);
-		buttonDown.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		setAllLabelsOffset(buttonDown, -15, 10);
 
-		startX -= 140;
-		buttonTop = new FlxButton(startX, 0, Language.g('mods_topbtn'), function() {
+		var autoText:FlxText = new FlxText();
+		autoText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK);
+
+		autoText.text = Language.g('mods_topbtn');
+		buttonTop = new FlxUIButton(startX, 0, autoText.text, function() {
 			var doRestart:Bool = (mods[0].restart || mods[curSelected].restart);
 			for (i in 0...curSelected) //so it shifts to the top instead of replacing the top one
 			{
@@ -192,19 +200,19 @@ class ModsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
 		buttonTop.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		setAllLabelsOffset(buttonTop, 0, 10);
 		add(buttonTop);
-		buttonTop.label.fieldWidth = 120;
 
-		buttonTop.setGraphicSize(120, 50);
+		buttonTop.resize(autoText.width + 20, 50);
 		buttonTop.updateHitbox();
+
 		buttonsArray.push(buttonTop);
 		visibleWhenHasMods.push(buttonTop);
+		
+		startX -= buttonTop.width + 20;
+		buttonTop.x = startX;
 
-
-		startX = buttonTop.x - 190;
-
-		buttonDisableAll = new FlxButton(startX, 0, Language.g('mods_disablebtn'), function() {
+		autoText.text = Language.g('mods_disablebtn');
+		buttonDisableAll = new FlxUIButton(startX, 0, autoText.text, function() {
 			for (i in modsList)
 			{
 				i[1] = false;
@@ -221,19 +229,19 @@ class ModsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
 		buttonDisableAll.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		buttonDisableAll.label.fieldWidth = 280;
-		setAllLabelsOffset(buttonDisableAll, 0, 10);
-		buttonDisableAll.setGraphicSize(280, 50);
-		buttonDisableAll.updateHitbox();
 		add(buttonDisableAll);
 
-		startX = buttonTop.x - (20 + buttonDisableAll.width);
-		buttonDisableAll.x = startX;
-
+		buttonDisableAll.resize(autoText.width + 20, 50);
+		buttonDisableAll.updateHitbox();
+		
 		buttonsArray.push(buttonDisableAll);
 		visibleWhenHasMods.push(buttonDisableAll);
 
-		buttonEnableAll = new FlxButton(startX, 0, Language.g('mods_enablebtn'), function() {
+		startX -= buttonDisableAll.width + 20;
+		buttonDisableAll.x = startX;
+
+		autoText.text = Language.g('mods_enablebtn');
+		buttonEnableAll = new FlxUIButton(startX, 0, autoText.text, function() {
 			for (i in modsList)
 			{
 				i[1] = true;
@@ -250,77 +258,19 @@ class ModsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
 		});
 		buttonEnableAll.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
-		buttonEnableAll.label.fieldWidth = 280;
-
-		setAllLabelsOffset(buttonEnableAll, 0, 10);
-		buttonEnableAll.setGraphicSize(280, 50);
-		buttonEnableAll.updateHitbox();
 		add(buttonEnableAll);
 
-		startX = buttonDisableAll.x - (20 + buttonEnableAll.width);
-		buttonEnableAll.x = startX;
-
+		buttonEnableAll.resize(autoText.width + 20, 50);
+		buttonEnableAll.updateHitbox();
+		
 		buttonsArray.push(buttonEnableAll);
 		visibleWhenHasMods.push(buttonEnableAll);
 
-		// more buttons
-		var startX:Int = 1100;
+		startX -= buttonEnableAll.width + 20;
+		buttonEnableAll.x = startX;
 
+		//////////////////////////////////////////////////////////////// END OF BUTTON SECTION
 
-
-
-		/*
-		installButton = new FlxButton(startX, 620, "Install Mod", function()
-		{
-			installMod();
-		});
-		installButton.setGraphicSize(150, 70);
-		installButton.updateHitbox();
-		installButton.color = FlxColor.GREEN;
-		installButton.label.fieldWidth = 135;
-		installButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
-		setAllLabelsOffset(installButton, 2, 24);
-		add(installButton);
-		startX -= 180;
-
-		removeButton = new FlxButton(startX, 620, "Delete Selected Mod", function()
-		{
-			var path = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
-			if(FileSystem.exists(path) && FileSystem.isDirectory(path))
-			{
-				trace('Trying to delete directory ' + path);
-				try
-				{
-					FileSystem.deleteFile(path); //FUCK YOU HAXE WHY DONT YOU WORK WAAAAAAAAAAAAH
-
-					var icon = mods[curSelected].icon;
-					var alphabet = mods[curSelected].alphabet;
-					remove(icon);
-					remove(alphabet);
-					icon.destroy();
-					alphabet.destroy();
-					modsList.remove(modsList[curSelected]);
-					mods.remove(mods[curSelected]);
-
-					if(curSelected >= mods.length) --curSelected;
-					changeSelection();
-				}
-				catch(e)
-				{
-					trace('Error deleting directory: ' + e);
-				}
-			}
-		});
-		removeButton.setGraphicSize(150, 70);
-		removeButton.updateHitbox();
-		removeButton.color = FlxColor.RED;
-		removeButton.label.fieldWidth = 135;
-		removeButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
-		setAllLabelsOffset(removeButton, 2, 15);
-		add(removeButton);
-		visibleWhenHasMods.push(removeButton);*/
-
-		///////
 		descriptionTxt = new FlxText(148, 0, FlxG.width - 216, "", 32);
 		descriptionTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT);
 		descriptionTxt.scrollFactor.set();

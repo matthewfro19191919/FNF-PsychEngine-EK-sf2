@@ -164,6 +164,8 @@ class DiscordRichPresence extends MusicBeatState {
         if (controls.BACK) {
             exit();
         }
+
+        super.update(elapsed);
     }
 
     function exit() {

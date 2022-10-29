@@ -84,7 +84,7 @@ class ChartingState extends MusicBeatState
 	private var noteTypeIntMap:Map<Int, String> = new Map<Int, String>();
 	private var noteTypeMap:Map<String, Null<Int>> = new Map<String, Null<Int>>();
 	public var ignoreWarnings = false;
-	var boyfriend:Boyfriend;
+	var boyfriend:Character;
 	var enemy:Character;
 	var girlfriend:Character;
 	var undos = [];
@@ -427,10 +427,10 @@ class ChartingState extends MusicBeatState
 		add(buttonCollapse);
 		buttonCollapse.scrollFactor.set();
 
-		buttonCollapse.setGraphicSize(Std.int(buttonCollapse.height), 40);
+		buttonCollapse.resize(Std.int(buttonCollapse.height), 40);
 		buttonCollapse.updateHitbox();
 		buttonCollapse.screenCenter(Y);
-		setAllLabelsOffset(buttonCollapse, 0, (buttonCollapse.height / 2) - 8);
+		//setAllLabelsOffset(buttonCollapse, 0, (buttonCollapse.height / 2) - 8);
 		buttonCollapse.label.fieldWidth = buttonCollapse.width;
 		updateUI_boxPositions();
 
@@ -511,7 +511,7 @@ class ChartingState extends MusicBeatState
 		girlfriend.scrollFactor.set(0.95, 0.95);
 		add(girlfriend);
 
-		boyfriend = new Boyfriend(0, 0, bfName);
+		boyfriend = new Character(0, 0, bfName, true);
 		add(boyfriend);
 
 		enemy = new Character(0, 0, dadName);
@@ -1048,7 +1048,7 @@ class ChartingState extends MusicBeatState
 			}
 			updateGrid();
 		});
-		copyLastButton.setGraphicSize(80, 30);
+		copyLastButton.resize(80, 30);
 		copyLastButton.updateHitbox();
 		
 		stepperCopy = new FlxUINumericStepper(copyLastButton.x + 100, copyLastButton.y, 1, 1, -999, 999, 0);
@@ -1295,12 +1295,12 @@ class ChartingState extends MusicBeatState
 				updateGrid();
 			}
 		});
-		removeButton.setGraphicSize(Std.int(removeButton.height), Std.int(removeButton.height));
+		removeButton.resize(Std.int(removeButton.height), Std.int(removeButton.height));
 		removeButton.updateHitbox();
 		removeButton.color = FlxColor.RED;
 		removeButton.label.color = FlxColor.WHITE;
 		removeButton.label.size = 12;
-		setAllLabelsOffset(removeButton, -30, 0);
+		//setAllLabelsOffset(removeButton, -30, 0);
 		tab_group_event.add(removeButton);
 
 		var addButton:FlxUIButton = new FlxUIButton(removeButton.x + removeButton.width + 10, removeButton.y, '+', function()
@@ -1314,32 +1314,32 @@ class ChartingState extends MusicBeatState
 				updateGrid();
 			}
 		});
-		addButton.setGraphicSize(Std.int(removeButton.width), Std.int(removeButton.height));
+		addButton.resize(Std.int(removeButton.width), Std.int(removeButton.height));
 		addButton.updateHitbox();
 		addButton.color = FlxColor.GREEN;
 		addButton.label.color = FlxColor.WHITE;
 		addButton.label.size = 12;
-		setAllLabelsOffset(addButton, -30, 0);
+		//setAllLabelsOffset(addButton, -30, 0);
 		tab_group_event.add(addButton);
 
 		var moveLeftButton:FlxUIButton = new FlxUIButton(addButton.x + addButton.width + 20, addButton.y, '<', function()
 		{
 			changeEventSelected(-1);
 		});
-		moveLeftButton.setGraphicSize(Std.int(addButton.width), Std.int(addButton.height));
+		moveLeftButton.resize(Std.int(addButton.width), Std.int(addButton.height));
 		moveLeftButton.updateHitbox();
 		moveLeftButton.label.size = 12;
-		setAllLabelsOffset(moveLeftButton, -30, 0);
+		//setAllLabelsOffset(moveLeftButton, -30, 0);
 		tab_group_event.add(moveLeftButton);
 
 		var moveRightButton:FlxUIButton = new FlxUIButton(moveLeftButton.x + moveLeftButton.width + 10, moveLeftButton.y, '>', function()
 		{
 			changeEventSelected(1);
 		});
-		moveRightButton.setGraphicSize(Std.int(moveLeftButton.width), Std.int(moveLeftButton.height));
+		moveRightButton.resize(Std.int(moveLeftButton.width), Std.int(moveLeftButton.height));
 		moveRightButton.updateHitbox();
 		moveRightButton.label.size = 12;
-		setAllLabelsOffset(moveRightButton, -30, 0);
+		//setAllLabelsOffset(moveRightButton, -30, 0);
 		tab_group_event.add(moveRightButton);
 
 		selectedEventText = new FlxText(addButton.x - 100, addButton.y + addButton.height + 6, (moveRightButton.x - addButton.x) + 186, 'Selected Event: None');
@@ -1626,7 +1626,7 @@ class ChartingState extends MusicBeatState
 			FlxG.save.data.chart_playSoundDad = playSoundDad.checked;
 		}
 
-		beatBars = new FlxUICheckBox(hitVolumeBF.x, hitVolumeBF.y + 60, null, null, "Show beat & step bars", 100, function() {
+		beatBars = new FlxUICheckBox(hitVolumeBF.x, hitVolumeBF.y + 30, null, null, "Show beat & step bars", 100, function() {
 			FlxG.save.data.chart_beatBars = beatBars.checked;
 			showBeatBars = beatBars.checked;
 			reloadGridLayer();
@@ -2003,28 +2003,30 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		if (blockInput) {
-			if (FlxG.mouse.overlaps(gridBG)) Mouse.cursor = MouseCursor.ARROW;
-			else Mouse.cursor = MouseCursor.AUTO;
-			for (dropDownMenu in blockPressWhileScrolling) {
-				if(dropDownMenu.dropPanel.visible && FlxG.mouse.overlaps(dropDownMenu.dropPanel)) {
+		//if (blockInput) {
+		var allObjects:Array<Dynamic> = [];
+		for (dropdown in blockPressWhileScrolling) allObjects.push(dropdown);
+		for (stepper in blockPressWhileTypingOnStepper) allObjects.push(stepper);
+		for (inputText in blockPressWhileTypingOn) allObjects.push(inputText);
+
+		Mouse.cursor = MouseCursor.AUTO;
+
+		if (FlxG.mouse.overlaps(gridBG)) Mouse.cursor = MouseCursor.ARROW;
+		for (object in allObjects) {
+			if (object is FlxUIDropDownMenuCustom) {
+				if(object.dropPanel.visible && FlxG.mouse.overlaps(object.dropPanel))
 					Mouse.cursor = MouseCursor.BUTTON;
-				} else Mouse.cursor = MouseCursor.AUTO;
-			}
-			for (stepper in blockPressWhileTypingOnStepper) {
+			} else if (object is FlxUINumericStepper) {
 				@:privateAccess
-					if (FlxG.mouse.overlaps(stepper.button_plus) ||
-						FlxG.mouse.overlaps(stepper.button_minus)) {
-					Mouse.cursor = MouseCursor.BUTTON;
-				} else Mouse.cursor = MouseCursor.AUTO;
-			}
-			for (inputText in blockPressWhileTypingOn) {
-				@:privateAccess
-					if (FlxG.mouse.overlaps(inputText)) {
+				if (FlxG.mouse.overlaps(object.button_plus) ||
+					FlxG.mouse.overlaps(object.button_minus))
+				Mouse.cursor = MouseCursor.BUTTON;
+			} else if (object is FlxUIInputText) {
+				if (FlxG.mouse.overlaps(object))
 					Mouse.cursor = MouseCursor.IBEAM;
-				} else Mouse.cursor = MouseCursor.AUTO;
 			}
 		}
+		//}
 
 		if (!blockInput)
 		{
@@ -3305,7 +3307,7 @@ class ChartingState extends MusicBeatState
 			spr.animation.addByPrefix('anim' + anim, sprAnims[anim] + ' hold piece');
 		}
 		spr.animation.play('anim' + note.noteData % 4);
-		spr.setGraphicSize(15, height);
+		spr.setGraphicSize(15, height - 15);
 		spr.updateHitbox();
 		spr.x = (note.x + (GRID_SIZE / 2)) - (spr.width / 2);
 

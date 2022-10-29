@@ -116,7 +116,7 @@ class PlayState extends MusicBeatState
 	private var isCameraOnForcedPos:Bool = false;
 
 	#if (haxe >= "4.0.0")
-	public var boyfriendMap:Map<String, Boyfriend> = new Map();
+	public var boyfriendMap:Map<String, Character> = new Map();
 	public var dadMap:Map<String, Character> = new Map();
 	public var gfMap:Map<String, Character> = new Map();
 	public var variables:Map<String, Dynamic> = new Map();
@@ -172,7 +172,7 @@ class PlayState extends MusicBeatState
 
 	public var dad:Character = null;
 	public var gf:Character = null;
-	public var boyfriend:Boyfriend = null;
+	public var boyfriend:Character = null;
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
@@ -1047,7 +1047,7 @@ class PlayState extends MusicBeatState
 		dadGroup.add(dad);
 		startCharacterLua(dad.curCharacter);
 
-		boyfriend = new Boyfriend(0, 0, SONG.player1);
+		boyfriend = new Character(0, 0, SONG.player1, true);
 		startCharacterPos(boyfriend);
 		boyfriendGroup.add(boyfriend);
 		startCharacterLua(boyfriend.curCharacter);
@@ -1617,7 +1617,7 @@ class PlayState extends MusicBeatState
 		switch(type) {
 			case 0:
 				if(!boyfriendMap.exists(newCharacter)) {
-					var newBoyfriend:Boyfriend = new Boyfriend(0, 0, newCharacter);
+					var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
 					boyfriendMap.set(newCharacter, newBoyfriend);
 					boyfriendGroup.add(newBoyfriend);
 					startCharacterPos(newBoyfriend);
@@ -3161,9 +3161,6 @@ class PlayState extends MusicBeatState
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed * playbackRate, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 			if (isPixelStage) {
-				var v:Int = pixelCamSnapSize - 1;
-				if (Math.floor(camFollowPos.x) % pixelCamSnapSize == v) pixelCamPosition.x = camFollowPos.x;
-				if (Math.floor(camFollowPos.y) % pixelCamSnapSize == v) pixelCamPosition.y = camFollowPos.y;
 				FlxG.camera.follow(pixelCamPosition, LOCKON, 1);
 			}
 			if(!startingSong && !endingSong && boyfriend.animation.curAnim != null && boyfriend.animation.curAnim.name.startsWith('idle')) {
@@ -3193,6 +3190,18 @@ class PlayState extends MusicBeatState
 		if(botplayTxt.visible) {
 			botplaySine += 180 * elapsed;
 			botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
+		}
+
+		if (ClientPrefs.soundAtSpeaker) {
+			if (gf != null) {
+				var gfSpeakerPos:FlxObject = new FlxObject(gf.x + (gf.width / 2), gf.y + (gf.height / 3), 1, 1);
+				var radius:Float = gf.x - dad.x;
+				radius += gf.width / 2;
+				radius *= 1.7; // so its loud enoguhgh to cover them
+
+				FlxG.sound.music.proximity(camFollowPos.x, camFollowPos.y, gfSpeakerPos, radius, true);
+				vocals.proximity(camFollowPos.x, camFollowPos.y, gfSpeakerPos, radius, true);
+			}
 		}
 
 		if (controls.PAUSE && startedCountdown && canPause)
@@ -3319,6 +3328,7 @@ class PlayState extends MusicBeatState
 			if (isPixelStage) {
 				pixelZoomTime += elapsed;
 				if (pixelZoomTime > pixelZoomSpeed) {
+					pixelCamPosition.setPosition(camFollowPos.x, camFollowPos.y);
 					FlxG.camera.zoom = curGameZoom;
 					camHUD.zoom = curHudZoom;
 					pixelZoomTime = 0.0;

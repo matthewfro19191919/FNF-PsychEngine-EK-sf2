@@ -178,6 +178,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		addOption(option);
 
+		var option:Option = new Option('Sound On Speaker',
+			"If checked, the inst will simulate it's being played from GF's speaker. (experimental)",
+			'soundAtSpeaker',
+			'bool',
+			false);
+		addOption(option);
+
 		super();
 	}
 
