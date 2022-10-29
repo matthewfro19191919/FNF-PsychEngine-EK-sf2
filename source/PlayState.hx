@@ -1,16 +1,14 @@
 package;
 
-import misc.Subtitle;
-import misc.Subtitle.*;
 import background.TankmenBG;
 import song.Song;
 import notes.NoteSplash;
 import notes.StrumNote;
-import misc.Subtitle.SubProperties;
 import background.BackgroundGirls;
 import background.BackgroundDancer;
 import background.BGSprite;
 import replays.Replay;
+import misc.Subtitle;
 import misc.Subtitle.*;
 import lime.utils.Bytes;
 import openfl.geom.Rectangle;
@@ -2571,10 +2569,6 @@ class PlayState extends MusicBeatState
 		// NEW SHIT
 		noteData = songData.notes;
 
-		var playerCounter:Int = 0;
-
-		var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
-
 		var songName:String = Paths.formatToSongPath(SONG.song);
 		var file:String = Paths.json(songName + '/events');
 		#if MODS_ALLOWED
@@ -2602,17 +2596,15 @@ class PlayState extends MusicBeatState
 		}
 
 		var songName:String = Paths.formatToSongPath(SONG.song);
-		var file:String = Paths.json(songName + '/subtitles');
+		var file:String = CoolUtil.getSubtitleFile(songName);
 		#if MODS_ALLOWED
-		if (FileSystem.exists(Paths.modsJson(songName + '/subtitles')) || FileSystem.exists(file)) {
+		if (FileSystem.exists(file)) {
 		#else
 		if (OpenFlAssets.exists(file)) {
 		#end
 			var subtitlesData:Array<SubProperties> = Song.loadFromJson('subtitles', songName).subtitles;
-			for (subtitle in subtitlesData) //Event Notes
-			{
+			for (subtitle in subtitlesData)
 				subtitleNotes.push(subtitle);
-			}
 		}
 
 		for (section in noteData)
@@ -2696,7 +2688,6 @@ class PlayState extends MusicBeatState
 					noteTypeMap.set(swagNote.noteType, true);
 				}
 			}
-			daBeats += 1;
 		}
 		for (event in songData.events) //Event Notes
 		{

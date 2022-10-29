@@ -2,7 +2,9 @@ package editors.charter;
 
 import song.StageData;
 import song.Song;
+#if MODS_ALLOWED
 import editors.files.FileExplorer;
+#end
 import flixel.addons.ui.FlxUISlider;
 import flixel.addons.ui.FlxUIButton;
 import openfl.ui.MouseCursor;
@@ -775,7 +777,8 @@ class ChartingState extends MusicBeatState
 
 		noteSplashesInputText = new FlxUIInputText(noteSkinInputText.x, noteSkinInputText.y + 35, 150, _song.splashSkin, 8);
 		blockPressWhileTypingOn.push(noteSplashesInputText);
-
+	
+		#if MODS_ALLOWED
 		var pickNoteSkin:FlxUIButton = new FlxUIButton(noteSkinInputText.x + 100, noteSkinInputText.y - 2, 'or... Select file', function() {
 			openSubState(new editors.files.FileExplorer(Paths.currentModDirectory, Bitmap, 'images', function(f) {
 				noteSkinInputText.text = f.replace('images/', '').replace('.png', '');
@@ -789,6 +792,7 @@ class ChartingState extends MusicBeatState
 			}));
 		});
 		pickSplashSkin.x = noteSplashesInputText.x + noteSplashesInputText.width + 10;
+		#end
 
 		var reloadNotesButton:FlxUIButton = new FlxUIButton(noteSplashesInputText.x, noteSplashesInputText.y + 20, 'Change Notes', function() {
 			_song.arrowSkin = noteSkinInputText.text;
@@ -821,8 +825,10 @@ class ChartingState extends MusicBeatState
 		tab_group_song.add(new FlxText(noteSkinInputText.x, noteSkinInputText.y - 15, 0, 'Note Texture:'));
 		tab_group_song.add(new FlxText(noteSplashesInputText.x, noteSplashesInputText.y - 15, 0, 'Note Splashes Texture:'));
 		
+		#if MODS_ALLOWED
 		tab_group_song.add(pickNoteSkin);
 		tab_group_song.add(pickSplashSkin);
+		#end
 
 		tab_group_song.add(player2ChangeChar);
 		tab_group_song.add(gfVersionChangeChar);

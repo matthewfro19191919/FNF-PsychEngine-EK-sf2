@@ -29,7 +29,9 @@ class MasterEditorMenu extends MusicBeatState
 		'Dialogue Portrait Editor',
 		'Character Editor',
 		'Subtitle Editor',
+		#if MODS_ALLOWED
 		'File Explorer',
+		#end
 		'Chart Editor'
 	];
 	private var grpTexts:FlxTypedGroup<Alphabet>;
@@ -133,6 +135,7 @@ class MasterEditorMenu extends MusicBeatState
 					LoadingState.loadAndSwitchState(new editors.charter.ChartingState(), false);
 				case 'Subtitle Editor':
 					LoadingState.loadAndSwitchState(new SubtitleEditor(), false);
+				#if MODS_ALLOWED
 				case 'File Explorer':
 					openSubState(new editors.files.FileExplorer(
 						Paths.currentModDirectory,
@@ -140,6 +143,7 @@ class MasterEditorMenu extends MusicBeatState
 						"",
 						null
 					));
+				#end
 
 			}
 			if (options[curSelected] != 'File Explorer') {

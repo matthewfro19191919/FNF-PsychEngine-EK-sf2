@@ -27,10 +27,10 @@ import openfl.events.IOErrorEvent;
 import flash.net.FileFilter;
 import lime.system.Clipboard;
 import haxe.Json;
+import alphabet.Alphabet;
 #if sys
 import sys.io.File;
 import sys.FileSystem;
-import alphabet.Alphabet;
 #end
 import WeekData;
 import Language as Lang;

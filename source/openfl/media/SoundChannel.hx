@@ -58,7 +58,11 @@ import lime.media.AudioSource;
 	**/
 	public var soundTransform(get, set):SoundTransform;
 
+	#if !html5
     public var pitch(get, null):Float;
+	#else
+	public var pitch:Float = 1.0;
+	#end
 
 	@:noCompletion private var __isValid:Bool;
 	@:noCompletion private var __soundTransform:SoundTransform;
@@ -316,10 +320,12 @@ import lime.media.AudioSource;
 		dispatchEvent(new Event(Event.SOUND_COMPLETE));
 	}
 
+	#if !html5
 	function get_pitch():Float {
         @:privateAccess
 		return __source.__backend.getPitch();
 	}
+	#end
 }
 #else
 typedef SoundChannel = flash.media.SoundChannel;

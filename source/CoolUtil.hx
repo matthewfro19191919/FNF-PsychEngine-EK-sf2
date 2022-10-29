@@ -56,11 +56,17 @@ class CoolUtil
 		#elseif mac
 		return 'mac';
 		#elseif html5
-		return 'browser';
+		return 'html5';
 		#elseif android
 		return 'android';
+		#elseif neko
+		return 'neko';
+		#elseif flash
+		return 'flash';
+		#elseif sys
+		return 'sys';
 		#else
-		return 'unknown';
+		return 'wtf';
 		#end
 	}
 
@@ -96,9 +102,8 @@ class CoolUtil
 			"lock", 
 			"pack"];
 		
-		for(k=>a in anims) {
-			sprite.animation.add(a, [k], 0, false);
-		}
+		for(i in 0...anims.length)
+			sprite.animation.add(anims[i], [i], 0, false);
 		if (anim != null) sprite.animation.play(anim);
 	}
 
@@ -107,7 +112,7 @@ class CoolUtil
 		#if windows
 			Sys.command('explorer "$p"');	
 		#elseif linux
-			Sys.command('nautilus', [p]);	
+			Sys.command('nautilus', [p]);
 		#end
 	}
 
@@ -216,6 +221,27 @@ class CoolUtil
 		formatted = newWords.join(' ');
 
 		return formatted;
+	}
+
+	public static function getSubtitleFile(songName:String):String {
+		var file:String = Paths.json(songName + '/subtitles-' + ClientPrefs.language);
+
+		#if MODS_ALLOWED
+		if (!FileSystem.exists(Paths.modsJson(songName + '/subtitles')) || !FileSystem.exists(file)) {
+		#else
+		if (!Assets.exists(file)) {
+		#end
+			#if MODS_ALLOWED
+			file = Paths.modsJson(songName + '/subtitles');
+			if (!FileSystem.exists(file)) {
+				file = Paths.json(songName + '/subtitles');
+			}
+			#else
+			file = Paths.json(songName + '/subtitles');
+			#end
+		}
+
+		return file;
 	}
 
 	//uhhhh does this even work at all? i'm starting to doubt

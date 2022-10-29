@@ -1,10 +1,10 @@
+#if MODS_ALLOWED
 package editors.files;
 
 import editors.files.FileExplorerElement;
 import flixel.addons.ui.*;
 import flixel.FlxG;
 import openfl.utils.Assets;
-import sys.io.Process;
 import haxe.io.Path;
 import sys.FileSystem;
 import flixel.FlxSprite;
@@ -307,3 +307,4 @@ class FileExplorer extends MusicBeatSubstate {
         cast(tabThingy._tabs[0], FlxUIButton).skipButtonUpdate = true;
     }
 }
+#end

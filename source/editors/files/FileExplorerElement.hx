@@ -1,3 +1,4 @@
+#if MODS_ALLOWED
 package editors.files;
 
 import flixel.FlxG;
@@ -59,3 +60,4 @@ class FileExplorerElement extends FlxSpriteGroup {
         selectionThingy.visible = selected;
     }
 }
+#end
