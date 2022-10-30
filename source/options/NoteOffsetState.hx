@@ -4,8 +4,6 @@ import alphabet.Alphabet;
 import background.BGSprite;
 import flixel.math.FlxMath;
 import flixel.FlxObject;
-import flixel.util.FlxStringUtil;
-import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.text.FlxText;

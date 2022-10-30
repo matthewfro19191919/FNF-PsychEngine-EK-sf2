@@ -5,21 +5,10 @@ import Discord.DiscordClient;
 #end
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import flixel.system.FlxSound;
-import flixel.addons.ui.FlxInputText;
-import flixel.addons.ui.FlxUI9SliceSprite;
-import flixel.addons.ui.FlxUI;
-import flixel.addons.ui.FlxUICheckBox;
-import flixel.addons.ui.FlxUIInputText;
-import flixel.addons.ui.FlxUINumericStepper;
-import flixel.addons.ui.FlxUITabMenu;
-import flixel.ui.FlxButton;
+import flixel.addons.ui.*;
 import MenuCharacter;
 import openfl.net.FileReference;
 import openfl.events.Event;
@@ -110,14 +99,14 @@ class MenuCharacterEditorState extends MusicBeatState
 		addCharacterUI();
 		add(UI_mainbox);
 
-		var loadButton:FlxButton = new FlxButton(0, 480, Lang.g('menu_char_editor_load_character'), function() {
+		var loadButton:FlxUIButton = new FlxUIButton(0, 480, Lang.g('menu_char_editor_load_character'), function() {
 			loadCharacter();
 		});
 		loadButton.screenCenter(X);
 		loadButton.x -= 60;
 		add(loadButton);
 	
-		var saveButton:FlxButton = new FlxButton(0, 480, Lang.g('menu_char_editor_save_character'), function() {
+		var saveButton:FlxUIButton = new FlxUIButton(0, 480, Lang.g('menu_char_editor_save_character'), function() {
 			saveCharacter();
 		});
 		saveButton.screenCenter(X);
@@ -183,7 +172,7 @@ class MenuCharacterEditorState extends MusicBeatState
 			characterFile.flipX = flipXCheckbox.checked;
 		};
 
-		var reloadImageButton:FlxButton = new FlxButton(140, confirmInputText.y + 30, Lang.g('menu_char_editor_reload_char'), function() {
+		var reloadImageButton:FlxUIButton = new FlxUIButton(140, confirmInputText.y + 30, Lang.g('menu_char_editor_reload_char'), function() {
 			reloadSelectedCharacter();
 		});
 		

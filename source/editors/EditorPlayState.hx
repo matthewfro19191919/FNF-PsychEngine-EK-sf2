@@ -1,5 +1,6 @@
 package editors;
 
+import flixel.addons.ui.FlxUIButton;
 import notes.NoteSplash;
 import song.Section.SwagSection;
 import song.StageData.StageFile;
@@ -189,11 +190,14 @@ class EditorPlayState extends MusicBeatState
 		stepTxt.borderSize = 1.25;
 		add(stepTxt);
 
-		var tipText:FlxText = new FlxText(10, FlxG.height - 24, 0, 'Press ESC to Go Back to Chart Editor', 16);
-		tipText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		tipText.borderSize = 2;
-		tipText.scrollFactor.set();
-		add(tipText);
+		var tipButton:FlxUIButton = new FlxUIButton(10, 0, 'Chart Editor', function() {
+			FlxG.sound.music.pause();
+			vocals.pause();
+			LoadingState.loadAndSwitchState(new ChartingState());
+		});
+		tipButton.y = FlxG.height - tipButton.height;
+		tipButton.y -= 10;
+
 		FlxG.mouse.visible = false;
 
 		//sayGo();
@@ -205,7 +209,7 @@ class EditorPlayState extends MusicBeatState
 
 		super.create();
 
-		strumLineNotes.cameras = grpNoteSplashes.cameras = comboGroup.cameras = scoreTxt.cameras = sectionTxt.cameras = beatTxt.cameras = stepTxt.cameras = tipText.cameras = [camHUD];
+		strumLineNotes.cameras = grpNoteSplashes.cameras = comboGroup.cameras = scoreTxt.cameras = sectionTxt.cameras = beatTxt.cameras = stepTxt.cameras = tipButton.cameras = [camHUD];
 
 		curStage = PlayState.SONG.stage;
 		var songName:String = Paths.formatToSongPath(PlayState.SONG.song);
@@ -506,13 +510,6 @@ class EditorPlayState extends MusicBeatState
 	public var noteKillOffset:Float = 350;
 	public var spawnTime:Float = 2000;
 	override function update(elapsed:Float) {
-		if (FlxG.keys.justPressed.ESCAPE)
-		{
-			FlxG.sound.music.pause();
-			vocals.pause();
-			LoadingState.loadAndSwitchState(new ChartingState());
-		}
-
 		if (startingSong) {
 			timerToStart -= elapsed * 1000;
 			Conductor.songPosition = startPos - timerToStart;

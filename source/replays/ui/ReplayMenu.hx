@@ -3,7 +3,6 @@ package replays.ui;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
 import flixel.text.FlxText;
-import flixel.FlxCamera;
 import replays.Replay;
 #if MODS_ALLOWED
 import sys.io.File;

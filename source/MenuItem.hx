@@ -1,8 +1,6 @@
 package;
 
-import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 
@@ -22,7 +20,7 @@ class MenuItem extends FlxSprite
 	private var flash:Bool = false;
 
 	// holyshit ninjamuffin accept haxe is sometimes shit
-	var timePerUpdate:Float = 0.3;
+	var timePerUpdate:Float = 0.096;
 	var time:Float = 0.0;
 
 	override function update(elapsed:Float)

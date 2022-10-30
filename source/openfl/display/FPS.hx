@@ -1,6 +1,5 @@
 package openfl.display;
 
-import haxe.Timer;
 import openfl.events.Event;
 import flash.text.TextField;
 import flash.text.TextFormat;

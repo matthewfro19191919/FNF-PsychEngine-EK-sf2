@@ -1,26 +1,16 @@
 package editors;
 
+import flixel.addons.ui.FlxUIDropDownMenu;
 import alphabet.TypedAlphabet;
 #if desktop
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.system.FlxSound;
-import flixel.addons.ui.FlxInputText;
-import flixel.addons.ui.FlxUI9SliceSprite;
-import flixel.addons.ui.FlxUI;
-import flixel.addons.ui.FlxUICheckBox;
-import flixel.addons.ui.FlxUIInputText;
-import flixel.addons.ui.FlxUINumericStepper;
-import flixel.addons.ui.FlxUITabMenu;
-import flixel.ui.FlxButton;
+import flixel.addons.ui.*;
 import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
@@ -234,7 +224,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 
 	var curSelectedAnim:String;
 	var animationArray:Array<String> = [];
-	var animationDropDown:FlxUIDropDownMenuCustom;
+	var animationDropDown:FlxUIDropDownMenu;
 	var animationInputText:FlxUIInputText;
 	var loopInputText:FlxUIInputText;
 	var idleInputText:FlxUIInputText;
@@ -242,7 +232,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		var tab_group = new FlxUI(null, UI_mainbox);
 		tab_group.name = "Animations";
 
-		animationDropDown = new FlxUIDropDownMenuCustom(10, 30, FlxUIDropDownMenuCustom.makeStrIdLabelArray([''], true), function(animation:String) {
+		animationDropDown = new FlxUIDropDownMenu(10, 30, FlxUIDropDownMenu.makeStrIdLabelArray([''], true), function(animation:String) {
 			var anim:String = animationArray[Std.parseInt(animation)];
 			if(character.dialogueAnimations.exists(anim)) {
 				ghostLoop.playAnim(anim);
@@ -266,7 +256,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		idleInputText = new FlxUIInputText(loopInputText.x, loopInputText.y + 40, 150, '', 8);
 		blockPressWhileTypingOn.push(idleInputText);
 		
-		var addUpdateButton:FlxButton = new FlxButton(10, idleInputText.y + 30, "Add/Update", function() {
+		var addUpdateButton:FlxUIButton = new FlxUIButton(10, idleInputText.y + 30, "Add/Update", function() {
 			var theAnim:String = animationInputText.text.trim();
 			if(character.dialogueAnimations.exists(theAnim)) //Update
 			{
@@ -307,7 +297,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 			}
 		});
 		
-		var removeUpdateButton:FlxButton = new FlxButton(100, addUpdateButton.y, "Remove", function() {
+		var removeUpdateButton:FlxUIButton = new FlxUIButton(100, addUpdateButton.y, "Remove", function() {
 			for (i in 0...character.jsonFile.animations.length) {
 				var animArray:DialogueAnimArray = character.jsonFile.animations[i];
 				if(animArray != null && animArray.anim.trim() == animationInputText.text.trim()) {
@@ -352,7 +342,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		}
 
 		if(animationArray.length < 1) animationArray = [''];
-		animationDropDown.setData(FlxUIDropDownMenuCustom.makeStrIdLabelArray(animationArray, true));
+		animationDropDown.setData(FlxUIDropDownMenu.makeStrIdLabelArray(animationArray, true));
 	}
 
 	var imageInputText:FlxUIInputText;
@@ -387,14 +377,14 @@ class DialogueCharacterEditorState extends MusicBeatState
 		tab_group.add(scaleStepper);
 		tab_group.add(noAntialiasingCheckbox);
 
-		var reloadImageButton:FlxButton = new FlxButton(10, scaleStepper.y + 60, "Reload Image", function() {
+		var reloadImageButton:FlxUIButton = new FlxUIButton(10, scaleStepper.y + 60, "Reload Image", function() {
 			reloadCharacter();
 		});
 		
-		var loadButton:FlxButton = new FlxButton(reloadImageButton.x + 100, reloadImageButton.y, "Load Character", function() {
+		var loadButton:FlxUIButton = new FlxUIButton(reloadImageButton.x + 100, reloadImageButton.y, "Load Character", function() {
 			loadCharacter();
 		});
-		var saveButton:FlxButton = new FlxButton(loadButton.x, reloadImageButton.y - 25, "Save Character", function() {
+		var saveButton:FlxUIButton = new FlxUIButton(loadButton.x, reloadImageButton.y - 25, "Save Character", function() {
 			saveCharacter();
 		});
 		tab_group.add(reloadImageButton);

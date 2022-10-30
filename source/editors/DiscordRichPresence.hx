@@ -4,7 +4,6 @@ import flixel.FlxSprite;
 import flixel.FlxG;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
-import flixel.ui.FlxButton;
 import flixel.text.FlxText;
 import flixel.addons.ui.FlxUI;
 import flixel.addons.ui.FlxUIInputText;
@@ -14,6 +13,7 @@ import sys.io.File;
 import sys.FileSystem;
 #end
 import flixel.addons.ui.FlxUITabMenu;
+import flixel.addons.ui.FlxUIButton;
 import openfl.net.FileReference;
 import Discord;
 import discord_rpc.DiscordRpc;
@@ -126,7 +126,7 @@ class DiscordRichPresence extends MusicBeatState {
 
         smallImageKey = new FlxUIInputText(10, smallImageText.y + 30, 200, presence.smallImageKey, 8);
 
-        var applyBtn:FlxButton = new FlxButton(smallImageKey.x, smallImageKey.y + 30, "Apply", function () {
+        var applyBtn:FlxUIButton = new FlxUIButton(smallImageKey.x, smallImageKey.y + 30, "Apply", function () {
             presence.appID = appID.text;
             presence.largeImageKey = largeImageKey.text;
             presence.smallImageKey = smallImageKey.text;
@@ -135,11 +135,11 @@ class DiscordRichPresence extends MusicBeatState {
             shutdown_reload();
         });
 
-        var saveBtn:FlxButton = new FlxButton(applyBtn.x + 100, applyBtn.y, "Save", function () {
+        var saveBtn:FlxUIButton = new FlxUIButton(applyBtn.x + 100, applyBtn.y, "Save", function () {
             save();
         });
 
-        var closeBtn:FlxButton = new FlxButton(applyBtn.x, applyBtn.y + 30, "Close", exit);
+        var closeBtn:FlxUIButton = new FlxUIButton(applyBtn.x, applyBtn.y + 30, "Close", exit);
 
 		tab_group_presence.add(appID);
         tab_group_presence.add(largeImageText);

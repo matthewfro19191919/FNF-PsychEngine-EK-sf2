@@ -2,10 +2,7 @@ package logging;
 
 import flixel.util.FlxColor;
 import openfl.text.TextFormat;
-import openfl.geom.Rectangle;
 import openfl.text.TextField;
-import openfl.utils.Assets;
-import openfl.display.Bitmap;
 import openfl.display.Sprite;
 
 class LogMessage extends Sprite {

@@ -41,7 +41,6 @@ class Main extends Sprite
 	var skipSplash:Bool = false; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 	public static var fpsVar:FPS;
-	#if VOMIT public static var logs:LogsOverlay; #end
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -101,14 +100,6 @@ class Main extends Sprite
 		}
 		#end
 
-		#if VOMIT
-		logs = new LogsOverlay();
-		addChild(logs);
-
-		flixel.system.frontEnds.LogFrontEnd.onLogs = onLogs;
-		haxe.Log.trace = vomit;
-		#end
-
 		#if html5
 		FlxG.autoPause = false;
 		FlxG.mouse.visible = false;
@@ -123,43 +114,6 @@ class Main extends Sprite
 		#if CRASH_HANDLER
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
-	}
-
-	function onLogs(Data, Style, ?FireOnce) {
-		var prefix = "";
-		var color:FlxColor = FlxColor.WHITE;
-		if (Style == LogStyle.CONSOLE)  {prefix = "> ";					color = FlxColor.WHITE;	}
-		if (Style == LogStyle.ERROR)    {prefix = "[FLIXEL ERROR]";		color = FlxColor.RED;	}
-		if (Style == LogStyle.NORMAL)   {prefix = "";			color = FlxColor.WHITE;	}
-		if (Style == LogStyle.NOTICE)   {prefix = "[FLIXEL NOTICE]";	color = FlxColor.GREEN;	}
-		if (Style == LogStyle.WARNING)  {prefix = "[FLIXEL WARNING]";	color = FlxColor.YELLOW;	}
-
-		var d:Dynamic = Data;
-		if (!(d is Array))
-			d = [d];
-		var a:Array<Dynamic> = d;
-		var strs = [for(e in a) Std.string(e)];
-		for(e in strs) {
-			if (Style == LogStyle.ERROR)
-				LogsOverlay.error('$prefix $e', color);
-			else
-				LogsOverlay.trace('$prefix $e', color);
-		}
-	}
-
-	function vomit(Data:Dynamic, ?Info:PosInfos):Void
-	{
-		var paramArray:Array<Dynamic> = [Data];
-
-		if (Info.customParams != null)
-		{
-			for (i in Info.customParams)
-			{
-				paramArray.push(i);
-			}
-		}
-
-		onLogs(paramArray, LogStyle.NORMAL);
 	}
 
 	// Code was entirely made by sqirra-rng for their fnf engine named "Izzy Engine", big props to them!!!

@@ -1,4 +1,4 @@
-package;
+package flixel.addons.ui;
 
 import flash.geom.Rectangle;
 import flixel.addons.ui.interfaces.IFlxUIClickable;
@@ -20,24 +20,15 @@ import flixel.addons.ui.FlxUIAssets;
 import flixel.addons.ui.StrNameLabel;
 import flixel.addons.ui.FlxUI;
 
-
-/*
-
-THIS IS AN EDIT OF FlxUIDropDownMenu I'VE MADE BECAUSE I'M TIRED OF IT NOT SUPPORTING SCROLLING UP/DOWN
-BAH!
-
-The differences are the following:
-* Support to scrolling up/down with mouse wheel or arrow keys
-* THe default drop direction is "Down" instead of "Automatic"
-
-*/
-
-
-
 /**
  * @author larsiusprime
+ * THIS IS AN EDIT OF FlxUIDropDownMenu I'VE MADE BECAUSE I'M TIRED OF IT NOT SUPPORTING SCROLLING UP/DOWN
+ * BAH!
+ * The differences are the following:
+ * Support to scrolling up/down with mouse wheel or arrow keys
+ * THe default drop direction is "Down" instead of "Automatic"
  */
-class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget implements IFlxUIClickable implements IHasParams
+class FlxUIDropDownMenu extends FlxUIGroup implements IFlxUIWidget implements IFlxUIClickable implements IHasParams
 {
 	public var skipButtonUpdate(default, set):Bool;
 
@@ -167,7 +158,7 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 	 * @param	UIControlCallback	Used internally by FlxUI
 	 */
 	public function new(X:Float = 0, Y:Float = 0, DataList:Array<StrNameLabel>, ?Callback:String->Void, ?Header:FlxUIDropDownHeader,
-			?DropPanel:FlxUI9SliceSprite, ?ButtonList:Array<FlxUIButton>, ?UIControlCallback:Bool->FlxUIDropDownMenuCustom->Void)
+			?DropPanel:FlxUI9SliceSprite, ?ButtonList:Array<FlxUIButton>, ?UIControlCallback:Bool->FlxUIDropDownMenu->Void)
 	{
 		super(X, Y);
 		callback = Callback;

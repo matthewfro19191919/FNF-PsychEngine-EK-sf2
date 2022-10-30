@@ -1,14 +1,10 @@
 package misc;
 
-import flixel.math.FlxRect;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxCamera;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
-import flixel.tweens.FlxEase;
-import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.text.FlxText.FlxTextFormat;

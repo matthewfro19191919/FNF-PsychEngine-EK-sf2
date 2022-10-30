@@ -3,24 +3,17 @@ package options;
 import song.Song;
 import flixel.util.FlxStringUtil;
 import flixel.ui.FlxBar;
-import flixel.FlxBasic;
 #if desktop
 import Discord.DiscordClient;
 #end
-import editors.charter.ChartingState;
-import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
-import lime.utils.Assets;
 import flixel.system.FlxSound;
-import openfl.utils.Assets as OpenFlAssets;
 import WeekData;
 #if MODS_ALLOWED
 import sys.FileSystem;
@@ -417,7 +410,6 @@ class PlayerSubstate extends MusicBeatSubstate {
     var icon:HealthIcon;
     var speedArrows:Array<FlxSprite> = [];
     var songSpeedMultiplier:Alphabet;
-    var elements:Array<FlxBasic> = [];
     var canPause:Bool = false;
     var startTimer:Float = 0;
 
@@ -446,7 +438,7 @@ class PlayerSubstate extends MusicBeatSubstate {
         add(icon);
         icon.alpha = 0;
 
-        songText = new Alphabet(966, 220, song.songName, true);
+        songText = new Alphabet(966, 220, CoolUtil.coolSongText(song.songName), true);
         var maxWidth = 580;
         if (songText.width > maxWidth)
         {

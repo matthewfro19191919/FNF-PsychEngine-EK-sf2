@@ -5,22 +5,13 @@ import Discord.DiscordClient;
 #end
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.system.FlxSound;
 import openfl.utils.Assets;
-import flixel.addons.ui.FlxInputText;
-import flixel.addons.ui.FlxUI9SliceSprite;
-import flixel.addons.ui.FlxUI;
-import flixel.addons.ui.FlxUICheckBox;
-import flixel.addons.ui.FlxUIInputText;
-import flixel.addons.ui.FlxUINumericStepper;
-import flixel.addons.ui.FlxUITabMenu;
-import flixel.ui.FlxButton;
+import flixel.addons.ui.*;
 import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
@@ -138,21 +129,21 @@ class WeekEditorState extends MusicBeatState
 		UI_box.selected_tab_id = 'Week';
 		add(UI_box);
 
-		var loadWeekButton:FlxButton = new FlxButton(0, 650, Lang.g('week_editor_load_week'), function() {
+		var loadWeekButton:FlxUIButton = new FlxUIButton(0, 650, Lang.g('week_editor_load_week'), function() {
 			loadWeek();
 		});
 		loadWeekButton.screenCenter(X);
 		loadWeekButton.x -= 120;
 		add(loadWeekButton);
 		
-		var freeplayButton:FlxButton = new FlxButton(0, 650, Lang.g('week_editor_freeplay'), function() {
+		var freeplayButton:FlxUIButton = new FlxUIButton(0, 650, Lang.g('week_editor_freeplay'), function() {
 			MusicBeatState.switchState(new WeekEditorFreeplayState(weekFile));
 			
 		});
 		freeplayButton.screenCenter(X);
 		add(freeplayButton);
 	
-		var saveWeekButton:FlxButton = new FlxButton(0, 650, Lang.g('week_editor_save_week'), function() {
+		var saveWeekButton:FlxUIButton = new FlxUIButton(0, 650, Lang.g('week_editor_save_week'), function() {
 			saveWeek(weekFile);
 		});
 		saveWeekButton.screenCenter(X);
@@ -652,21 +643,21 @@ class WeekEditorFreeplayState extends MusicBeatState
 		blackBlack.alpha = 0.6;
 		add(blackBlack);
 
-		var loadWeekButton:FlxButton = new FlxButton(0, 685, Lang.g('week_editor_load_week'), function() {
+		var loadWeekButton:FlxUIButton = new FlxUIButton(0, 685, Lang.g('week_editor_load_week'), function() {
 			WeekEditorState.loadWeek();
 		});
 		loadWeekButton.screenCenter(X);
 		loadWeekButton.x -= 120;
 		add(loadWeekButton);
 		
-		var storyModeButton:FlxButton = new FlxButton(0, 685, Lang.g('week_fp_editor_storymode'), function() {
+		var storyModeButton:FlxUIButton = new FlxUIButton(0, 685, Lang.g('week_fp_editor_storymode'), function() {
 			MusicBeatState.switchState(new WeekEditorState(weekFile));
 			
 		});
 		storyModeButton.screenCenter(X);
 		add(storyModeButton);
 	
-		var saveWeekButton:FlxButton = new FlxButton(0, 685, Lang.g('week_editor_save_week'), function() {
+		var saveWeekButton:FlxUIButton = new FlxUIButton(0, 685, Lang.g('week_editor_save_week'), function() {
 			WeekEditorState.saveWeek(weekFile);
 		});
 		saveWeekButton.screenCenter(X);
@@ -697,10 +688,10 @@ class WeekEditorFreeplayState extends MusicBeatState
 		bgColorStepperG = new FlxUINumericStepper(80, 40, 20, 255, 0, 255, 0);
 		bgColorStepperB = new FlxUINumericStepper(150, 40, 20, 255, 0, 255, 0);
 
-		var copyColor:FlxButton = new FlxButton(10, bgColorStepperR.y + 25, Lang.g('week_fp_editor_copy_color'), function() {
+		var copyColor:FlxUIButton = new FlxUIButton(10, bgColorStepperR.y + 25, Lang.g('week_fp_editor_copy_color'), function() {
 			Clipboard.text = bg.color.red + ',' + bg.color.green + ',' + bg.color.blue;
 		});
-		var pasteColor:FlxButton = new FlxButton(140, copyColor.y, Lang.g('week_fp_editor_paste_color'), function() {
+		var pasteColor:FlxUIButton = new FlxUIButton(140, copyColor.y, Lang.g('week_fp_editor_paste_color'), function() {
 			if(Clipboard.text != null) {
 				var leColor:Array<Int> = [];
 				var splitted:Array<String> = Clipboard.text.trim().split(',');

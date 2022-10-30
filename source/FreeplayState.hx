@@ -1,15 +1,12 @@
 package;
 
+import flixel.FlxSprite;
 import song.Song;
 import editors.charter.ChartingState;
 #if desktop
 import Discord.DiscordClient;
 #end
-import flash.text.TextField;
 import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
@@ -36,10 +33,6 @@ class FreeplayState extends MusicBeatState
 	private static var lastDifficultyName:String = '';
 
 	var bopIcon:Int = -1;
-
-	#if ALBUM_COVER_DEBUG
-	var albumCover:PixelatedSprite;
-	#end
 
 	var scoreBG:FlxSprite;
 	var scoreText:FlxText;
@@ -205,13 +198,6 @@ class FreeplayState extends MusicBeatState
 
 		textBG.y = FlxG.height - text.height - 8;
 		text.y = FlxG.height - text.height - 4;
-
-		#if ALBUM_COVER_DEBUG
-		albumCover = new PixelatedSprite(FlxG.width, textBG.height);
-		albumCover.loadGraphic(Paths.image('covers/' + songs[curSelected].cover));
-		albumCover.x -= albumCover.width;
-		add(albumCover);
-		#end
 
 		super.create();
 	}
@@ -541,18 +527,6 @@ class FreeplayState extends MusicBeatState
 		{
 			curDifficulty = newPos;
 		}
-
-		#if ALBUM_COVER_DEBUG
-		if (albumCover != null) {
-			albumCover.startChanging(function() {
-				remove(albumCover);
-				albumCover = new PixelatedSprite(FlxG.width, 60);
-				albumCover.loadGraphic(Paths.image('covers/' + songs[curSelected].cover));
-				albumCover.x -= albumCover.width;
-				add(albumCover);
-			});
-		}
-		#end
 	}
 
 	private function positionHighscore() {
@@ -598,31 +572,5 @@ class SongMetadata
 		this.folder = Paths.currentModDirectory;
 		if(this.folder == null) this.folder = '';
 		if(cover != null) this.cover = cover;
-	}
-}
-
-class PixelatedSprite extends FlxSprite {
-	public var pxShader:PixelEffect;
-	public function new(x,y) {
-		super(x,y);
-
-		pxShader = new PixelEffect();
-		pxShader.pixelSize = 0;
-		shader = pxShader.shader;
-	}
-
-	public function startChanging(?doneCallback:Void->Void) {
-
-		FlxTween.tween(pxShader, {pixelSize: 10}, 0.5, {onComplete: function(?_) {
-			if (doneCallback!= null) doneCallback();
-		}});
-	}
-
-	public function startPixelated(?doneCallback:Void->Void) {
-		pxShader.pixelSize = 10;
-		FlxTween.tween(pxShader, {pixelSize: 0.00001}, 0.5, {onComplete: function(?_) {
-			if (doneCallback != null)
-				doneCallback();
-		}});
 	}
 }

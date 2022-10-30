@@ -1,9 +1,10 @@
 package editors;
 
+import misc.Subtitle.SubtitleHandler;
+import misc.Subtitle.SubProperties;
+import flixel.addons.ui.FlxUIDropDownMenu;
 import song.Song;
 import flixel.FlxCamera;
-import misc.Subtitle.SubProperties;
-import misc.Subtitle.SubtitleHandler;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -14,27 +15,12 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxObject;
 import flixel.group.FlxSpriteGroup;
-import flixel.input.keyboard.FlxKey;
 import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.ui.FlxInputText;
-import flixel.addons.ui.FlxUI9SliceSprite;
-import flixel.addons.ui.FlxUI;
-import flixel.addons.ui.FlxUICheckBox;
-import flixel.addons.ui.FlxUIInputText;
-import flixel.addons.ui.FlxUINumericStepper;
-import flixel.addons.ui.FlxUITabMenu;
-import flixel.addons.ui.FlxUITooltip.FlxUITooltipStyle;
-import flixel.addons.transition.FlxTransitionableState;
+import flixel.addons.ui.*;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.group.FlxGroup;
 import flixel.math.FlxMath;
-import flixel.math.FlxPoint;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.ui.FlxButton;
-import flixel.ui.FlxSpriteButton;
 import flixel.util.FlxColor;
 import haxe.Json;
 import haxe.format.JsonParser;
@@ -43,11 +29,7 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.media.Sound;
 import openfl.net.FileReference;
-import openfl.utils.ByteArray;
 import openfl.utils.Assets as OpenFlAssets;
-import lime.media.AudioBuffer;
-import haxe.io.Bytes;
-import flash.geom.Rectangle;
 import flixel.util.FlxSort;
 #if sys
 import sys.io.File;
@@ -74,7 +56,6 @@ class SubtitleEditor extends MusicBeatState
 	var strumLine:FlxSprite;
 	var curSong:String = 'Test';
 	var amountSteps:Int = 0;
-	var bullshitUI:FlxGroup;
 
 	var highlight:FlxSprite;
 
@@ -119,7 +100,7 @@ class SubtitleEditor extends MusicBeatState
 
 	private var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
 	private var blockPressWhileTypingOnStepper:Array<FlxUINumericStepper> = [];
-	private var blockPressWhileScrolling:Array<FlxUIDropDownMenuCustom> = [];
+	private var blockPressWhileScrolling:Array<FlxUIDropDownMenu> = [];
 
     var currentSongName:String = "";
 	var waveformSprite:FlxSprite;
@@ -291,7 +272,7 @@ class SubtitleEditor extends MusicBeatState
 	var stepperSubSize:FlxUINumericStepper;
 	var fontInputText:FlxUIInputText;
 	var borderCheckbox:FlxUICheckBox;
-	var alignmentDrop:FlxUIDropDownMenuCustom;
+	var alignmentDrop:FlxUIDropDownMenu;
 
 	var deletePrevCheckbox:FlxUICheckBox;
 	var fadeOut:FlxUICheckBox;
@@ -319,23 +300,23 @@ class SubtitleEditor extends MusicBeatState
 			//trace('CHECKED!');
 		};
 
-		var saveButton:FlxButton = new FlxButton(110, 8, "Save", function()
+		var saveButton:FlxUIButton = new FlxUIButton(110, 8, "Save", function()
 		{
 			saveLevel();
 		});
 
-		var reloadSong:FlxButton = new FlxButton(saveButton.x + 90, saveButton.y, "Reload Audio", function()
+		var reloadSong:FlxUIButton = new FlxUIButton(saveButton.x + 90, saveButton.y, "Reload Audio", function()
 		{
 			currentSongName = Paths.formatToSongPath(UI_songTitle.text);
 			loadSong();
         });
 
-		var reloadSongJson:FlxButton = new FlxButton(reloadSong.x, saveButton.y + 30, "Reload JSON", function()
+		var reloadSongJson:FlxUIButton = new FlxUIButton(reloadSong.x, saveButton.y + 30, "Reload JSON", function()
 		{
 			openSubState(new Prompt('This action will clear current progress.\n\nProceed?', function(){loadJson(_song.song.toLowerCase()); }, null,false));
 		});
 
-		var loadEventJson:FlxButton = new FlxButton(saveButton.x, saveButton.y + 30, 'Load', function()
+		var loadEventJson:FlxUIButton = new FlxUIButton(saveButton.x, saveButton.y + 30, 'Load', function()
 		{
 			var songName:String = Paths.formatToSongPath(_song.song);
 			var file:String = Paths.json(songName + '/subtitles');
@@ -358,7 +339,7 @@ class SubtitleEditor extends MusicBeatState
 		blockPressWhileTypingOnStepper.push(stepperBPM);
         tab_group_event.add(new FlxText(stepperBPM.x, stepperBPM.y - 15, 0, "BPM"));
 
-        var clear_events:FlxButton = new FlxButton(320, 310, 'Clear events', clearEvents);
+        var clear_events:FlxUIButton = new FlxUIButton(320, 310, 'Clear events', clearEvents);
 		clear_events.color = FlxColor.RED;
 		clear_events.label.color = FlxColor.WHITE;
 
@@ -399,7 +380,7 @@ class SubtitleEditor extends MusicBeatState
 		borderCheckbox = new FlxUICheckBox(stepperSubSize.x, fontInputText.y + 30, null, null, "Has border", 100);
 
 		var alignments:Array<String> = ["LEFT", "RIGHT", "CENTER"];
-		alignmentDrop = new FlxUIDropDownMenuCustom(fontInputText.x, borderCheckbox.y, FlxUIDropDownMenuCustom.makeStrIdLabelArray(alignments, true), function(alignment:String)
+		alignmentDrop = new FlxUIDropDownMenu(fontInputText.x, borderCheckbox.y, FlxUIDropDownMenu.makeStrIdLabelArray(alignments, true), function(alignment:String)
 		{
 			trace('alignment is ' + alignments[Std.parseInt(alignment)]);
 			if(curSelected != null) {
@@ -424,7 +405,7 @@ class SubtitleEditor extends MusicBeatState
 		assSeparatorLine.alpha = 0.6;
         tab_group_event.add(assSeparatorLine);
 
-        var copyButton:FlxButton = new FlxButton(10, clear_events.y, "Copy Section", function()
+        var copyButton:FlxUIButton = new FlxUIButton(10, clear_events.y, "Copy Section", function()
         {
             notesCopied = [];
             sectionToCopy = curSec;
@@ -447,7 +428,7 @@ class SubtitleEditor extends MusicBeatState
             }
         });
 
-        var pasteButton:FlxButton = new FlxButton(copyButton.x + 100, copyButton.y, "Paste Section", function()
+        var pasteButton:FlxUIButton = new FlxUIButton(copyButton.x + 100, copyButton.y, "Paste Section", function()
         {
             if(notesCopied == null || notesCopied.length < 1)
             {
@@ -474,7 +455,7 @@ class SubtitleEditor extends MusicBeatState
             updateGrid();
         });
 
-        var clearSectionButton:FlxButton = new FlxButton(pasteButton.x + 100, pasteButton.y, "Clear Section", function()
+        var clearSectionButton:FlxUIButton = new FlxUIButton(pasteButton.x + 100, pasteButton.y, "Clear Section", function()
         {
             var i:Int = _song.events.length - 1;
             var startThing:Float = sectionStartTime();
@@ -494,7 +475,7 @@ class SubtitleEditor extends MusicBeatState
         clearSectionButton.label.color = FlxColor.WHITE;
 
         var stepperCopy:FlxUINumericStepper = null;
-        var copyLastButton:FlxButton = new FlxButton(10, copyButton.y + 30, "Copy last section", function()
+        var copyLastButton:FlxUIButton = new FlxUIButton(10, copyButton.y + 30, "Copy last section", function()
         {
             var value:Int = Std.int(stepperCopy.value);
             if(value == 0) return;
@@ -520,7 +501,7 @@ class SubtitleEditor extends MusicBeatState
             }
             updateGrid();
         });
-        copyLastButton.setGraphicSize(120, Std.int(copyLastButton.height));
+        copyLastButton.resize(120, Std.int(copyLastButton.height));
         copyLastButton.label.fieldWidth = 120;
         copyLastButton.updateHitbox();
 
@@ -636,7 +617,7 @@ class SubtitleEditor extends MusicBeatState
 		UI_box.addGroup(tab_group_event);
 	}
 
-	function setAllLabelsOffset(button:FlxButton, x:Float, y:Float)
+	function setAllLabelsOffset(button:FlxUIButton, x:Float, y:Float)
 	{
 		for (point in button.labelOffsets)
 		{
@@ -680,18 +661,6 @@ class SubtitleEditor extends MusicBeatState
 			updateGrid();
 			vocals.play();
 		};
-	}
-
-	function generateUI():Void
-	{
-		while (bullshitUI.members.length > 0)
-		{
-			bullshitUI.remove(bullshitUI.members[0], true);
-		}
-
-		// general shit
-		var title:FlxText = new FlxText(UI_box.x + 20, UI_box.y + 20, 0);
-		bullshitUI.add(title);
 	}
 
 	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>)

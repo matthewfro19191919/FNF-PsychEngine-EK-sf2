@@ -176,6 +176,8 @@ class MainMenuState extends MusicBeatState
 		}
 		#end
 
+		//giveAchievement();
+
 		super.create();
 	}
 

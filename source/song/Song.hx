@@ -3,7 +3,6 @@ package song;
 import misc.Subtitle.SubProperties;
 import song.Section.SwagSection;
 import haxe.Json;
-import haxe.format.JsonParser;
 import lime.utils.Assets;
 
 #if sys

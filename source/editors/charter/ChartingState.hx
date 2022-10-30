@@ -1,5 +1,6 @@
 package editors.charter;
 
+import flixel.addons.ui.FlxUIDropDownMenu;
 import song.StageData;
 import song.Song;
 #if MODS_ALLOWED
@@ -202,7 +203,7 @@ class ChartingState extends MusicBeatState
 
 	private var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
 	private var blockPressWhileTypingOnStepper:Array<FlxUINumericStepper> = [];
-	private var blockPressWhileScrolling:Array<FlxUIDropDownMenuCustom> = [];
+	private var blockPressWhileScrolling:Array<FlxUIDropDownMenu> = [];
 
 	var waveformSprite:FlxSprite;
 	var gridLayer:FlxTypedGroup<FlxSprite>;
@@ -1122,7 +1123,7 @@ class ChartingState extends MusicBeatState
 
 	var stepperSusLength:FlxUINumericStepper;
 	var strumTimeInputText:FlxUIInputText; //I wanted to use a stepper but we can't scale these as far as i know :(
-	var noteTypeDropDown:FlxUIDropDownMenuCustom;
+	var noteTypeDropDown:FlxUIDropDownMenu;
 	var currentType:Int = 0;
 
 	function addNoteUI():Void
@@ -1181,7 +1182,7 @@ class ChartingState extends MusicBeatState
 			displayNameList[i] = i + '. ' + displayNameList[i];
 		}
 
-		noteTypeDropDown = new FlxUIDropDownMenuCustom(10, 105, FlxUIDropDownMenuCustom.makeStrIdLabelArray(displayNameList, true), function(character:String)
+		noteTypeDropDown = new FlxUIDropDownMenu(10, 105, FlxUIDropDownMenu.makeStrIdLabelArray(displayNameList, true), function(character:String)
 		{
 			currentType = Std.parseInt(character);
 			if(curSelectedNote != null && curSelectedNote[1] > -1) {
@@ -1201,7 +1202,7 @@ class ChartingState extends MusicBeatState
 		UI_box.addGroup(tab_group_note);
 	}
 
-	var eventDropDown:FlxUIDropDownMenuCustom;
+	var eventDropDown:FlxUIDropDownMenu;
 	var descText:FlxText;
 	var selectedEventText:FlxText;
 	function addEventsUI():Void
@@ -1248,7 +1249,7 @@ class ChartingState extends MusicBeatState
 
 		var text:FlxText = new FlxText(20, 30, 0, "Event:");
 		tab_group_event.add(text);
-		eventDropDown = new FlxUIDropDownMenuCustom(20, 50, FlxUIDropDownMenuCustom.makeStrIdLabelArray(leEvents, true), function(pressed:String) {
+		eventDropDown = new FlxUIDropDownMenu(20, 50, FlxUIDropDownMenu.makeStrIdLabelArray(leEvents, true), function(pressed:String) {
 			var selectedEvent:Int = Std.parseInt(pressed);
 			descText.text = eventStuff[selectedEvent][1];
 				if (curSelectedNote != null &&  eventStuff != null) {
@@ -1626,7 +1627,7 @@ class ChartingState extends MusicBeatState
 			FlxG.save.data.chart_playSoundDad = playSoundDad.checked;
 		}
 
-		beatBars = new FlxUICheckBox(hitVolumeBF.x, hitVolumeBF.y + 30, null, null, "Show beat & step bars", 100, function() {
+		beatBars = new FlxUICheckBox(hitVolumeBF.x, hitVolumeBF.y + 42, null, null, "Show beat & step bars", 100, function() {
 			FlxG.save.data.chart_beatBars = beatBars.checked;
 			showBeatBars = beatBars.checked;
 			reloadGridLayer();
@@ -2013,7 +2014,7 @@ class ChartingState extends MusicBeatState
 
 		if (FlxG.mouse.overlaps(gridBG)) Mouse.cursor = MouseCursor.ARROW;
 		for (object in allObjects) {
-			if (object is FlxUIDropDownMenuCustom) {
+			if (object is FlxUIDropDownMenu) {
 				if(object.dropPanel.visible && FlxG.mouse.overlaps(object.dropPanel))
 					Mouse.cursor = MouseCursor.BUTTON;
 			} else if (object is FlxUINumericStepper) {

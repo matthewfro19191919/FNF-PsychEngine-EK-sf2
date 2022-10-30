@@ -6,32 +6,18 @@ import Discord.DiscordClient;
 #end
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import flixel.system.FlxSound;
-import flixel.addons.ui.FlxInputText;
-import flixel.addons.ui.FlxUI9SliceSprite;
-import flixel.addons.ui.FlxUI;
-import flixel.addons.ui.FlxUICheckBox;
-import flixel.addons.ui.FlxUIInputText;
-import flixel.addons.ui.FlxUINumericStepper;
-import flixel.addons.ui.FlxUITabMenu;
-import flixel.ui.FlxButton;
+import flixel.addons.ui.*;
 import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import flash.net.FileFilter;
 import haxe.Json;
 import DialogueBoxPsych;
-import lime.system.Clipboard;
 #if sys
 import sys.io.File;
 #end
-import alphabet.Alphabet;
 
 using StringTools;
 
@@ -151,10 +137,10 @@ class DialogueEditorState extends MusicBeatState
 		lineInputText = new FlxUIInputText(10, soundInputText.y + 35, 200, DEFAULT_TEXT, 8);
 		blockPressWhileTypingOn.push(lineInputText);
 
-		var loadButton:FlxButton = new FlxButton(20, lineInputText.y + 25, "Load Dialogue", function() {
+		var loadButton:FlxUIButton = new FlxUIButton(20, lineInputText.y + 25, "Load Dialogue", function() {
 			loadDialogue();
 		});
-		var saveButton:FlxButton = new FlxButton(loadButton.x + 120, loadButton.y, "Save Dialogue", function() {
+		var saveButton:FlxUIButton = new FlxUIButton(loadButton.x + 120, loadButton.y, "Save Dialogue", function() {
 			saveDialogue();
 		});
 

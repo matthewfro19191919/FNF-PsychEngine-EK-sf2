@@ -1,5 +1,6 @@
 package;
 
+import flixel.addons.transition.FlxTransitionableState;
 import background.TankmenBG;
 import song.Song;
 import notes.NoteSplash;
@@ -28,12 +29,7 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxSubState;
-import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.effects.FlxTrail;
-import flixel.addons.effects.FlxTrailArea;
-import flixel.addons.effects.chainable.FlxEffectSprite;
-import flixel.addons.effects.chainable.FlxWaveEffect;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.graphics.atlas.FlxAtlas;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -283,6 +279,7 @@ class PlayState extends MusicBeatState
 	var limoCorpse:BGSprite;
 	var limoCorpseTwo:BGSprite;
 	var bgLimo:BGSprite;
+	var limoOverlay:BGSprite;
 	var grpLimoParticles:FlxTypedGroup<BGSprite>;
 	var grpLimoDancers:FlxTypedGroup<BackgroundDancer>;
 	var fastCar:BGSprite;
@@ -701,6 +698,10 @@ class PlayState extends MusicBeatState
 						windBeams.add(windBeam);
 					}
 				}
+
+				limoOverlay = new BGSprite('limo/limoOverlay', -500, -600);
+				limoOverlay.alpha = 0.25;
+				limoOverlay.blend = ADD;
 			case 'mall': //Week 5 - Cocoa, Eggnog
 				var bg:BGSprite = new BGSprite('christmas/bgWalls', -1000, -500, 0.2, 0.2);
 				bg.setGraphicSize(Std.int(bg.width * 0.8));
@@ -928,6 +929,8 @@ class PlayState extends MusicBeatState
 				add(halloweenWhite);
 			case 'tank':
 				add(foregroundSprites);
+			case 'limo':
+				add(limoOverlay);
 		}
 
 		#if LUA_ALLOWED
