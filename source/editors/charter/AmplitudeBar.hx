@@ -1,7 +1,5 @@
 package editors.charter;
 
-import flixel.FlxG;
-import flixel.system.FlxSound;
 import flixel.util.FlxColor;
 import flixel.ui.FlxBar;
 import flixel.group.FlxSpriteGroup;
@@ -11,9 +9,6 @@ class AmplitudeBar extends FlxSpriteGroup {
     public var object:Dynamic;
     public var variable:String;
 
-    public var lastValue:Dynamic;
-    public var thisValue:Float;
-
     public function new(X:Float, Y:Float, Width:Int, Height:Int, Object:Dynamic, Variable:String) {
         super(X, Y);
 
@@ -21,7 +16,7 @@ class AmplitudeBar extends FlxSpriteGroup {
         this.variable = Variable;
 
         bar = new FlxBar(0, 0, RIGHT_TO_LEFT, Width, Height, null, null, 0, 1);
-        bar.createGradientBar([FlxColor.BLACK], 
+        bar.createGradientBar([0x7B000000], 
             [
                 FlxColor.RED,
                 FlxColor.ORANGE,
@@ -36,19 +31,7 @@ class AmplitudeBar extends FlxSpriteGroup {
         super.update(e);
 
         if (object != null && variable != null) {
-            lastValue = Reflect.getProperty(object, variable);
+            bar.value = Reflect.getProperty(object, variable);
         }
-
-        if (lastValue > thisValue) {
-            thisValue = lastValue;
-        } else if (lastValue < thisValue) {
-            thisValue -= e;
-        }
-        bar.value = thisValue;
-    }
-
-    public function correctPosition() {
-        var daX:Float = FlxG.width - 10;
-        x = daX - width;
     }
 }

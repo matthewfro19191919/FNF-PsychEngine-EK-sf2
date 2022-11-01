@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxGame;
 import achievements.Achievements;
 import flixel.FlxG;
 import flixel.util.FlxSave;
@@ -44,18 +45,11 @@ class ClientPrefs {
 	public static var stretchScreen:Bool = true;
 	public static var gameFilter:String = 'None';
 	public static var soundAtSpeaker:Bool = false;
+	public static var autoPause:Bool = true;
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
-		// anyone reading this, amod is multiplicative speed mod, cmod is constant speed mod, and xmod is bpm based speed mod.
-		// an amod example would be chartSpeed * multiplier
-		// cmod would just be constantSpeed = chartSpeed
-		// and xmod basically works by basing the speed on the bpm.
-		// iirc (beatsPerSecond * (conductorToNoteDifference / 1000)) * noteSize (110 or something like that depending on it, prolly just use note.height)
-		// bps is calculated by bpm / 60
-		// oh yeah and you'd have to actually convert the difference to seconds which I already do, because this is based on beats and stuff. but it should work
-		// just fine. but I wont implement it because I don't know how you handle sustains and other stuff like that.
-		// oh yeah when you calculate the bps divide it by the songSpeed or rate because it wont scroll correctly when speeds exist.
+		//shut
 		'songspeed' => 1.0,
 		'healthgain' => 1.0,
 		'healthloss' => 1.0,
@@ -64,6 +58,27 @@ class ClientPrefs {
 		'botplay' => false,
 		'opponentplay' => false
 	];
+	public static var chartSettings:Map<String,Dynamic> = [
+		'vortex' => false,
+		'ignoreWarnings' => false,
+		'uiCollapsed' => true,
+		'metronome' => false,
+		'noAutoScrolling' => false,
+		'mouseScrollingQuant' => false,
+		'waveformInst' => false,
+		'waveformVoices' => false,
+		'hitsoundBF' => false,
+		'hitsoundDad' => false,
+		'beatBars' => true
+	];
+
+	//i um...
+	public static var showScore:Bool = true;
+	public static var showMisses:Bool = true;
+	public static var showAccuracy:Bool = true;
+	public static var showRating:Bool = true;
+	public static var showNPS:Bool = true;
+	public static var showMaxNPS:Bool = false;
 
 	public static var comboOffset:Array<Int> = [0, 0, 0, 0];
 	public static var camMovementForce:Array<Int> = [30, 30];
@@ -153,6 +168,8 @@ class ClientPrefs {
 		FlxG.save.data.gameFilter = gameFilter;
 		options.GraphicsSettingsSubState.onChangeFilter();
 		FlxG.save.data.soundAtSpeaker = soundAtSpeaker;
+		FlxG.save.data.autoPause = autoPause;
+		FlxG.save.data.chartSettings = chartSettings;
 
 		FlxG.save.data.language = language;
 	
@@ -280,7 +297,15 @@ class ClientPrefs {
 				gameplaySettings.set(name, value);
 			}
 		}
-		
+		if (FlxG.save.data.chartSettings != null)
+		{
+			var savedMap:Map<String, Dynamic> = FlxG.save.data.chartSettings;
+			for (name => value in savedMap)
+			{
+				chartSettings.set(name, value);
+			}
+		}
+
 		// flixel automatically saves your volume!
 		if(FlxG.save.data.volume != null)
 		{
@@ -317,6 +342,9 @@ class ClientPrefs {
 		options.GraphicsSettingsSubState.onChangeFilter();
 		if (FlxG.save.data.soundAtSpeaker != null)
 			soundAtSpeaker = FlxG.save.data.soundAtSpeaker;
+		if (FlxG.save.data.autoPause != null)
+			autoPause = FlxG.save.data.autoPause;
+		FlxG.autoPause = autoPause;
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99');

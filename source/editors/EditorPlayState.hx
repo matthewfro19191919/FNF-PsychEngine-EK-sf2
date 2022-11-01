@@ -197,8 +197,9 @@ class EditorPlayState extends MusicBeatState
 		});
 		tipButton.y = FlxG.height - tipButton.height;
 		tipButton.y -= 10;
+		add(tipButton);
 
-		FlxG.mouse.visible = false;
+		//FlxG.mouse.visible = false;
 
 		//sayGo();
 		if(!ClientPrefs.controllerMode)

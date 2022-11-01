@@ -28,6 +28,7 @@ import flixel.util.FlxTimer;
  * @link http://creativecommons.org/licenses/by/3.0/us/
  * 
  * Modified by PlankDev to support cut/copy/paste
+ * Modified by tposejaank to word delete
  */
 class FlxInputText extends FlxText
 {
@@ -452,6 +453,7 @@ class FlxInputText extends FlxText
 						var textArray:Array<String> = text.split(" ");
 						var newT:String = "";
 						for (i in 0...textArray.length - 1) newT += textArray[i];
+						newT += " ";
 						caretIndex = newT.length;
 						text = newT;
 						onChange(WORD_DELETE_ACTION);

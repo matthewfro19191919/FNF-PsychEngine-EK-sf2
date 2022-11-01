@@ -9,12 +9,13 @@ import flixel.FlxCamera;
 
 class MusicBeatState extends FlxUIState
 {
-	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
+	private var curSection:Int = 0;
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 
+	private var curDecSection:Float = 0;
 	private var curDecStep:Float = 0;
 	private var curDecBeat:Float = 0;
 	private var controls(get, never):Controls;
@@ -50,6 +51,7 @@ class MusicBeatState extends FlxUIState
 
 		updateCurStep();
 		updateBeat();
+		updateDecSection();
 
 		if (oldStep != curStep)
 		{
@@ -116,6 +118,10 @@ class MusicBeatState extends FlxUIState
 		var shit = ((Conductor.songPosition - ClientPrefs.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + shit;
 		curStep = lastChange.stepTime + Math.floor(shit);
+	}
+
+	private function updateDecSection():Void {
+		curDecSection = curDecBeat / 4;
 	}
 
 	public static function switchState(nextState:FlxState) {

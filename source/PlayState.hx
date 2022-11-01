@@ -1,5 +1,6 @@
 package;
 
+import background.SnowParticle;
 import flixel.addons.transition.FlxTransitionableState;
 import background.TankmenBG;
 import song.Song;
@@ -206,6 +207,10 @@ class PlayState extends MusicBeatState
 	public var health:Float = 1;
 	public var combo:Int = 0;
 
+	public var nps:Int = 0;
+	public var maxNps:Int = 0;
+	public var npsTimes:Array<Date> = [];
+
 	private var healthBarBG:AttachedSprite;
 	public var healthBar:FlxBar;
 	var songPercent:Float = 0;
@@ -288,6 +293,7 @@ class PlayState extends MusicBeatState
 	var upperBoppers:BGSprite;
 	var bottomBoppers:BGSprite;
 	var santa:BGSprite;
+	var snowParticles:FlxTypedGroup<SnowParticle>;
 	var heyTimer:Float;
 
 	var bgGirls:BackgroundGirls;
@@ -687,14 +693,14 @@ class PlayState extends MusicBeatState
 				limoKillingState = 0;
 
 				windBeams = new FlxTypedGroup<FlxSprite>();
-				add(windBeams);
 
 				if (!ClientPrefs.lowQuality) {
-					for (i in 0...100) {
-						var p:Array<Float> = [FlxG.random.int(-300, 1600), FlxG.random.int(-300, 800)];
-						var windBeam:FlxSprite = new FlxSprite(p[0], p[1]).makeGraphic(100, 10);
-						windBeam.alpha = 1;
-						windBeam.x -= 1000;
+					for (i in 0...25) {
+						var p:Array<Float> = [0, FlxG.random.int(0, 900)];
+						var windBeam:FlxSprite = new FlxSprite(p[0], p[1]).makeGraphic(200, 5);
+						windBeam.alpha = 0.4;
+						windBeam.velocity.x = FlxG.random.int(2000, 2500) + 200;
+						windBeam.x = 2000;
 						windBeams.add(windBeam);
 					}
 				}
@@ -736,6 +742,14 @@ class PlayState extends MusicBeatState
 				add(santa);
 				precacheList.set('Lights_Shut_off', 'sound');
 
+				snowParticles = new FlxTypedGroup<SnowParticle>();
+				if (!ClientPrefs.lowQuality) {
+					for (i in 0...200) {
+						var snowParticle:SnowParticle = new SnowParticle(2000, -100);
+						snowParticles.add(snowParticle);
+					}
+				}
+
 			case 'mallEvil': //Week 5 - Winter Horrorland
 				var bg:BGSprite = new BGSprite('christmas/evilBG', -400, -500, 0.2, 0.2);
 				bg.setGraphicSize(Std.int(bg.width * 0.8));
@@ -747,6 +761,14 @@ class PlayState extends MusicBeatState
 
 				var evilSnow:BGSprite = new BGSprite('christmas/evilSnow', -200, 700);
 				add(evilSnow);
+
+				snowParticles = new FlxTypedGroup<SnowParticle>();
+				if (!ClientPrefs.lowQuality) {
+					for (i in 0...40) {
+						var snowParticle:SnowParticle = new SnowParticle(2000, -100);
+						snowParticles.add(snowParticle);
+					}
+				}
 
 			case 'school': //Week 6 - Senpai, Roses
 				GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
@@ -917,8 +939,10 @@ class PlayState extends MusicBeatState
 		add(gfGroup); //Needed for blammed lights
 
 		// Shitty layering but whatev it works LOL
-		if (curStage == 'limo')
+		if (curStage == 'limo') {
+			add(windBeams);
 			add(limo);
+		}
 
 		add(dadGroup);
 		add(boyfriendGroup);
@@ -931,6 +955,8 @@ class PlayState extends MusicBeatState
 				add(foregroundSprites);
 			case 'limo':
 				add(limoOverlay);
+			case 'mall' | 'mallEvil':
+				add(snowParticles);
 		}
 
 		#if LUA_ALLOWED
@@ -1071,6 +1097,9 @@ class PlayState extends MusicBeatState
 		switch(curStage)
 		{
 			case 'limo':
+				gf.y -= 225;
+				gf.x += 560;
+
 				resetFastCar();
 				addBehindGF(fastCar);
 
@@ -1156,12 +1185,6 @@ class PlayState extends MusicBeatState
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
 		add(grpNoteSplashes);
-
-		if(ClientPrefs.timeBarType == 'Song Name')
-		{
-			timeTxt.size = 24;
-			timeTxt.y += 3;
-		}
 
 		var splash:NoteSplash = new NoteSplash(100, 100, 0);
 		grpNoteSplashes.add(splash);
@@ -2416,21 +2439,34 @@ class PlayState extends MusicBeatState
 	}
 
 	private final divider:String = " • "; // fe!
-	public function updateScore(miss:Bool = false)
+	public function updateScore(miss:Bool = false, update:Bool = true)
 	{
 		var rpercent:Float = Highscore.floorDecimal(ratingPercent * 100, 2);
+		var strText:String = "";
 
-		scoreTxt.text = Lang.g('game_score') + ': ' + songScore;
-		scoreTxt.text += divider + Lang.g('game_misses') + ': ' + songMisses;
+		if (ClientPrefs.showScore) strText += Lang.g('game_score') + ': ' + songScore;
+		if (ClientPrefs.showMisses) strText += divider + Lang.g('game_misses') + ': ' + songMisses;
 		
-		var rName:String = ratingName;
-		var start:String = divider + Lang.g('game_accurary') + ':';
-		if (rName != '?') 
-			rName = start + ' $rpercent% [$ratingFC]' + divider + ratingName;
-		else rName = '';
-		scoreTxt.text += rName;
-		//scoreTxt.text += (ratingName != '?' ? ' ($rpercent%) - [$ratingFC]' : '');
+		var rName:String = '';
+		if (ratingName != '?') {
+			if (ClientPrefs.showAccuracy) {
+				rName = divider + Lang.g('game_accurary') + ': $rpercent%';
+				rName += ' [$ratingFC]';
+			}
+			if (ClientPrefs.showRating) rName += divider + ratingName;
+		}
+		strText += rName;
 
+		if (ClientPrefs.showNPS) strText += divider + 'NPS: $nps';
+		if (ClientPrefs.showMaxNPS) strText += ' (max: $maxNps)';
+
+		scoreTxt.text = strText;
+
+		if (update) scoreColor(miss);
+		callOnLuas('onUpdateScore', [miss]);
+	}
+
+	public function scoreColor(miss) {
 		if(ClientPrefs.scoreZoom)
 		{
 			if(scoreTxtTween != null) {
@@ -2449,7 +2485,6 @@ class PlayState extends MusicBeatState
 				}
 			});
 		}
-		callOnLuas('onUpdateScore', [miss]);
 	}
 
 	public function setSongTime(time:Float)
@@ -3061,10 +3096,9 @@ class PlayState extends MusicBeatState
 
 				if(!ClientPrefs.lowQuality) {
 					for (beam in windBeams.members) {
-						beam.x -= 200 * elapsed;
-						if (beam.x < 1800) {
-							beam.x = -1000;
-							beam.y = FlxG.random.int(-300, 800);
+						if (beam.x > 1800) {
+							beam.x = FlxG.random.int(-500, -300);
+							beam.y = FlxG.random.int(0, 900);
 						}
 					}
 
@@ -3186,6 +3220,12 @@ class PlayState extends MusicBeatState
 			camFollow.y += (Math.sin(i/14)*30) - 50;
 			camFollow.x += (Math.sin(i/7)*15);
 		}
+
+		npsTimes = CoolUtil.getRealTimeNps(npsTimes);
+		nps = npsTimes.length;
+		if (nps > maxNps) maxNps = nps;
+		if (ClientPrefs.showNPS || ClientPrefs.showMaxNPS)
+			updateScore(false, false);
 
 		setOnLuas('curDecStep', curDecStep);
 		setOnLuas('curDecBeat', curDecBeat);
@@ -5215,6 +5255,7 @@ class PlayState extends MusicBeatState
 			{
 				combo += 1;
 				popUpScore(note);
+				npsTimes.unshift(Date.now());
 			}
 			health += note.hitHealth * healthGain;
 
@@ -5776,12 +5817,7 @@ class PlayState extends MusicBeatState
 			}
 
 			// Rating FC
-			ratingFC = "";
-			if (sicks > 0) ratingFC = "SFC";
-			if (goods > 0) ratingFC = "GFC";
-			if (bads > 0 || shits > 0) ratingFC = "FC";
-			if (songMisses > 0 && songMisses < 10) ratingFC = "SDCB";
-			else if (songMisses >= 10) ratingFC = "Clear";
+			ratingFC = Conductor.judgeFC(marvelouses, sicks, goods, bads, shits, songMisses);
 		}
 		updateScore(badHit); // score will only update after rating is calculated, if it's a badHit, it shouldn't bounce -Ghost
 		setOnLuas('rating', ratingPercent);

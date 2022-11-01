@@ -129,7 +129,7 @@ class FPS extends TextField
 	}
 
 	function stupidFuckingShit() {
-		text = "FPS: " + currentFPS #if debug + ", un-rounded: " + realFps #end;
+		text = "FPS: " + currentFPS #if (debug && stats) + ", un-rounded: " + realFps #end;
 		var memoryMegas:Float = 0;
 
 		updateMemTimer = 0.0;
@@ -141,7 +141,7 @@ class FPS extends TextField
 		if (memoryMegas >= maxMemory)
 			maxMemory = memoryMegas;
 
-		#if debug
+		#if (debug && stats)
 		text += ", peak: " + maxMemory + " MB";
 		#end
 		#end

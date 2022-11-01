@@ -10,6 +10,7 @@ class MusicBeatSubstate extends FlxSubState
 		super();
 	}
 
+	private var curDecSection:Float = 0;
 	private var lastBeat:Float = 0;
 	private var lastStep:Float = 0;
 
@@ -33,6 +34,7 @@ class MusicBeatSubstate extends FlxSubState
 
 		updateCurStep();
 		updateBeat();
+		updateDecSection();
 
 		if (oldStep != curStep)
 		{
@@ -47,7 +49,6 @@ class MusicBeatSubstate extends FlxSubState
 					rollbackSection();
 			}
 		}
-
 
 		super.update(elapsed);
 	}
@@ -98,6 +99,10 @@ class MusicBeatSubstate extends FlxSubState
 		var shit = ((Conductor.songPosition - ClientPrefs.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + shit;
 		curStep = lastChange.stepTime + Math.floor(shit);
+	}
+
+	private function updateDecSection():Void {
+		curDecSection = curDecBeat / 4;
 	}
 
 	public function stepHit():Void

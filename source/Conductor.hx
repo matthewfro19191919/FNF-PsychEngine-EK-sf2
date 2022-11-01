@@ -153,6 +153,20 @@ class Conductor
 		crochet = calculateCrochet(bpm);
 		stepCrochet = crochet / 4;
 	}
+
+	// i was originally gonna use Highscore.h but that class is kinda obscure ngl
+	public static function judgeFC(marvs, sicks, goods, bads, shits, misses) {
+		var ratingFC:String = "";
+
+		if (marvs > 0) ratingFC = "MFC";
+		if (sicks > 0) ratingFC = "SFC";
+		if (goods > 0) ratingFC = "GFC";
+		if (bads > 0 || shits > 0) ratingFC = "FC";
+		if (misses > 0 && misses < 10) ratingFC = "SDCB";
+		else if (misses >= 10) ratingFC = "Clear";
+
+		return ratingFC;
+	}
 }
 
 class Rating

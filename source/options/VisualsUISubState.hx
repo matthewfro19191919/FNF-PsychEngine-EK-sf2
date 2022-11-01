@@ -148,6 +148,48 @@ class VisualsUISubState extends BaseOptionsMenu
 		option.onEnter = onPreviewTransition;
 		addOption(option);
 
+		var option:Option = new Option('Show Score',
+			'Toggles showing your score.',
+			'showScore',
+			'bool',
+			true);
+		addOption(option);
+
+		var option:Option = new Option('Show Misses',
+			'Toggles showing your misses.',
+			'showMisses',
+			'bool',
+			true);
+		addOption(option);
+
+		var option:Option = new Option('Show Accuracy',
+			'Toggles showing your accuracy.',
+			'showAccuracy',
+			'bool',
+			true);
+		addOption(option);
+
+		var option:Option = new Option('Show Rating',
+			'Toggles showing your song rating.',
+			'showRating',
+			'bool',
+			true);
+		addOption(option);
+
+		var option:Option = new Option('Show NPS',
+			'Toggles showing your NPS (notes per second).',
+			'showNPS',
+			'bool',
+			true);
+		addOption(option);
+
+		var option:Option = new Option('Show Max NPS',
+			'Toggles showing your max NPS (max notes per second).',
+			'showMaxNPS',
+			'bool',
+			false);
+		addOption(option);
+
 		super();
 
 		onUpdateLanguage(); //At the end of super because then it will crash
@@ -170,8 +212,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		for (option in optionsArray){
 			if (option.isTimebar) {
 				if (option.child != null) {
-					var text:String = timebarOptions[Std.parseInt(ClientPrefs.timeBarType)];
-					option.child.text = text;
+					option.child.text = timebarOptions[Std.parseInt(ClientPrefs.timeBarType)];
 					//trace(text);
 				}
 			}
