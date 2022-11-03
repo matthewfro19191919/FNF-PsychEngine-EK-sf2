@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxTimer;
 import song.Song.SwagSong;
 import song.Section.SwagSection;
 import flixel.math.FlxMath;
@@ -12,6 +13,11 @@ import sys.FileSystem;
 #end
 
 using StringTools;
+
+typedef CheckForUpdateStatus = {
+	var mustUpdate:Bool;
+	var onlineVersion:String;
+}
 
 class CoolUtil
 {
@@ -65,9 +71,9 @@ class CoolUtil
 		return notesHit;
 	}
 
-	public static function highestValue(cur:Int, curMax:Int):Int {
-		var balls:Int = cur;
-		var testicles:Int = curMax;
+	public static function highestValue(cur:Float, curMax:Float):Float {
+		var balls:Float = cur;
+		var testicles:Float = curMax;
 
 		if (balls > testicles)
 			testicles = balls;
@@ -365,5 +371,177 @@ class CoolUtil
 		#else
 		FlxG.openURL(site);
 		#end
+	}
+
+	public static function getLastOfArray<T>(a:Array<T>):T {
+		return a[a.length - 1];
+	}
+
+	public static function checkForUpdates(callback:CheckForUpdateStatus->Void) {
+		#if CHECK_FOR_UPDATES
+		if(ClientPrefs.checkForUpdates) {
+			trace('checking for update');
+			var http = new haxe.Http("https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt");
+			var onlineVersion:String = "";
+			var mustUpdate:Bool = false;
+
+			http.onData = function (data:String)
+			{
+				onlineVersion = data.split('\n')[0].trim();
+				var curVersion:String = MainMenuState.psychEngineVersion.trim();
+				trace('version online: ' + onlineVersion + ', your version: ' + curVersion);
+				if(onlineVersion != curVersion) {
+					trace('versions arent matching!');
+					mustUpdate = true;
+				}
+
+				timer(1, function (?_) {
+					callback({
+						mustUpdate: mustUpdate,
+						onlineVersion: onlineVersion
+					});
+				});
+			}
+
+			http.onError = function (error) {
+				trace('error: $error');
+			}
+
+			http.request();
+		} else
+			cancelDaCheck(callback);
+		#else
+		cancelDaCheck(callback);
+		#end
+	}
+
+	public static function cancelDaCheck(callback:CheckForUpdateStatus->Void) {
+		trace('nuh uh we aint checking for it');
+		callback({
+			mustUpdate: false,
+			onlineVersion: MainMenuState.psychEngineVersion.trim()
+		});
+	}
+
+	public static function timer(time:Float = 1, callback:FlxTimer->Void) {
+		new FlxTimer().start(time, callback);
+	}
+
+	public static function mashIntoOneLine(a:Array<String>):String {
+		return a.join('');
+	}
+
+	// All notifs are 7s by default in w11, so idk how its on w10
+
+	/**
+	 * Does a windows notification
+	 * Args:
+	 * @param title Title of notification
+	 * @param text Text of notification
+	 * @param smallIcon Small Icon of notification (see https://learn.microsoft.com/en-us/dotnet/api/system.drawing.systemicons?view=dotnet-plat-ext-6.0)
+	 * @param bigIcon Big Icon of notification (see https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.notifyicon?view=windowsdesktop-7.0)
+	**/
+	public static function windowsToast(title:String = null, text:String = null, smallIcon:String = "Exclamation", bigIcon:String = "Warning") {
+		//DO NOT MODIFY THIS STUFF
+		#if windows
+		if (title == null)
+			title = "Friday Night Funkin: Psych Engine";
+		if (text == null)
+			text = "Notification";
+
+		var prohibitSymbols:Array<String> = ["'"];
+
+		var commands:Array<String> = [
+			"powershell -Command \"[reflection.assembly]::loadwithpartialname('System.Windows.Forms'); [reflection.assembly]::loadwithpartialname('System.Drawing'); $notify = new-object system.windows.forms.notifyicon; $notify.icon = [System.Drawing.SystemIcons]::",
+			smallIcon,
+			"; $notify.visible = $true; $notify.showballoontip(10, '",
+			deleteSpecialSymbols(title, prohibitSymbols),
+			"', '",
+			deleteSpecialSymbols(text, prohibitSymbols),
+			"', [system.windows.forms.tooltipicon]::",
+			bigIcon,
+			")\""
+		];
+
+		var toRun:String = mashIntoOneLine(commands);
+		Sys.command(toRun);
+		#end
+	}
+
+	public static function otherWindowsToast(title:String = null, text:String = null) {
+		#if windows
+		if (title == null)
+			title = "Friday Night Funkin: Psych Engine";
+		if (text == null)
+			text = "Notification";
+
+		var prohibitSymbols:Array<String> = ["'"];
+
+		var commands:Array<String> = [
+			"powershell -Command \"",
+			"$ErrorActionPreference = 'Stop';",
+			"$notificationTitle = '",
+			deleteSpecialSymbols(text, prohibitSymbols),
+			"';",
+			"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null;",
+			"$template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText01);",
+			"$toastXml = [xml]",
+			"$template.GetXml();",
+			"$toastXml.GetElementsByTagName('text').AppendChild($toastXml.CreateTextNode($notificationTitle)) > $null;",
+			"$xml = New-Object Windows.Data.Xml.Dom.XmlDocument;",
+			"$xml.LoadXml($toastXml.OuterXml);",
+			"$toast = [Windows.UI.Notifications.ToastNotification]::new($xml);",
+			"$toast.Tag = 'Test1';",
+			"$toast.Group = 'Test2';",
+			"$toast.ExpirationTime = [DateTimeOffset]::Now.AddSeconds(5);",
+			"$notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('",
+			deleteSpecialSymbols(title, prohibitSymbols),
+			"');",
+			"$notifier.Show($toast);\""
+		];
+
+		var toRun:String = mashIntoOneLine(commands);
+		Sys.command(toRun);
+		#end
+	}
+
+	public static function deleteSpecialSymbols(string:String, ?symbols:Array<String> = null) {
+		var newString:String = "";
+		for (i in 0...string.length) {
+			var char:String = string.charAt(i);
+
+			var dontCheck:Bool = false;
+			if (char == ' ')
+				dontCheck = true;
+
+			if (symbols != null && !dontCheck)
+				if (symbols.contains(char))
+					continue;
+			
+			if (!isTypeAlphabet(char) && !dontCheck)
+				continue;
+
+			newString += char;
+		}
+
+		return newString;
+	}
+
+	public static function isTypeAlphabet(c:String) // thanks kade
+	{
+		var ascii = StringTools.fastCodeAt(c, 0);
+		return (ascii >= 65 && ascii <= 90) || (ascii >= 97 && ascii <= 122) || //A-Z, a-z
+		specialCharCheck(c);
+	}
+
+	public static function specialCharCheck(c:String):Bool {
+		switch(c.toLowerCase()) {
+			case 'á' | 'é' | 'í' | 'ó' | 'ú' |
+				'ñ' | 'ï' | 'õ' | 'ü' | 'ê' | 'ç' |
+				'ã' | 'â' | 'ô':
+				return true;
+		}
+
+		return false;
 	}
 }

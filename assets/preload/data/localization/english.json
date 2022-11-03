@@ -49,8 +49,9 @@
     "story_weekscore": "WEEK SCORE%r",
 
     "freeplay_pb": "PERSONAL BEST%r",
-    "freeplay_bottom": "Press SPACE to listen to the Song / Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.",
-    "freeplay_bottom_no_preload_all": "Press CTRL to open the Gameplay Changers Menu / Press RESET to Reset your Score and Accuracy.",
+    "freeplay_ba": "BEST ACCURACY%r",
+    "freeplay_bottom": "[SPACE] Listen to song / [CTRL] Gameplay Changers / [RESET] Reset Score and Accuracy.",
+    "freeplay_bottom_no_preload_all": "[CTRL] Gameplay Changers / [RESET] Reset Score and Accuracy.",
 
     "game_score": "Score",
     "game_misses": "Misses",

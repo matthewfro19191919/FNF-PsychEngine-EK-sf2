@@ -74,11 +74,7 @@ class TitleState extends MusicBeatState
 	var easterEggKeysBuffer:String = '';
 	#end
 
-	var mustUpdate:Bool = false;
-
 	var titleJSON:TitleData;
-
-	public static var updateVersion:String = '';
 
 	override public function create():Void
 	{
@@ -89,23 +85,6 @@ class TitleState extends MusicBeatState
 		#end
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
 		WeekData.loadTheFirstEnabledMod();
-
-		//trace(path, FileSystem.exists(path));
-
-		/*#if (polymod && !html5)
-		if (sys.FileSystem.exists('mods/')) {
-			var folders:Array<String> = [];
-			for (file in sys.FileSystem.readDirectory('mods/')) {
-				var path = haxe.io.Path.join(['mods/', file]);
-				if (sys.FileSystem.isDirectory(path)) {
-					folders.push(file);
-				}
-			}
-			if(folders.length > 0) {
-				polymod.Polymod.init({modRoot: "mods", dirs: folders});
-			}
-		}
-		#end*/
 
 		FlxG.game.focusLostFramerate = 60;
 		FlxG.sound.muteKeys = muteKeys;
@@ -125,30 +104,6 @@ class TitleState extends MusicBeatState
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 
 		ClientPrefs.loadPrefs();
-
-		#if CHECK_FOR_UPDATES
-		if(ClientPrefs.checkForUpdates && !closedState) {
-			trace('checking for update');
-			var http = new haxe.Http("https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt");
-
-			http.onData = function (data:String)
-			{
-				updateVersion = data.split('\n')[0].trim();
-				var curVersion:String = MainMenuState.psychEngineVersion.trim();
-				trace('version online: ' + updateVersion + ', your version: ' + curVersion);
-				if(updateVersion != curVersion) {
-					trace('versions arent matching!');
-					mustUpdate = true;
-				}
-			}
-
-			http.onError = function (error) {
-				trace('error: $error');
-			}
-
-			http.request();
-		}
-		#end
 
 		Highscore.load();
 
@@ -236,27 +191,6 @@ class TitleState extends MusicBeatState
 	{
 		if (!initialized)
 		{
-			/*var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
-			diamond.persist = true;
-			diamond.destroyOnNoUse = false;
-
-			FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
-				new FlxRect(-300, -300, FlxG.width * 1.8, FlxG.height * 1.8));
-			FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1),
-				{asset: diamond, width: 32, height: 32}, new FlxRect(-300, -300, FlxG.width * 1.8, FlxG.height * 1.8));
-
-			transIn = FlxTransitionableState.defaultTransIn;
-			transOut = FlxTransitionableState.defaultTransOut;*/
-
-			// HAD TO MODIFY SOME BACKEND SHIT
-			// IF THIS PR IS HERE IF ITS ACCEPTED UR GOOD TO GO
-			// https://github.com/HaxeFlixel/flixel-addons/pull/348
-
-			// var music:FlxSound = new FlxSound();
-			// music.loadStream(Paths.music('freakyMenu'));
-			// FlxG.sound.list.add(music);
-			// music.play();
-
 			if(FlxG.sound.music == null) {
 				FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 			}
@@ -514,12 +448,47 @@ class TitleState extends MusicBeatState
 
 				new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
-					if (mustUpdate) {
-						MusicBeatState.switchState(new OutdatedState());
-					} else {
-						MusicBeatState.switchState(new MainMenuState());
+					var allGood:Bool = false;
+
+					#if CHECK_FOR_UPDATES
+					if (ClientPrefs.checkForUpdates) {
+						var alphabet:Alphabet = new Alphabet(75, FlxG.height, "Checking for updates", false);
+						alphabet.scaleX = 0.5;
+						alphabet.scaleY = 0.5;
+						alphabet.whiteText = true;
+						alphabet.text = alphabet.text;
+						add(alphabet);
+
+						var mf:Float = FlxG.height - 150;
+						FlxTween.tween(alphabet, {y: mf}, 1, {ease: FlxEase.bounceOut});
+
+						var dots:Int = 1;
+						CoolUtil.timer(0.1, function(_){
+							_.reset();
+							var nTx = "Checking for updates";
+							for (i in 0...dots) nTx += ".";
+							alphabet.text = nTx;
+
+							dots ++;
+							if (dots > 3) dots = 0;
+
+							if (allGood) {
+								alphabet.text = "All good!";
+							}
+						});
 					}
-					closedState = true;
+					#end
+
+					CoolUtil.checkForUpdates(function (status:CoolUtil.CheckForUpdateStatus) {
+						if (status.mustUpdate)
+							MusicBeatState.switchState(new OutdatedState(status.onlineVersion));
+						else {
+							MusicBeatState.switchState(new MainMenuState());
+							allGood = true;
+						}
+
+						closedState = true;
+					});
 				});
 				// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 			}

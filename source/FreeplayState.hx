@@ -1,5 +1,6 @@
 package;
 
+import flixel.tweens.FlxEase;
 import flixel.FlxSprite;
 import song.Song;
 import editors.charter.ChartingState;
@@ -50,6 +51,9 @@ class FreeplayState extends MusicBeatState
 	var bg:FlxSprite;
 	var intendedColor:Int;
 	var colorTween:FlxTween;
+	
+	var textBG:FlxSprite;
+	var infoText:FlxText;
 
 	public static var infScroll:Bool = false;
 
@@ -155,7 +159,7 @@ class FreeplayState extends MusicBeatState
 		WeekData.setDirectoryFromWeek();
 
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
-		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT);
 
 		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
 		scoreBG.alpha = 0.6;
@@ -180,24 +184,19 @@ class FreeplayState extends MusicBeatState
 		changeSelection();
 		changeDiff();
 
-		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
+		textBG = new FlxSprite(0, FlxG.height).makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
 		textBG.alpha = 0.6;
 		add(textBG);
 
 		#if PRELOAD_ALL
 		var leText:String = Language.g('freeplay_bottom');
-		var size:Int = 16;
 		#else
 		var leText:String = Language.g('freeplay_bottom_no_preload_all');
-		var size:Int = 18;
 		#end
-		var text:FlxText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, leText, size);
-		text.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, RIGHT);
-		text.scrollFactor.set();
-		add(text);
-
-		textBG.y = FlxG.height - text.height - 8;
-		text.y = FlxG.height - text.height - 4;
+		infoText = new FlxText(textBG.x, FlxG.height, FlxG.width, leText, 16);
+		infoText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, OUTLINE, 0xFF000000);
+		infoText.scrollFactor.set();
+		add(infoText);
 
 		super.create();
 	}
@@ -206,6 +205,13 @@ class FreeplayState extends MusicBeatState
 		changeSelection(0, false);
 		persistentUpdate = true;
 		super.closeSubState();
+
+		FlxTween.tween(textBG, {y: FlxG.height - infoText.height - 8}, 1.5, {
+			ease: FlxEase.bounceOut,
+			onUpdate: function(twn) {
+				infoText.y = textBG.y + 4;
+			}
+		});
 	}
 
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int, cover:String)
@@ -268,7 +274,8 @@ class FreeplayState extends MusicBeatState
 			ratingSplit[1] += '0';
 		}
 
-		scoreText.text = Language.g('freeplay_pb').replace('%r', ': ' + lerpScore + ' (' + ratingSplit.join('.') + '%)');
+		scoreText.text = Language.g('freeplay_pb').replace('%r', ': ' + lerpScore);
+		scoreText.text += '\n' + Language.g('freeplay_ba').replace('%r', ': ' + ratingSplit.join('.') + '%\n');
 		positionHighscore();
 
 		var upP = controls.UI_UP_P;
@@ -530,12 +537,14 @@ class FreeplayState extends MusicBeatState
 	}
 
 	private function positionHighscore() {
-		scoreText.x = FlxG.width - scoreText.width - 6;
+		scoreBG.setGraphicSize(Std.int(scoreText.width + 12), 64 + 24 + 12);
+		scoreBG.updateHitbox();
+		scoreBG.setPosition(FlxG.width - scoreBG.width, 0);
+		scoreText.x = scoreBG.x + 6;
 
-		scoreBG.scale.x = FlxG.width - scoreText.x + 6;
-		scoreBG.x = FlxG.width - (scoreBG.scale.x / 2);
 		diffText.x = Std.int(scoreBG.x + (scoreBG.width / 2));
 		diffText.x -= diffText.width / 2;
+		diffText.y = 68;
 	}
 
 	override function beatHit() {

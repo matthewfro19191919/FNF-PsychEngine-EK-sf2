@@ -324,83 +324,83 @@ class CharacterEditorState extends MusicBeatState
 	}*/
 
 	var TemplateCharacter:String = '{
-			"animations": [
-				{
-					"loop": false,
-					"offsets": [
-						0,
-						0
-					],
-					"fps": 24,
-					"anim": "idle",
-					"indices": [],
-					"name": "Dad idle dance"
-				},
-				{
-					"offsets": [
-						0,
-						0
-					],
-					"indices": [],
-					"fps": 24,
-					"anim": "singLEFT",
-					"loop": false,
-					"name": "Dad Sing Note LEFT"
-				},
-				{
-					"offsets": [
-						0,
-						0
-					],
-					"indices": [],
-					"fps": 24,
-					"anim": "singDOWN",
-					"loop": false,
-					"name": "Dad Sing Note DOWN"
-				},
-				{
-					"offsets": [
-						0,
-						0
-					],
-					"indices": [],
-					"fps": 24,
-					"anim": "singUP",
-					"loop": false,
-					"name": "Dad Sing Note UP"
-				},
-				{
-					"offsets": [
-						0,
-						0
-					],
-					"indices": [],
-					"fps": 24,
-					"anim": "singRIGHT",
-					"loop": false,
-					"name": "Dad Sing Note RIGHT"
-				}
-			],
-			"no_antialiasing": false,
-			"image": "characters/DADDY_DEAREST",
-			"position": [
-				0,
-				0
-			],
-			"healthicon": "face",
-			"flip_x": false,
-			"healthbar_colors": [
-				161,
-				161,
-				161
-			],
-			"camera_position": [
-				0,
-				0
-			],
-			"sing_duration": 6.1,
-			"scale": 1
-		}';
+		"animations": [
+			{
+				"offsets": [
+					0,
+					0
+				],
+				"loop": false,
+				"fps": 24,
+				"anim": "idle",
+				"indices": [],
+				"name": "BF idle dance"
+			},
+			{
+				"offsets": [
+					0,
+					0
+				],
+				"loop": false,
+				"fps": 24,
+				"anim": "singLEFT",
+				"indices": [],
+				"name": "BF NOTE LEFT0"
+			},
+			{
+				"offsets": [
+					0,
+					0
+				],
+				"loop": false,
+				"fps": 24,
+				"anim": "singDOWN",
+				"indices": [],
+				"name": "BF NOTE DOWN0"
+			},
+			{
+				"offsets": [
+					0,
+					0
+				],
+				"loop": false,
+				"fps": 24,
+				"anim": "singUP",
+				"indices": [],
+				"name": "BF NOTE UP0"
+			},
+			{
+				"offsets": [
+					0,
+					0
+				],
+				"loop": false,
+				"fps": 24,
+				"anim": "singRIGHT",
+				"indices": [],
+				"name": "BF NOTE RIGHT0"
+			}
+		],
+		"no_antialiasing": false,
+		"image": "characters/BOYFRIEND",
+		"position": [
+			0,
+			350
+		],
+		"healthicon": "none",
+		"flip_x": false,
+		"healthbar_colors": [
+			49,
+			176,
+			209
+		],
+		"camera_position": [
+			0,
+			0
+		],
+		"sing_duration": 4,
+		"scale": 1
+	}';
 
 	var charDropDown:FlxUIDropDownMenu;
 	function addSettingsUI() {

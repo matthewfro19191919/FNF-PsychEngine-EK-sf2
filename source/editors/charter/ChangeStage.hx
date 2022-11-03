@@ -30,6 +30,7 @@ class ChangeStage extends MusicBeatSubstate {
     public var callback:String->String->Void;
 
     var fnf:String = 'Friday Night Funkin\'';
+    var modFolder:String = 'mods';
 
     public function new(callback:String->String->Void) {
         super();
@@ -46,12 +47,16 @@ class ChangeStage extends MusicBeatSubstate {
         var i:Int = 0;
         var daMods:Array<String> = #if MODS_ALLOWED ModManager.getMods(); #else []; #end
         daMods.push(fnf);
+        #if MODS_ALLOWED
+        daMods.push(modFolder);
+        #end
 
         for(mod in daMods) {
             i++;
             var modLabel:String = "";
-            #if MODS_ALLOWED if (mod != fnf) modLabel = ModManager.getPackOf(mod).name;
-            else #end modLabel = fnf;
+            #if MODS_ALLOWED if (mod != fnf && mod != modFolder) modLabel = ModManager.getPackOf(mod).name;
+            else #end if (mod == fnf) modLabel = fnf;
+            else if (mod == modFolder) modLabel = 'Mods folder';
 
             var modFolder:String = "";
             if (mod != fnf) modFolder = ' ($mod)';
@@ -119,9 +124,15 @@ class ChangeStage extends MusicBeatSubstate {
 
         #if MODS_ALLOWED
         if (mod != fnf) Paths.currentModDirectory = mod;
+        else if (mod == modFolder) Paths.currentModDirectory = "";
 
         var pathToModStages:String = "stages/";
-        var path:String = Paths.mods(mod + '/' + pathToModStages);
+        var path:String = "";
+        if (mod != modFolder)
+            path = Paths.mods(mod + '/' + pathToModStages);
+        else
+            path = Paths.mods(pathToModStages);
+
 		if (!FileSystem.exists(path)) {
 			path = Paths.getPreloadPath(pathToModStages);
 		}

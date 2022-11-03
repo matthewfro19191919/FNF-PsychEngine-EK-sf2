@@ -30,6 +30,7 @@ class ChangeCharacter extends MusicBeatSubstate {
     public var callback:String->String->Void;
 
     var fnf:String = 'Friday Night Funkin\'';
+    var modFolder:String = 'mods';
 
     public function new(callback:String->String->Void) {
         super();
@@ -46,6 +47,9 @@ class ChangeCharacter extends MusicBeatSubstate {
         var i:Int = 0;
         var daMods:Array<String> = #if MODS_ALLOWED ModManager.getMods(); #else []; #end
         daMods.push(fnf);
+        #if MODS_ALLOWED
+        daMods.push(modFolder);
+        #end
 
         for(mod in daMods) {
             i++;
@@ -118,10 +122,16 @@ class ChangeCharacter extends MusicBeatSubstate {
         }
 
         #if MODS_ALLOWED
-        if (mod != fnf) Paths.currentModDirectory = mod;
+        if (mod != fnf && mod != modFolder) Paths.currentModDirectory = mod;
+        else if (mod == modFolder) Paths.currentModDirectory = "";
         
         var pathToModChars:String = "characters/";
-        var path:String = Paths.mods(mod + '/' + pathToModChars);
+        var path:String = "";
+        if (mod != modFolder)
+            path = Paths.mods(mod + '/' + pathToModChars);
+        else
+            path = Paths.mods(pathToModChars);
+
 		if (!FileSystem.exists(path)) {
 			path = Paths.getPreloadPath(pathToModChars);
 		}

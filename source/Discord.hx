@@ -23,6 +23,7 @@ class DiscordClient
 			onDisconnected: onDisconnected
 		});
 		trace("Discord Client started.");
+		CoolUtil.otherWindowsToast(null, "Discord Client Started.");
 
 		while (true)
 		{
@@ -52,11 +53,13 @@ class DiscordClient
 	static function onError(_code:Int, _message:String)
 	{
 		trace('Error! $_code : $_message');
+		CoolUtil.otherWindowsToast(null, 'Discord Client Error: $_code : $_message');
 	}
 
 	static function onDisconnected(_code:Int, _message:String)
 	{
 		trace('Disconnected! $_code : $_message');
+		CoolUtil.otherWindowsToast(null, "Discord Client Disconnected.");
 	}
 
 	public static function initialize()

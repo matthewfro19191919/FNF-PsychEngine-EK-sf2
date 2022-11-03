@@ -49,8 +49,9 @@
     "story_weekscore": "PUNTUACIÓN DE SEMANA%r",
     
     "freeplay_pb": "MEJOR PUNTAJE%r",
-    "freeplay_bottom": "Pulsa ESPACIO para escuchar la canción / Pulsa CTRL para abrir el menu de modificadores / Pulsa RESET para restablecer tu puntaje y precisión.",
-    "freeplay_bottom_no_preload_all": "Pulsa CTRL para abrir el menu de modificadores / Pulsa RESET para restablecer tu puntaje y precisión.",
+    "freeplay_ba": "MEJOR PRECISIÓN%r",
+    "freeplay_bottom": "[ESPACIO] Escuchar la canción / [CTRL] Menú de modificadores / [RESET] Restablecer puntaje y precisión.",
+    "freeplay_bottom_no_preload_all": "[CTRL Menú de modificadores / [RESET] Restablecer puntaje y precisión.",
 
     "game_score": "Puntos",
     "game_misses": "Fallos",
