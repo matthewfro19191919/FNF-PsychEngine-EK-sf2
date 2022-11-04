@@ -1,5 +1,10 @@
 package mods;
 
+import background.PropertyFlxSprite.PropertySprite;
+import song.Section;
+import song.Section.SwagSection;
+import flixel.util.FlxSort;
+import song.Song;
 import flixel.group.FlxSpriteGroup;
 import background.BGSprite;
 import hscript.Expr;
@@ -12,8 +17,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import background.BackgroundDancer;
-import background.BackgroundGirls;
 import flixel.util.FlxTimer;
 import vlc.MP4Handler;
 import flixel.addons.text.FlxTypeText;
@@ -225,10 +228,33 @@ class ModManager {
 		script.setVariable("FlxEase", FlxEase);
 		script.setVariable("FlxTween", FlxTween);
 		script.setVariable("FlxPoint", flixel.math.FlxPoint);
-		//script.setVariable("FlxColor", FlxColor);
+		script.setVariable("debugPrint", function(text) {
+            PlayState.instance.addTextToDebug(text, FlxColor.WHITE);
+        });
+        script.setVariable("addStageScript", function(script:String) {
+            for(ext in ModManager.hscriptExts) {
+                var scriptFile:String = 'stages/' + script + '.$ext';
+                if(FileSystem.exists(Paths.modFolders(scriptFile))) {
+                    scriptFile = Paths.modFolders(scriptFile);
+                    PlayState.scripts.push(Script.fromPath(scriptFile));
+                } else {
+                    scriptFile = Paths.getPreloadPath(scriptFile);
+                    if(FileSystem.exists(scriptFile)) {
+                        PlayState.scripts.push(Script.fromPath(scriptFile));
+                    }
+                }
+            }
+        });
+        script.setVariable("stringSplit", function(str:String, split:String) {
+			return str.split(split);
+		});
+        script.setVariable("subString", function(str:String, pos:Int) {
+			return str.substr(pos);
+		});
+        script.setVariable("OpenFlAssets", openfl.utils.Assets);
+        script.setVariable("FlxSort", FlxSort);
 		script.setVariable("FlxTypedGroup", FlxTypedGroup);
-		script.setVariable("BackgroundDancer", BackgroundDancer);
-		script.setVariable("BackgroundGirls", BackgroundGirls);
+        script.setVariable("CutsceneHandler", CutsceneHandler);
         script.setVariable("Achievements", Achievements);
 		script.setVariable("FlxTimer", FlxTimer);
 		script.setVariable("Json", Json);
@@ -373,6 +399,17 @@ class ModManager {
 		script.setVariable('language', ClientPrefs.language);
 		script.setVariable('languageDisplay', Language.getLanguageDisplayStr(Language.currentLanguage));
 
+        script.setVariable('Song', Song);
+        script.setVariable('PropertySprite', PropertySprite);
+
 		script.setVariable('buildTarget', CoolUtil.buildTarget());
+
+        script.setVariable('getLaw', function(law:String) {
+            var result:Bool = false;
+            switch (law) {
+                case 'debug': #if debug result = true; #end
+            }
+            return result;
+        });
     }
 }

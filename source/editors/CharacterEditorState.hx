@@ -385,14 +385,14 @@ class CharacterEditorState extends MusicBeatState
 		"image": "characters/BOYFRIEND",
 		"position": [
 			0,
-			350
+			0
 		],
 		"healthicon": "none",
 		"flip_x": false,
 		"healthbar_colors": [
-			49,
-			176,
-			209
+			0,
+			0,
+			0
 		],
 		"camera_position": [
 			0,

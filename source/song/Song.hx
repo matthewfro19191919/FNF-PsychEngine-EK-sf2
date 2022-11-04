@@ -146,4 +146,14 @@ class Song
 		swagShit.validScore = true;
 		return swagShit;
 	}
+
+	public static function getAllSectionNotes(jsonInput:String, ?folder:String):Array<Dynamic> {
+		var song:SwagSong = Song.loadFromJson(jsonInput, folder);
+		var noteArray:Array<Dynamic> = [];
+		for (sec in song.notes) {
+			noteArray.push(sec.sectionNotes);
+		}
+
+		return noteArray;
+	}
 }

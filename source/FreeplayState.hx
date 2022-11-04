@@ -283,40 +283,30 @@ class FreeplayState extends MusicBeatState
 		var accepted = controls.ACCEPT;
 		var space = FlxG.keys.justPressed.SPACE;
 		var ctrl = FlxG.keys.justPressed.CONTROL;
+		var shift = FlxG.keys.pressed.SHIFT;
+		var alt = FlxG.keys.pressed.ALT;
 
-		var shiftMult:Int = 1;
-		if(FlxG.keys.pressed.SHIFT) shiftMult = 3;
+		var scrollMult:Int = 1;
+		if(alt) scrollMult = 2;
 
+		holdTime += elapsed;
 		if(songs.length > 1)
 		{
-			if (upP)
+			if (upP || (controls.UI_UP && shift && holdTime > 0.05))
 			{
-				changeSelection(-shiftMult);
+				changeSelection(-scrollMult);
 				holdTime = 0;
 			}
-			if (downP)
+			if (downP || (controls.UI_DOWN && shift && holdTime > 0.05))
 			{
-				changeSelection(shiftMult);
+				changeSelection(scrollMult);
 				holdTime = 0;
-			}
-
-			if(controls.UI_DOWN || controls.UI_UP)
-			{
-				var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
-				holdTime += elapsed;
-				var checkNewHold:Int = Math.floor((holdTime - 0.5) * 10);
-
-				if(holdTime > 0.5 && checkNewHold - checkLastHold > 0)
-				{
-					changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
-					changeDiff();
-				}
 			}
 
 			if(FlxG.mouse.wheel != 0)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.2);
-				changeSelection(-shiftMult * FlxG.mouse.wheel, false);
+				changeSelection(-scrollMult * FlxG.mouse.wheel, false);
 				changeDiff();
 			}
 		}

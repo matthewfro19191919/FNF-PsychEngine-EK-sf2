@@ -45,7 +45,7 @@ class Script implements IFlxDestroyable {
         if (script != null) {
             ModManager.setScriptDefaultVars(script);
             script.loadFile();
-            //script._executeFunc('create', []);
+            script._executeFunc('create', []);
             return script;
         } else {
             return null;
@@ -76,7 +76,7 @@ class Script implements IFlxDestroyable {
         }
 
         if (script == null) return null;
-        script.filePath = scriptPath;
+        script.filePath = path;
         script.fileName = CoolUtil.getLastOfArray(path.replace("\\", "/").split("/"));
         return script;
     }
