@@ -27,7 +27,7 @@ using StringTools;
 class MainMenuState extends MusicBeatState
 {
 	public static var psychEngineVersion:String = '0.6.3'; //This is also used for Discord RPC
-	public static var extraKeysVersion:String = '0.2.9';
+	public static var extraKeysVersion:String = '0.3';
 	public static var curSelected:Int = 0;
 	public static var launchChance:Dynamic = null;
 
@@ -49,7 +49,6 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var camFollowPos:FlxObject;
 	var debugKeys:Array<FlxKey>;
-	var qatarText:FlxText;
 
 	override function create()
 	{
@@ -141,33 +140,17 @@ class MainMenuState extends MusicBeatState
 		var texts:Array<String> = [
 			"Friday Night Funkin' v" + Application.current.meta.get('version'),
 			"Psych Engine v" + psychEngineVersion,
-			"Psych Engine Extra Keys v" + extraKeysVersion
+			"Psych Engine Extra Keys v" + extraKeysVersion,
+			"Happy Aniversary Extra Keys!",
+			"EK ANIVERSARY BUILD",
 		];
-		var ad:Array<String> = [
-			qatarShit(),
-			"Time until Qatar 2022"
-		];
-
-		for (line in ad) texts.push(line);
 
 		for (i in 0...texts.length) {
 			var versionShit:FlxText = new FlxText(12, (FlxG.height - 24) - (18 * i), 0, texts[i], 12);
 			versionShit.scrollFactor.set();
 			versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			add(versionShit);
-
-			if (i == texts.length - 2) // position of the qatar shit
-				{
-					qatarText = versionShit;
-				}
 		}
-
-		new FlxTimer().start(1, function(tmr:FlxTimer) {
-			if (qatarText != null)
-				qatarText.text = qatarShit();
-
-			tmr.reset(1); // infinite woah
-		});
 
 		// NG.core.calls.event.logEvent('swag').send();
 

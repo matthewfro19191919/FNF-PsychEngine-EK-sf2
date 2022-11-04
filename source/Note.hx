@@ -28,7 +28,7 @@ class Note extends FlxSprite
 												'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'];
 	public static var ammo:Array<Int> = EKData.gun;
 	public static var minMania:Int = 0;
-	public static var maxMania:Int = 14; // key value is this + 1
+	public static var maxMania:Int = 17; // key value is this + 1
 
 	public static var scales:Array<Float> = EKData.scales;
 	public static var lessX:Array<Int> = EKData.lessX;

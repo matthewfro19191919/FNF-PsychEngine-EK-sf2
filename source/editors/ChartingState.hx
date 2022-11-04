@@ -872,10 +872,10 @@ class ChartingState extends MusicBeatState
 			for (note in _song.notes[curSec].sectionNotes)
 			{
 				var boob = note[1];
-				if (boob>3){
-					boob -= 4;
+				if (boob > _song.mania){
+					boob -= Note.ammo[_song.mania];
 				}else{
-					boob += 4;
+					boob += Note.ammo[_song.mania];
 				}
 				
 				var copiedNote:Array<Dynamic> = [note[0], boob, note[2], note[3]];
@@ -894,9 +894,9 @@ class ChartingState extends MusicBeatState
 			var duetNotes:Array<Array<Dynamic>> = [];
 			for (note in _song.notes[curSec].sectionNotes)
 			{
-				var boob = note[1]%4;
-				boob = 3 - boob;
-				if (note[1] > 3) boob += 4;
+				var boob = note[1] % Note.ammo[_song.mania];
+				boob = _song.mania - boob;
+				if (note[1] > _song.mania) boob += Note.ammo[_song.mania];
 				
 				note[1] = boob;
 				var copiedNote:Array<Dynamic> = [note[0], boob, note[2], note[3]];
