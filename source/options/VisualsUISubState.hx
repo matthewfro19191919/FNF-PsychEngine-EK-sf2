@@ -19,6 +19,10 @@ class VisualsUISubState extends BaseOptionsMenu
 		'Song Name [Difficulty]',
 		'Song Name (xPB Rate)',
 		'Song Percent',
+		'Steps left',
+		'Beats left',
+		'Sections left',
+		'S:B:Steps left',
 		'Disabled'
 	];
 

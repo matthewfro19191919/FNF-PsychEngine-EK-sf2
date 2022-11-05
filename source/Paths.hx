@@ -404,6 +404,10 @@ class Paths
 		return modFolders('data/' + key + '.json');
 	}
 
+	inline static public function modsRealTxt(key:String) {
+		return modFolders('data/' + key + '.txt');
+	}
+
 	inline static public function modsVideo(key:String) {
 		return modFolders('videos/' + key + '.' + VIDEO_EXT);
 	}
@@ -481,8 +485,7 @@ class Paths
 							var rawJson:String = File.getContent(path);
 							if(rawJson != null && rawJson.length > 0) {
 								var stuff:Dynamic = Json.parse(rawJson);
-								var global:Bool = Reflect.getProperty(stuff, "runsGlobally");
-								if(global)globalMods.push(dat[0]);
+								globalMods.push(dat[0]);
 							}
 						} catch(e:Dynamic){
 							trace(e);

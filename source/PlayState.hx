@@ -651,7 +651,7 @@ class PlayState extends MusicBeatState
 		if(ClientPrefs.downScroll) strumLine.y = FlxG.height - 150;
 		strumLine.scrollFactor.set();
 
-		var showTime:Bool = (ClientPrefs.timeBarType != '8');
+		var showTime:Bool = (ClientPrefs.timeBarType != '12');
 		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 19, 400, "", 32);
 		timeTxt.setFormat(Paths.font("vcr.ttf"), 26, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
@@ -2216,6 +2216,7 @@ class PlayState extends MusicBeatState
 					songPercent = (curTime / songLength);
 
 					var songLeft:Float = (songLength - curTime);
+					var secondsLeftF:Float = songLeft / 1000;
 					var secondsLeft:Int = Math.floor(songLeft / 1000);
 
 					var songDone:Float = curTime;
@@ -2239,6 +2240,51 @@ class PlayState extends MusicBeatState
 							if (m == 6) timeTxt.text += ' (x' + playbackRate + ')';
 						case 7:
 							timeTxt.text = Std.string(Math.floor(songPercent * 100)) + '%';
+						case 8:
+							var scale:Float = Conductor.stepCrochet / 1000;
+							var left:Float = 0;
+							var real:Int = 0;
+							while (left < secondsLeftF) {
+								left += scale;
+								real ++;
+							}
+
+							timeTxt.text = Std.string(real);
+						case 9:
+							var scale:Float = Conductor.crochet / 1000;
+							var left:Float = 0;
+							var real:Int = 0;
+							while (left < secondsLeftF){
+								left += scale;
+								real ++;
+							}
+
+							timeTxt.text = Std.string(real);
+						case 10:
+							var left:Int = 0;
+							if (SONG != null) left = SONG.notes.length - curSection;
+							timeTxt.text = Std.string(left);
+						case 11:
+							var sectionsLeft:Int = 0;
+							if (SONG != null) sectionsLeft = SONG.notes.length - curSection;
+							
+							var beatScale:Float = Conductor.crochet / 1000;
+							var stepScale:Float = Conductor.stepCrochet / 1000;
+							var beatsLeft:Float = 0;
+							var stepsLeft:Float = 0;
+							var realBeatsLeft:Int = 0;
+							var realStepsLeft:Int = 0;
+
+							while (beatsLeft < secondsLeftF) {
+								beatsLeft += beatScale;
+								realBeatsLeft ++;
+							}
+							while (stepsLeft < secondsLeftF) {
+								stepsLeft += stepScale;
+								realStepsLeft ++;
+							}
+
+							timeTxt.text = '$sectionsLeft:$realBeatsLeft:$realStepsLeft';
 						default:
 							timeTxt.text = '--:--';
 					}
@@ -4379,7 +4425,7 @@ class PlayState extends MusicBeatState
 							}
 						default: // json achievements
 							var ret:Dynamic = callOnLuas('onCheckForAchievement', [achievementName]);
-							if (ret == FunkinLua.Function_Continue) {
+							if (ret == FunkinLua.Function_Stop) {
 								unlock = true;
 							}
 					}
