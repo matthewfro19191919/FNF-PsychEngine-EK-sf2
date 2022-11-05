@@ -2517,20 +2517,21 @@ class PlayState extends MusicBeatState
 		persistentDraw = true;
 		paused = true;
 
-		// 1 / 1000 chance for Gitaroo Man easter egg
-		/*if (FlxG.random.bool(0.1))
-		{
+		// 1 / 100 chance for Gitaroo Man easter egg
+		// FlxG.random.bool(0.1)
+		if (FlxG.random.bool(0.1)) {
 			// gitaroo man easter egg
-			cancelMusicFadeTween();
-			MusicBeatState.switchState(new GitarooPause());
+			//cancelMusicFadeTween();
+			openSubState(new GitarooPause());
 		}
-		else {*/
+		else {
+			openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+		}
+
 		if(FlxG.sound.music != null) {
 			FlxG.sound.music.pause();
 			vocals.pause();
 		}
-		openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
-		//}
 
 		#if desktop
 		setDiscordPresence(true, '', false);
