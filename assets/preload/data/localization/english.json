@@ -47,11 +47,13 @@
     "ach_debugger_desc": "Beat the \"Test\" Stage from the Chart Editor.",
 
     "story_weekscore": "WEEK SCORE%r",
+    "story_no_weeks": "No weeks available.",
 
     "freeplay_pb": "PERSONAL BEST%r",
     "freeplay_ba": "BEST ACCURACY%r",
     "freeplay_bottom": "[SPACE] Listen to song / [CTRL] Gameplay Changers / [RESET] Reset Score and Accuracy.",
     "freeplay_bottom_no_preload_all": "[CTRL] Gameplay Changers / [RESET] Reset Score and Accuracy.",
+    "freeplay_no_songs": "No songs available.",
 
     "game_score": "Score",
     "game_misses": "Misses",

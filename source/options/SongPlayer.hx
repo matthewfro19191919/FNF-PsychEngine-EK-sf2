@@ -25,6 +25,7 @@ using StringTools;
 class SongPlayer extends MusicBeatState
 {
 	var songs:Array<FreeplayState.SongMetadata> = [];
+    var custom:Array<FreeplayState.SongMetadata> = [];
 
 	var selector:FlxText;
 	private static var curSelected:Int = 0;
@@ -88,10 +89,10 @@ class SongPlayer extends MusicBeatState
 		WeekData.loadTheFirstEnabledMod();
 
         //The songs from psych
-        addSong("tea time", 0, "flicky", 0xFF9E29CF);
-        addSong("psync", 0, "flicky", 0xFF9E29CF); // its called psync, as stated by the credits
-        addSong("breakfast", 0, "kawaisprite", 0xFF378FC7);
-        addSong("main menu", 0, "none", 0xFF378FC7);
+        addSong("tea time", 0, "flicky", 0xFF9E29CF, true);
+        addSong("psync", 0, "flicky", 0xFF9E29CF, true); // its called psync, as stated by the credits
+        addSong("breakfast", 0, "kawaisprite", 0xFF378FC7, true);
+        addSong("main menu", 0, "none", 0xFF378FC7, true);
         //addSong("main menuuuuuuuuuuuuuuu dumb", 0, "none", 0xFF378FC7); thiss was for testing the alphabet lenght
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -161,9 +162,11 @@ class SongPlayer extends MusicBeatState
 		super.closeSubState();
 	}
 
-	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int)
+	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int, custom:Bool = false)
 	{
 		songs.push(new FreeplayState.SongMetadata(songName, weekNum, songCharacter, color));
+        if (!custom)
+            this.custom.push(new FreeplayState.SongMetadata(songName, weekNum, songCharacter, color));
 	}
 
 	function weekIsLocked(name:String):Bool {
@@ -277,14 +280,16 @@ class SongPlayer extends MusicBeatState
 
     function changeDiff(change:Int = 0)
     {
-        curDifficulty += change;
+        if (custom.length > 0) {
+            curDifficulty += change;
 
-        if (curDifficulty < 0)
-            curDifficulty = CoolUtil.difficulties.length-1;
-        if (curDifficulty >= CoolUtil.difficulties.length)
-            curDifficulty = 0;
+            if (curDifficulty < 0)
+                curDifficulty = CoolUtil.difficulties.length-1;
+            if (curDifficulty >= CoolUtil.difficulties.length)
+                curDifficulty = 0;
 
-        lastDifficultyName = CoolUtil.difficulties[curDifficulty];
+            lastDifficultyName = CoolUtil.difficulties[curDifficulty];
+        }
     }
 
 	function changeSelection(change:Int = 0, playSound:Bool = true)
@@ -337,48 +342,50 @@ class SongPlayer extends MusicBeatState
 
         instIsPlaying = false;
 		
-		Paths.currentModDirectory = songs[curSelected].folder;
-		PlayState.storyWeek = songs[curSelected].week;
+		if (custom.length > 0) {
+            Paths.currentModDirectory = songs[curSelected].folder;
+            PlayState.storyWeek = songs[curSelected].week;
 
-		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
-		var diffStr:String = WeekData.getCurrentWeek().difficulties;
-		if(diffStr != null) diffStr = diffStr.trim(); //Fuck you HTML5
+            CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
+            var diffStr:String = WeekData.getCurrentWeek().difficulties;
+            if(diffStr != null) diffStr = diffStr.trim(); //Fuck you HTML5
 
-		if(diffStr != null && diffStr.length > 0)
-		{
-			var diffs:Array<String> = diffStr.split(',');
-			var i:Int = diffs.length - 1;
-			while (i > 0)
-			{
-				if(diffs[i] != null)
-				{
-					diffs[i] = diffs[i].trim();
-					if(diffs[i].length < 1) diffs.remove(diffs[i]);
-				}
-				--i;
-			}
+            if(diffStr != null && diffStr.length > 0)
+            {
+                var diffs:Array<String> = diffStr.split(',');
+                var i:Int = diffs.length - 1;
+                while (i > 0)
+                {
+                    if(diffs[i] != null)
+                    {
+                        diffs[i] = diffs[i].trim();
+                        if(diffs[i].length < 1) diffs.remove(diffs[i]);
+                    }
+                    --i;
+                }
 
-			if(diffs.length > 0 && diffs[0].length > 0)
-			{
-				CoolUtil.difficulties = diffs;
-			}
-		}
-		
-		if(CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
-		{
-			curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
-		}
-		else
-		{
-			curDifficulty = 0;
-		}
+                if(diffs.length > 0 && diffs[0].length > 0)
+                {
+                    CoolUtil.difficulties = diffs;
+                }
+            }
+            
+            if(CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
+            {
+                curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
+            }
+            else
+            {
+                curDifficulty = 0;
+            }
 
-		var newPos:Int = CoolUtil.difficulties.indexOf(lastDifficultyName);
-		//trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
-		if(newPos > -1)
-		{
-			curDifficulty = newPos;
-		}
+            var newPos:Int = CoolUtil.difficulties.indexOf(lastDifficultyName);
+            //trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
+            if(newPos > -1)
+            {
+                curDifficulty = newPos;
+            }
+        }
 	}
 
 	override function beatHit() {

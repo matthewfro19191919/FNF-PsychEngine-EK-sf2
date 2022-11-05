@@ -47,11 +47,13 @@
     "ach_debugger_desc": "Completa \"Test\" desde el editor de charts.",
 
     "story_weekscore": "PUNTUACIÓN DE SEMANA%r",
+    "story_no_weeks": "Sin semanas disponibles.",
     
     "freeplay_pb": "MEJOR PUNTAJE%r",
     "freeplay_ba": "MEJOR PRECISIÓN%r",
     "freeplay_bottom": "[ESPACIO] Escuchar la canción / [CTRL] Menú de modificadores / [RESET] Restablecer puntaje y precisión.",
     "freeplay_bottom_no_preload_all": "[CTRL Menú de modificadores / [RESET] Restablecer puntaje y precisión.",
+    "freeplay_no_songs": "Sin canciones disponibles.",
 
     "game_score": "Puntos",
     "game_misses": "Fallos",
