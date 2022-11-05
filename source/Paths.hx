@@ -485,7 +485,8 @@ class Paths
 							var rawJson:String = File.getContent(path);
 							if(rawJson != null && rawJson.length > 0) {
 								var stuff:Dynamic = Json.parse(rawJson);
-								globalMods.push(dat[0]);
+								var global:Bool = Reflect.getProperty(stuff, "runsGlobally");
+								if(global)globalMods.push(dat[0]);
 							}
 						} catch(e:Dynamic){
 							trace(e);
