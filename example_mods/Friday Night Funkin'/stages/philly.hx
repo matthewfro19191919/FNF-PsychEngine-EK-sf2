@@ -132,8 +132,8 @@ function onUpdate(elapsed:Float) {
         bg.alpha = Math.min(FlxMath.lerp(bg.alpha, ogAlpha, ratio), city.alpha);
         phillyWindow.alpha *= city.alpha;
     }
-
-    if (updateGlowGradient) phillyGradientUpdate(elapsed);
+    else
+        phillyGradientUpdate(elapsed);
 }
 
 function onBeatHit() {
@@ -271,8 +271,6 @@ function onEventPushed(event:String) {
         phillyGlowGradient.loadGraphic(Paths.image('philly/gradient'));
         PlayState.insert(PlayState.members.indexOf(blammedLightsBlack) + 1, phillyGlowGradient);
 
-        updateGlowGradient = true;
-
         Paths.image('philly/particle');
     }
 }
@@ -339,6 +337,7 @@ function onEvent(name:String, value1:String, value2:String) {
                     blammedLightsBlack.alpha = 1;
                     phillyWindowEvent.visible = true;
                     phillyGlowGradient.visible = true;
+                    updateGlowGradient = true;
                     //phillyGlowParticles.visible = true;
                 }
                 else if(ClientPrefs.flashing)

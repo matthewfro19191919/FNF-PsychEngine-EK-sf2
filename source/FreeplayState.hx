@@ -324,7 +324,7 @@ class FreeplayState extends MusicBeatState
 			changeDiff(1);
 		else if (upP || downP) changeDiff();
 
-		if (upP || downP || controls.UI_RIGHT_P || controls.UI_LEFT_P && songs.length < 1)
+		if ((upP || downP || controls.UI_RIGHT_P || controls.UI_LEFT_P) && songs.length < 1)
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 
 		if (controls.BACK)

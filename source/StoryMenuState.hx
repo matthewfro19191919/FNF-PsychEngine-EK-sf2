@@ -254,7 +254,7 @@ class StoryMenuState extends MusicBeatState
 					changeDifficulty();
 			}
 
-			if (upP || downP || controls.UI_RIGHT_P || controls.UI_LEFT_P && loadedWeeks.length < 0)
+			if ((upP || downP || controls.UI_RIGHT_P || controls.UI_LEFT_P) && loadedWeeks.length < 0)
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 
 			if(FlxG.keys.justPressed.CONTROL)

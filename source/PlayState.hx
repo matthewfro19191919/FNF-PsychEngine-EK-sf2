@@ -365,7 +365,6 @@ class PlayState extends MusicBeatState
 
 		//Ratings
 		var rating:Rating = new Rating('marvelous');
-		rating.ratingMod = 1.1;
 		rating.score = 500;
 		rating.termination = 'es';
 		ratingsData.push(rating);
@@ -966,7 +965,7 @@ class PlayState extends MusicBeatState
 	
 		#if desktop
 		// Updating Discord Rich Presence.
-		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+		setDiscordPresence(false, '', false);
 		#end
 
 		if(!ClientPrefs.controllerMode && !replayMode)
@@ -1544,9 +1543,12 @@ class PlayState extends MusicBeatState
 	{
 		var rpercent:Float = Highscore.floorDecimal(ratingPercent * 100, 2);
 		var strText:String = "";
+		var untranslated:String = "";
 
 		if (ClientPrefs.showScore) strText += Lang.g('game_score') + ': ' + songScore;
 		if (ClientPrefs.showMisses) strText += divider + Lang.g('game_misses') + ': ' + songMisses;
+
+		untranslated = 'Score: $songScore' + divider + 'Misses: $songMisses';
 		
 		var rName:String = '';
 		if (ratingName != '?') {
@@ -1554,6 +1556,9 @@ class PlayState extends MusicBeatState
 				rName = divider + Lang.g('game_accurary') + ': $rpercent%';
 				rName += ' [$ratingFC]';
 			}
+			untranslated += divider + 'Accuracy: $rpercent%';
+			untranslated += divider + ratingName;
+
 			if (ClientPrefs.showRating) rName += divider + ratingName;
 		}
 		strText += rName;
@@ -1561,7 +1566,10 @@ class PlayState extends MusicBeatState
 		if (ClientPrefs.showNPS) strText += divider + 'NPS: $nps';
 		if (ClientPrefs.showMaxNPS) strText += ' (max: $maxNps)';
 
+		untranslated += divider + 'NPS: $nps (max: $maxNps)';
+
 		scoreTxt.text = strText;
+		#if desktop scoreDiscordPresence(untranslated); #end
 
 		if (update) scoreColor(miss);
 		callOnLuas('onUpdateScore', [miss]);
@@ -1653,7 +1661,7 @@ class PlayState extends MusicBeatState
 
 		#if desktop
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength);
+		setDiscordPresence(false, '', true, null, songLength);
 		#end
 
 		setOnLuas('songLength', songLength);
@@ -2007,13 +2015,9 @@ class PlayState extends MusicBeatState
 
 			#if desktop
 			if (startTimer != null && startTimer.finished)
-			{
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
-			}
+				setDiscordPresence(false, '', true);
 			else
-			{
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-			}
+				setDiscordPresence(false, '', false);
 			#end
 		}
 
@@ -2025,14 +2029,8 @@ class PlayState extends MusicBeatState
 		#if desktop
 		if (health > 0 && !paused)
 		{
-			if (Conductor.songPosition > 0.0)
-			{
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.noteOffset);
-			}
-			else
-			{
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-			}
+			if (Conductor.songPosition > 0.0) setDiscordPresence(false, '', true);
+			else setDiscordPresence(false, '', false);
 		}
 		#end
 
@@ -2043,9 +2041,7 @@ class PlayState extends MusicBeatState
 	{
 		#if desktop
 		if (health > 0 && !paused)
-		{
-			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-		}
+			setDiscordPresence(true, '', false);
 		#end
 
 		super.onFocusLost();
@@ -2318,6 +2314,10 @@ class PlayState extends MusicBeatState
 		FlxG.watch.addQuick("beatShit", curBeat);
 		FlxG.watch.addQuick("stepShit", curStep);
 
+		#if desktop
+		discordEndTimestamp = songLength - Conductor.songPosition - ClientPrefs.noteOffset;
+		#end
+
 		// RESET = Quick Game Over Screen
 		if (!ClientPrefs.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong)
 		{
@@ -2533,7 +2533,7 @@ class PlayState extends MusicBeatState
 		//}
 
 		#if desktop
-		DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+		setDiscordPresence(true, '', false);
 		#end
 	}
 
@@ -2546,7 +2546,7 @@ class PlayState extends MusicBeatState
 		chartingMode = true;
 
 		#if desktop
-		DiscordClient.changePresence("Chart Editor", null, null, true);
+		setDiscordPresence(false, '', false, 'Chart Editor');
 		#end
 	}
 
@@ -2578,7 +2578,7 @@ class PlayState extends MusicBeatState
 
 				#if desktop
 				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence("Game Over - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+				setDiscordPresence(false, 'Game Over', false);
 				#end
 				isDead = true;
 				return true;
@@ -4439,4 +4439,37 @@ class PlayState extends MusicBeatState
 		}
 		return null;
 	}
+
+	#if desktop
+	public var discordEndTimestamp:Float = 0;
+	public function setDiscordPresence(paused:Bool = false, prefix:String = '', includeEndTimestamp:Bool = true, customDetails:String = null, customTimeStamp:Float = null, customState:String = null) {
+		var goodPrefix:String = prefix;
+		if (prefix.length > 0) goodPrefix += divider;
+
+		var details:String = '';
+		var state:String = SONG.song + " (" + storyDifficultyText + ")";
+		var smallIcon:String = iconP2.getCharacter();
+
+		if (paused) details = goodPrefix + detailsPausedText;
+		else details = goodPrefix + detailsText;
+		if (customDetails != null)
+			details = goodPrefix + customDetails;
+
+		var endTimestamp:Float = discordEndTimestamp;
+		if (customTimeStamp != null)
+			endTimestamp = customTimeStamp;
+
+		if (customState != null) {
+			details += divider + state;
+			state = customState;
+		}
+
+		if (includeEndTimestamp) DiscordClient.changePresence(details, state, smallIcon, true, endTimestamp);
+		else DiscordClient.changePresence(details, state, smallIcon);
+	}
+
+	public function scoreDiscordPresence(state:String) {
+		setDiscordPresence(false, '', true, null, null, state);
+	}
+	#end
 }
