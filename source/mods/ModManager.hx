@@ -220,7 +220,6 @@ class ModManager {
 		script.setVariable("FlxMath", FlxMath);
 		script.setVariable("FlxAssets", flixel.system.FlxAssets);
         script.setVariable("Assets", Assets);
-		script.setVariable("Note", Note);
 		script.setVariable("Character", Character);
 		script.setVariable("Conductor", Conductor);
 		script.setVariable("StringTools", StringTools);
@@ -228,6 +227,7 @@ class ModManager {
 		script.setVariable("FlxEase", FlxEase);
 		script.setVariable("FlxTween", FlxTween);
 		script.setVariable("FlxPoint", flixel.math.FlxPoint);
+        script.setVariable("Note", Note);
 		script.setVariable("debugPrint", function(text) {
             PlayState.instance.addTextToDebug(text, FlxColor.WHITE);
         });
@@ -258,7 +258,10 @@ class ModManager {
         script.setVariable("Achievements", Achievements);
 		script.setVariable("FlxTimer", FlxTimer);
 		script.setVariable("Json", Json);
-		script.setVariable("MP4Handler", MP4Handler);
+		#if VIDEOS_ALLOWED
+        script.setVariable("MP4Handler", MP4Handler);
+        #end
+        script.setVariable("controls", PlayerSettings.player1.controls);
 		script.setVariable("CoolUtil", CoolUtil);
 		script.setVariable("FlxTypeText", FlxTypeText);
 		script.setVariable("FlxText", FlxText);
@@ -405,10 +408,12 @@ class ModManager {
 		script.setVariable('buildTarget', CoolUtil.buildTarget());
 
         script.setVariable('getLaw', function(law:String) {
-            var result:Bool = false;
-            switch (law) {
-                case 'debug': #if debug result = true; #end
-            }
+            var result:Bool = switch (law) {
+                #if windows case 'windows': true; #end
+                #if VIDEOS_ALLOWED case 'VIDEOS_ALLOWED': true; #end
+                #if debug case 'debug':  true; #end
+                default: false;
+            };
             return result;
         });
     }

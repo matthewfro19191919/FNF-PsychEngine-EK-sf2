@@ -238,9 +238,8 @@ class ControlsSubState extends MusicBeatSubstate {
 			bullShit++;
 
 			if(!unselectableCheck(bullShit-1)) {
-				item.alpha = 0.6;
+				item.autoAlpha = true;
 				if (item.targetY == 0) {
-					item.alpha = 1;
 					if(curAlt) {
 						for (i in 0...grpInputsAlt.length) {
 							if(grpInputsAlt[i].sprTracker == item) {

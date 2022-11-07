@@ -1,5 +1,7 @@
 package editors;
 
+import scripting.Script;
+import mods.ModManager;
 import flixel.addons.ui.FlxUIButton;
 import notes.NoteSplash;
 import song.Section.SwagSection;
@@ -159,6 +161,17 @@ class EditorPlayState extends MusicBeatState
 					lua.stop();
 					lua = null;
 				});
+			}
+
+			for (ext in ModManager.hscriptExts) {
+				var hxToLoad:String = Paths.modFolders('custom_notetypes/' + notetype + '.lua');
+				if(sys.FileSystem.exists(hxToLoad)) {
+					var hscript:Script = Script.fromPath(hxToLoad);
+					new FlxTimer().start(0.1, function (tmr:FlxTimer) {
+						hscript.destroy();
+						hscript = null;
+					});
+				}
 			}
 		}
 		#end

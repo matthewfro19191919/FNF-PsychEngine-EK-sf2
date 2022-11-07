@@ -298,12 +298,10 @@ class CreditsState extends MusicBeatState
 			item.targetY = bullShit - curSelected;
 			bullShit++;
 
-			if(!unselectableCheck(bullShit-1)) {
-				item.alpha = 0.6;
-				if (item.targetY == 0) {
-					item.alpha = 1;
-				}
-			}
+			item.autoAlpha = true;
+			/*if(!unselectableCheck(bullShit-1)) {
+				item.autoAlpha = true;
+			}*/
 		}
 
 		descText.text = creditsStuff[curSelected][2];

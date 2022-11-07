@@ -332,10 +332,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			item.targetY = bullShit - curSelected;
 			bullShit++;
 
-			item.alpha = 0.6;
-			if (item.targetY == 0) {
-				item.alpha = 1;
-			}
+			item.autoAlpha = true;
 		}
 		for (text in grpTexts) {
 			text.alpha = 0.6;

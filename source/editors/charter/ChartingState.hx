@@ -1,5 +1,6 @@
 package editors.charter;
 
+import mods.ModManager;
 import flixel.addons.ui.FlxUIDropDownMenu;
 import song.StageData;
 import song.Song;
@@ -1139,6 +1140,17 @@ class ChartingState extends MusicBeatState
 							noteTypeMap.set(fileToCheck, key);
 							noteTypeIntMap.set(key, fileToCheck);
 							key++;
+						}
+					}
+					for (ext in ModManager.hscriptExts) {
+						if (!FileSystem.isDirectory(path) && file.endsWith('.$ext')) {
+							var fileToCheck:String = file.substr(0, file.length - (ext.length + 1));
+							if(!noteTypeMap.exists(fileToCheck)) {
+								displayNameList.push(fileToCheck);
+								noteTypeMap.set(fileToCheck, key);
+								noteTypeIntMap.set(key, fileToCheck);
+								key++;
+							}
 						}
 					}
 				}

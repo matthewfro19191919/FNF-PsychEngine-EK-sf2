@@ -127,6 +127,7 @@ class FreeplayState extends MusicBeatState
 			var songText:Alphabet = new Alphabet(90, 320, songs[i].songName, true);
 			songText.isMenuItem = true;
 			songText.targetY = i - curSelected;
+			songText.autoAlpha = true;
 			grpSongs.add(songText);
 
 			//if (i % 2 == 0) songText.scroll = DEFAULT_RIGHT; lol
@@ -488,14 +489,8 @@ class FreeplayState extends MusicBeatState
 			item.targetY = bullShit - curSelected;
 			bullShit++;
 
-			item.alpha = 0.6;
+			item.autoAlpha = true;
 			// item.setGraphicSize(Std.int(item.width * 0.8));
-
-			if (item.targetY == 0)
-			{
-				item.alpha = 1;
-				// item.setGraphicSize(Std.int(item.width));
-			}
 
 			if (infScroll) {
 				var lastT = item.targetY;
