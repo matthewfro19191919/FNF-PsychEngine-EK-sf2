@@ -119,17 +119,17 @@ class FileExplorer extends MusicBeatSubstate {
                         case SparrowAtlas:
                             var ext = Path.extension(file).toLowerCase();
                             if (!fileExt.split(";").contains(ext)) {
-                                showMsg("Error", 'You must select a $fileType');
+                                openSubState(new Prompt('Error: You must select a $fileType', null, null));
                                 return;
                             }
                             if (ext == "png") {
                                 if (!FileSystem.exists('$path/${Path.withoutExtension(file)}.xml')) {
-                                    showMsg("Error", 'The selected Sparrow Atlas doesn\'t have a corresponding XML file.');
+                                    openSubState(new Prompt('Error: This file does not have a .xml.', null, null));
                                     return;
                                 }
                             } else {
                                 if (!FileSystem.exists('$path/${Path.withoutExtension(file)}.png')) {
-                                    showMsg("Error", 'The selected Sparrow Atlas doesn\'t have a corresponding PNG file.');
+                                    openSubState(new Prompt('Error: This file does not have a .png.', null, null));
                                     return;
                                 }
                             }
@@ -139,7 +139,7 @@ class FileExplorer extends MusicBeatSubstate {
                             return;
                         default:
                             if (!fileExt.split(";").contains(Path.extension(file).toLowerCase())) {
-                                showMsg("Error", 'You must select a $fileType');
+                                openSubState(new Prompt('Error: You must select a $fileType', null, null));
                                 return;
                             }
                             callback('$path/$file');

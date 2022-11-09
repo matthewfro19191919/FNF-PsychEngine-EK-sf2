@@ -58,7 +58,7 @@ class ClientPrefs {
 		'botplay' => false,
 		'opponentplay' => false
 	];
-	public static var chartSettings:Map<String,Dynamic> = [
+	public static var chartSettings:Map<String, Dynamic> = [
 		'vortex' => false,
 		'ignoreWarnings' => false,
 		'uiCollapsed' => true,
@@ -69,7 +69,8 @@ class ClientPrefs {
 		'waveformVoices' => false,
 		'hitsoundBF' => false,
 		'hitsoundDad' => false,
-		'beatBars' => true
+		'beatBars' => true,
+		'waveformColor' => flixel.util.FlxColor.RED
 	];
 
 	//i um...

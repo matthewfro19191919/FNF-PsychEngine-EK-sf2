@@ -36,6 +36,8 @@ class FlxUIAssets
 	public static inline var IMG_FINGER_BIG:String = "flixel/flixel-ui/img/finger_big.png";
 
     public static inline var IMG_SLIDER:String = "flixel-ui/img/slider";
+	public static inline var IMG_RETICLE:String = "flixel/flixel-ui/img/reticle";
+	public static inline var IMG_MARKER:String = "flixel/flixel-ui/img/marker";
 	public static inline var IMG_WIN_MINIMIZE:String = "flixel-ui/window_minimize";
 	public static inline var IMG_WIN_MAXIMIZE:String = "flixel-ui/window_maximize";
 	public static inline var IMG_WIN_CLOSE:String = "flixel-ui/window_close";
