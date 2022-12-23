@@ -139,7 +139,7 @@ class Note extends FlxSprite
 	
 	public function resizeByRatio(ratio:Float) //haha funny twitter shit
 		{
-			if(isSustainNote && !animation.curAnim.name.endsWith('end'))
+			if(isSustainNote && !animation.curAnim.name.endsWith('tail'))
 			{
 				scale.y *= ratio;
 				updateHitbox();
@@ -346,7 +346,7 @@ class Note extends FlxSprite
 				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (PlayState.daPixelZoom / 2);
 				offsetX -= lastNoteOffsetXForPixelAutoAdjusting;
 				
-				/*if(animName != null && !animName.endsWith('end'))
+				/*if(animName != null && !animName.endsWith('tail'))
 				{
 					lastScaleY /= lastNoteScaleToo;
 					lastNoteScaleToo = (6 / height);
