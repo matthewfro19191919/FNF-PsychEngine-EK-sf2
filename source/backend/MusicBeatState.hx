@@ -20,6 +20,14 @@ class MusicBeatState extends FlxUIState
 		return Controls.instance;
 	}
 
+	//Extra key variables
+
+	public var mania(default, set):Int = EK.defaultMania;
+	public function set_mania(newMania:Int):Int {
+		mania = newMania;
+		return newMania;
+	}
+
 	public static var camBeat:FlxCamera;
 
 	override function create() {

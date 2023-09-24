@@ -25,6 +25,7 @@ import backend.Conductor;
 import backend.BaseStage;
 import backend.Difficulty;
 import backend.Mods;
+import backend.EK;
 
 import objects.Alphabet;
 import objects.BGSprite;

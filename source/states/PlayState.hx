@@ -3324,6 +3324,12 @@ class PlayState extends MusicBeatState
 		setOnScripts('ratingFC', ratingFC);
 	}
 
+	override function set_mania(newMania:Int):Int {
+		super.set_mania(newMania);
+
+		return newMania;
+	}
+
 	function fullComboUpdate()
 	{
 		var sicks:Int = ratingsData[0].hits;
