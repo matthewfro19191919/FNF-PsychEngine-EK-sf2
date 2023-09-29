@@ -127,6 +127,8 @@ class PlayState extends MusicBeatState
 	public var songSpeed(default, set):Float = 1;
 	public var songSpeedType:String = "multiplicative";
 	public var noteKillOffset:Float = 350;
+	private var maniaUnchanged:Bool = true;
+	public static var songMania:Int = EK.defaultMania;
 
 	public var playbackRate(default, set):Float = 1;
 
@@ -942,6 +944,18 @@ class PlayState extends MusicBeatState
 		Paths.sound('introGo' + introSoundsSuffix);
 	}
 
+	public function updateDefaultStrumPos() {
+		for (i in 0...playerStrums.length) {
+			setOnScripts('defaultPlayerStrumX' + i, playerStrums.members[i].x);
+			setOnScripts('defaultPlayerStrumY' + i, playerStrums.members[i].y);
+		}
+		for (i in 0...opponentStrums.length) {
+			setOnScripts('defaultOpponentStrumX' + i, opponentStrums.members[i].x);
+			setOnScripts('defaultOpponentStrumY' + i, opponentStrums.members[i].y);
+			//if(ClientPrefs.middleScroll) opponentStrums.members[i].visible = false;
+		}
+	}
+
 	public function startCountdown()
 	{
 		if(startedCountdown) {
@@ -955,16 +969,11 @@ class PlayState extends MusicBeatState
 		if(ret != FunkinLua.Function_Stop) {
 			if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
 
-			generateStaticArrows(0);
-			generateStaticArrows(1);
-			for (i in 0...playerStrums.length) {
-				setOnScripts('defaultPlayerStrumX' + i, playerStrums.members[i].x);
-				setOnScripts('defaultPlayerStrumY' + i, playerStrums.members[i].y);
-			}
-			for (i in 0...opponentStrums.length) {
-				setOnScripts('defaultOpponentStrumX' + i, opponentStrums.members[i].x);
-				setOnScripts('defaultOpponentStrumY' + i, opponentStrums.members[i].y);
-				//if(ClientPrefs.data.middleScroll) opponentStrums.members[i].visible = false;
+			if (SONG.mania != null) // this replaces the calls.
+				mania = SONG.mania;
+			else {
+				mania = 3;
+				SONG.mania = 3;
 			}
 
 			startedCountdown = true;
@@ -1259,15 +1268,21 @@ class PlayState extends MusicBeatState
 					makeEvent(event, i);
 		}
 
+		if (SONG.mania != null) // this replaces the calls.
+			songMania = SONG.mania;
+		else
+			songMania = 3;
+		setOnScripts('mania', songMania);
+
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
 			{
 				var daStrumTime:Float = songNotes[0];
-				var daNoteData:Int = Std.int(songNotes[1] % 4);
+				var daNoteData:Int = Std.int(songNotes[1] % EK.keys(songMania));
 				var gottaHitNote:Bool = section.mustHitSection;
 
-				if (songNotes[1] > 3)
+				if (songNotes[1] > songMania)
 				{
 					gottaHitNote = !section.mustHitSection;
 				}
@@ -1281,7 +1296,7 @@ class PlayState extends MusicBeatState
 				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
 				swagNote.mustPress = gottaHitNote;
 				swagNote.sustainLength = songNotes[2];
-				swagNote.gfNote = (section.gfSection && (songNotes[1]<4));
+				swagNote.gfNote = (section.gfSection && (songNotes[1]<EK.keys(songMania)));
 				swagNote.noteType = songNotes[3];
 				if(!Std.isOfType(songNotes[3], String)) swagNote.noteType = ChartingState.noteTypeList[songNotes[3]]; //Backward compatibility + compatibility with Week 7 charts
 
@@ -1300,7 +1315,7 @@ class PlayState extends MusicBeatState
 
 						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote), daNoteData, oldNote, true);
 						sustainNote.mustPress = gottaHitNote;
-						sustainNote.gfNote = (section.gfSection && (songNotes[1]<4));
+						sustainNote.gfNote = (section.gfSection && (songNotes[1]<EK.keys(songMania)));
 						sustainNote.noteType = swagNote.noteType;
 						sustainNote.scrollFactor.set();
 						swagNote.tail.push(sustainNote);
@@ -1330,7 +1345,7 @@ class PlayState extends MusicBeatState
 						else if(ClientPrefs.data.middleScroll)
 						{
 							sustainNote.x += 310;
-							if(daNoteData > 1) //Up and Right
+							if(daNoteData > [0,0,1,1,2,2,2,3,3,4,4,5,6,6,7,6,5][mania]) //Up and Right
 							{
 								sustainNote.x += FlxG.width / 2 + 25;
 							}
@@ -1435,8 +1450,10 @@ class PlayState extends MusicBeatState
 	{
 		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
-		for (i in 0...4)
+		for (i in 0...EK.keys(mania))
 		{
+			var twnDuration:Float = 4 / mania;
+			var twnStart:Float = 0.5 + ((0.8 / mania) * i);
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
 			if (player < 1)
@@ -1445,13 +1462,15 @@ class PlayState extends MusicBeatState
 				else if(ClientPrefs.data.middleScroll) targetAlpha = 0.35;
 			}
 
+			//trace(i);
+
 			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
 			babyArrow.downScroll = ClientPrefs.data.downScroll;
 			if (!isStoryMode && !skipArrowStartTween)
 			{
 				//babyArrow.y -= 10;
 				babyArrow.alpha = 0;
-				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, twnDuration, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
 			}
 			else
 				babyArrow.alpha = targetAlpha;
@@ -1463,7 +1482,7 @@ class PlayState extends MusicBeatState
 				if(ClientPrefs.data.middleScroll)
 				{
 					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
+					if(i > [0,0,1,1,2,2,2,3,3,4,4,5,6,6,7,6,5][mania]) { //Separates roughly half of the notes
 						babyArrow.x += FlxG.width / 2 + 25;
 					}
 				}
@@ -1472,8 +1491,101 @@ class PlayState extends MusicBeatState
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
+
+			if (player == 1) { // TODO ADD THE CLIENTPREFS OPTION
+				for (j in 0...1) {
+					var inputKey = backend.InputFormatter.getKeyName(ClientPrefs.keyBinds.get(keysArray[i])[j]);
+					var daKeyTxt:FlxText = new FlxText(babyArrow.x, babyArrow.y - 10, 0, inputKey, 32);
+					daKeyTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+					daKeyTxt.borderSize = 1.25;
+					daKeyTxt.alpha = 0;
+					daKeyTxt.size = 32 - mania; //essentially if i ever add 0k!?!?
+					daKeyTxt.x = babyArrow.x+(babyArrow.width / 2);
+					daKeyTxt.x -= daKeyTxt.width / 2;
+					add(daKeyTxt);
+					daKeyTxt.cameras = [camHUD];
+					var textY:Float = (j == 0 ? babyArrow.y - 32 : ((babyArrow.y - 32) + babyArrow.height) - daKeyTxt.height);
+					daKeyTxt.y = textY;
+
+					if (mania > 1 && !skipArrowStartTween) {
+						FlxTween.tween(daKeyTxt, {y: textY + 32, alpha: 1}, twnDuration, {ease: FlxEase.circOut, startDelay: twnStart});
+					} else {
+						daKeyTxt.y += 16;
+						daKeyTxt.alpha = 1;
+					}
+					new FlxTimer().start(Conductor.crochet * 0.001 * 12, function(_) {
+						FlxTween.tween(daKeyTxt, {y: daKeyTxt.y + 32, alpha: 0}, twnDuration, {ease: FlxEase.circIn, startDelay: twnStart, onComplete:
+						function(t) {
+							remove(daKeyTxt);
+						}});
+					});
+				}
+			}
 		}
 	}
+
+	// This is basically a function to regenerate the note without deleting it
+	// You could say it would be easier to purge all the notes and respawn them but i dont know how to
+	function updateNote(note:Note)
+	{
+		var tMania:Int = EK.keys(mania);
+		var noteData:Int = note.noteData;
+
+		note.scale.set(1, 1);
+		note.updateHitbox();
+
+		// ----------------- Like reloadNote()
+		var lastScaleY:Float = note.scale.y;
+		if (isPixelStage) {
+			if (note.isSustainNote) 
+				note.originalHeight = note.height;
+			note.setGraphicSize(Std.int(note.width * daPixelZoom * EK.pixelScales[mania]));
+		} else {
+			// ----------------- Like loadNoteAnims()
+			note.setGraphicSize(Std.int(note.width * EK.scales[mania]));
+		}
+
+		//if (note.isSustainNote) {note.scale.y = lastScaleY;}
+		note.updateHitbox();
+
+		// ----------------- Like new()
+
+		var prevNote:Note = note.prevNote;
+
+		if (note.isSustainNote && prevNote != null) {
+
+			note.offsetX += note.width / 2;
+
+			note.animation.play(EK.data.get(mania).get('notes')[noteData % tMania] + ' hold end');
+
+			note.updateHitbox();
+
+			note.offsetX -= note.width / 2;
+
+			if (note != null && prevNote != null && prevNote.isSustainNote && prevNote.animation != null) { // haxe flixel
+				prevNote.animation.play(EK.data.get(mania).get('notes')[noteData % tMania] + ' hold piece');
+
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
+				prevNote.scale.y *= songSpeed;
+
+				if(isPixelStage) {
+					prevNote.scale.y *= 1.19;
+					prevNote.scale.y *= (6 / note.height); //Auto adjust note size
+				}
+				prevNote.updateHitbox();
+			}
+			
+			if (isPixelStage){
+				prevNote.scale.y *= daPixelZoom * (EK.pixelScales[mania]);
+				prevNote.updateHitbox();
+			}
+		} else if (!note.isSustainNote && noteData > - 1 && noteData < tMania) {
+			var animToPlay:String = EK.data.get(mania).get('notes')[noteData % tMania];
+			note.animation.play(animToPlay);
+		}
+		note.defaultRGB(); // Finish off by updating color pallette
+	}
+
 
 	override function openSubState(SubState:FlxSubState)
 	{
@@ -2037,7 +2149,22 @@ class PlayState extends MusicBeatState
 						targetsArray[i].shake(intensity, duration);
 					}
 				}
-
+			case 'Change Mania':
+				var newMania:Int = 0;
+				newMania = Std.parseInt(value1);
+				if(Math.isNaN(newMania)) {
+					addTextToDebug('ERROR: Event "Change Mania": Specified mania not a number, unchanged.', FlxColor.RED);
+					newMania = mania;
+				}
+				if(newMania > EK.maxMania) {
+					newMania = EK.maxMania;
+					addTextToDebug('ERROR: Event "Change Mania": Mania too high, specified ' + newMania + ', default to ' + EK.maxMania, FlxColor.RED);
+				}
+				if (newMania < EK.minMania) {
+					addTextToDebug('ERROR: Event "Change Mania": Mania too low, specified ' + newMania + ', default to ' + EK.minMania, FlxColor.RED);
+					newMania = EK.minMania;
+				}
+				mania = newMania;
 
 			case 'Change Character':
 				var charType:Int = 0;
@@ -2608,6 +2735,8 @@ class PlayState extends MusicBeatState
 				//more accurate hit time for the ratings? part 2 (Now that the calculations are done, go back to the time it was before for not causing a note stutter)
 				Conductor.songPosition = lastTime;
 			}
+
+			//trace(playerStrums.members);
 
 			var spr:StrumNote = playerStrums.members[key];
 			if(strumsBlocked[key] != true && spr != null && spr.animation.curAnim.name != 'confirm')
@@ -3325,7 +3454,63 @@ class PlayState extends MusicBeatState
 	}
 
 	override function set_mania(newMania:Int):Int {
+		var oldMania = mania;
+
 		super.set_mania(newMania);
+
+		songMania = newMania;
+		var modifiedArray:Array<String> = [];
+		var animArray:Array<String> = EK.data.get(newMania).get('anims');
+        for (elem in animArray) {
+            modifiedArray.push("sing" + elem);
+        }
+		singAnimations = modifiedArray;
+		keysArray = EK.fillKeybinds()[mania + 1];
+		//trace(keysArray);
+
+		Note.colArray = EK.data.get(newMania).get('notes'); //were doing this the smart way
+
+		if (!maniaUnchanged) {
+			//customized strum fade
+			//to give pass to new strums
+
+			for (i in 0...strumLineNotes.members.length) {
+				var oldStrum:FlxSprite = strumLineNotes.members[i].clone();
+				oldStrum.x = strumLineNotes.members[i].x;
+				oldStrum.y = strumLineNotes.members[i].y;
+				oldStrum.alpha = strumLineNotes.members[i].alpha;
+				oldStrum.scrollFactor.set();
+				oldStrum.cameras = [camHUD];
+				oldStrum.setGraphicSize(Std.int(oldStrum.width * EK.scales[oldMania]));
+				oldStrum.updateHitbox();
+				add(oldStrum);
+
+				FlxTween.tween(oldStrum, {alpha: 0}, 0.3, {onComplete: function(_) {
+					remove(oldStrum);
+				}});
+			}
+
+			playerStrums.clear();
+			opponentStrums.clear();
+			strumLineNotes.clear();
+
+			notes.forEachAlive(function(note:Note) {updateNote(note);});
+
+			for (noteI in 0...unspawnNotes.length) {
+				var note:Note = unspawnNotes[noteI];
+
+				updateNote(note);
+			}
+		}
+
+		setOnScripts('mania', mania);
+		callOnScripts('onChangeMania', [mania, oldMania]);
+
+		generateStaticArrows(0);
+		generateStaticArrows(1);
+		updateDefaultStrumPos();
+
+		maniaUnchanged = false; // after this, the player is free to set the value again
 
 		return newMania;
 	}

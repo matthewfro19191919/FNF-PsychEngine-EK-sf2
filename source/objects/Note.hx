@@ -142,8 +142,8 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
+		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]];
+		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]];
 
 		if (noteData > -1 && noteData <= arr.length)
 		{
@@ -211,6 +211,7 @@ class Note extends FlxSprite
 		this.inEditor = inEditor;
 		this.moves = false;
 
+		Note.colArray = EK.data.get(PlayState.songMania).get('notes');
 		x += (ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
@@ -293,7 +294,7 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
+			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]] : ClientPrefs.data.arrowRGBPixel[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]];
 			if (noteData > -1 && noteData <= arr.length)
 			{
 				newRGB.r = arr[0];
@@ -382,6 +383,9 @@ class Note extends FlxSprite
 	}
 
 	function loadNoteAnims() {
+		var defaultWidth = 157;
+		var defaultHeight = 154;
+
 		if (isSustainNote)
 		{
 			animation.addByPrefix('purpleholdend', 'pruple end hold', 24, true); // this fixes some retarded typo from the original note .FLA
@@ -390,7 +394,10 @@ class Note extends FlxSprite
 		}
 		else animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
 
-		setGraphicSize(Std.int(width * 0.7));
+		if (!isSustainNote)
+			setGraphicSize(Std.int(defaultWidth * EK.scales[PlayState.songMania]));
+		else
+			setGraphicSize(Std.int(defaultWidth * EK.scales[PlayState.songMania]), Std.int(defaultHeight * EK.scales[0]));
 		updateHitbox();
 	}
 
@@ -462,6 +469,7 @@ class Note extends FlxSprite
 		if(copyY)
 		{
 			y = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
+			// T0DO ADD THE SCALE
 			if(myStrum.downScroll && isSustainNote)
 			{
 				if(PlayState.isPixelStage)

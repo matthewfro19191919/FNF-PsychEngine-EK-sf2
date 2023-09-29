@@ -13,16 +13,20 @@ import flixel.input.gamepad.FlxGamepadManager;
 class ControlsSubState extends MusicBeatSubstate
 {
 	var curSelected:Int = 0;
+	var curPage:Int = 0;
 	var curAlt:Bool = false;
 
 	//Show on gamepad - Display name - Save file key - Rebind display name
 	var options:Array<Dynamic> = [
-		[true, 'NOTES'],
-		[true, 'Left', 'note_left', 'Note Left'],
+		/*[true, 'Left', 'note_left', 'Note Left'],
 		[true, 'Down', 'note_down', 'Note Down'],
 		[true, 'Up', 'note_up', 'Note Up'],
-		[true, 'Right', 'note_right', 'Note Right'],
-		[true],
+		[true, 'Right', 'note_right', 'Note Right'],*/
+		[true, 'PAGE #1', 'Previous', 'Next'], // 0
+		[true],								// 1
+		[true, 'NOTES'],					// 2
+		// INSERT AFTER TWO!!!
+		[true],				
 		[true, 'UI'],
 		[true, 'Left', 'ui_left', 'UI Left'],
 		[true, 'Down', 'ui_down', 'UI Down'],
@@ -45,7 +49,7 @@ class ControlsSubState extends MusicBeatSubstate
 	];
 	var curOptions:Array<Int>;
 	var curOptionsValid:Array<Int>;
-	static var defaultKey:String = 'Reset to Default Keys';
+	static var defaultKey:String = 'Reset to Default';
 
 	var bg:FlxSprite;
 	var grpDisplay:FlxTypedGroup<Alphabet>;
@@ -105,7 +109,7 @@ class ControlsSubState extends MusicBeatSubstate
 		text.setScale(0.4);
 		add(text);
 
-		createTexts();
+		updatePage();
 	}
 
 	var lastID:Int = 0;
@@ -132,7 +136,7 @@ class ControlsSubState extends MusicBeatSubstate
 				{
 					var isCentered:Bool = (option.length < 3);
 					var isDefaultKey:Bool = (option[1] == defaultKey);
-					var isDisplayKey:Bool = (isCentered && !isDefaultKey);
+					var isDisplayKey:Bool = (isCentered && !isDefaultKey) && i != 1;
 
 					var text:Alphabet = new Alphabet(200, 300, option[1], !isDisplayKey);
 					text.isMenuItem = true;
@@ -174,15 +178,20 @@ class ControlsSubState extends MusicBeatSubstate
 			var textX:Float = 350 + n * 300;
 
 			var key:String = null;
-			if(onKeyboardMode)
-			{
-				var savKey:Array<Null<FlxKey>> = ClientPrefs.keyBinds.get(option[2]);
-				key = InputFormatter.getKeyName((savKey[n] != null) ? savKey[n] : NONE);
-			}
-			else
-			{
-				var savKey:Array<Null<FlxGamepadInputID>> = ClientPrefs.gamepadBinds.get(option[2]);
-				key = InputFormatter.getGamepadName((savKey[n] != null) ? savKey[n] : NONE);
+
+			if (options.indexOf(option) != 0) {
+				if(onKeyboardMode)
+				{
+					var savKey:Array<Null<FlxKey>> = ClientPrefs.keyBinds.get(option[2]);
+					key = InputFormatter.getKeyName((savKey[n] != null) ? savKey[n] : NONE);
+				}
+				else
+				{
+					var savKey:Array<Null<FlxGamepadInputID>> = ClientPrefs.gamepadBinds.get(option[2]);
+					key = InputFormatter.getGamepadName((savKey[n] != null) ? savKey[n] : NONE);
+				}
+			} else {
+				key = options[0][n + 2];
 			}
 
 			var attach:Alphabet = new Alphabet(textX + 210, 248, key, false);
@@ -279,14 +288,25 @@ class ControlsSubState extends MusicBeatSubstate
 			if(FlxG.keys.justPressed.CONTROL || FlxG.gamepads.anyJustPressed(LEFT_SHOULDER) || FlxG.gamepads.anyJustPressed(RIGHT_SHOULDER)) swapMode();
 
 			if(FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.RIGHT || FlxG.gamepads.anyJustPressed(DPAD_LEFT) || FlxG.gamepads.anyJustPressed(DPAD_RIGHT) ||
-				FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_LEFT) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_RIGHT)) updateAlt(true);
+				FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_LEFT) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_RIGHT)) {
+					updateAlt(true);
+				}
 
 			if(FlxG.keys.justPressed.UP || FlxG.gamepads.anyJustPressed(DPAD_UP) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_UP)) updateText(-1);
 			else if(FlxG.keys.justPressed.DOWN || FlxG.gamepads.anyJustPressed(DPAD_DOWN) || FlxG.gamepads.anyJustPressed(LEFT_STICK_DIGITAL_DOWN)) updateText(1);
 
+			//trace(options[0] == options[curOptions[curSelected]]);
+
 			if(FlxG.keys.justPressed.ENTER || FlxG.gamepads.anyJustPressed(START) || FlxG.gamepads.anyJustPressed(A))
 			{
-				if(options[curOptions[curSelected]][1] != defaultKey)
+				if (options[0] == options[curOptions[curSelected]])// page
+				{
+					if (curAlt && curPage != EK.maxMania)
+						updatePage(1);
+					else if (!curAlt && curPage != EK.minMania)
+						updatePage(-1);
+				}
+				else if(options[curOptions[curSelected]][1] != defaultKey)
 				{
 					bindingBlack = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, /*FlxColor.BLACK*/ FlxColor.WHITE);
 					bindingBlack.alpha = 0;
@@ -454,6 +474,53 @@ class ControlsSubState extends MusicBeatSubstate
 		bindingText2.destroy();
 		remove(bindingText2);
 		ClientPrefs.reloadVolumeKeys();
+	}
+
+	function updatePage(?move:Int = 0) {
+		curPage += move;
+		if (curPage < EK.minMania) curPage = EK.minMania;
+		if (curPage > EK.maxMania) curPage = EK.maxMania;
+
+		var tempOptionArray:Array<Dynamic> = [
+			/*[true, 'Left', 'note_left', 'Note Left'],
+			[true, 'Down', 'note_down', 'Note Down'],
+			[true, 'Up', 'note_up', 'Note Up'],
+			[true, 'Right', 'note_right', 'Note Right'],*/
+			[true, 'PAGE #1', 'Previous', 'Next'], // 0
+			[true],								// 1
+			[true, 'NOTES'],					// 2
+			// INSERT AFTER TWO!!!
+			[true],				
+			[true, 'UI'],
+			[true, 'Left', 'ui_left', 'UI Left'],
+			[true, 'Down', 'ui_down', 'UI Down'],
+			[true, 'Up', 'ui_up', 'UI Up'],
+			[true, 'Right', 'ui_right', 'UI Right'],
+			[true],
+			[true, 'Reset', 'reset', 'Reset'],
+			[true, 'Accept', 'accept', 'Accept'],
+			[true, 'Back', 'back', 'Back'],
+			[true, 'Pause', 'pause', 'Pause'],
+			[false],
+			[false, 'VOLUME'],
+			[false, 'Mute', 'volume_mute', 'Volume Mute'],
+			[false, 'Up', 'volume_up', 'Volume Up'],
+			[false, 'Down', 'volume_down', 'Volume Down'],
+			[false],
+			[false, 'DEBUG'],
+			[false, 'Key 1', 'debug_1', 'Debug Key #1'],
+			[false, 'Key 2', 'debug_2', 'Debug Key #2']
+		];
+		tempOptionArray[0][1] = 'PAGE #'+(curPage+1);
+
+		var keybindsToInsert:Array<Dynamic> = EK.controlMenu[curPage];
+		for (i in 0...keybindsToInsert.length) {
+			tempOptionArray.insert(3 + i, keybindsToInsert[i]);
+		}
+
+		options = tempOptionArray;
+
+		createTexts();
 	}
 
 	function updateText(?move:Int = 0)

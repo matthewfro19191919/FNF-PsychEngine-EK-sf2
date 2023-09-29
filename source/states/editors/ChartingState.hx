@@ -214,6 +214,11 @@ class ChartingState extends MusicBeatState
 			addSection();
 			PlayState.SONG = _song;
 		}
+		
+		if (_song.mania == null) {
+			_song.mania = EK.defaultMania;
+		}
+		PlayState.songMania = _song.mania;
 
 		// Paths.clearMemory();
 
@@ -292,7 +297,7 @@ class ChartingState extends MusicBeatState
 		add(quant);
 
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
-		for (i in 0...EK.strums(_song.mania)){
+		for (i in 0...EK.strums(_song.mania) + 1){
 			var note:StrumNote = new StrumNote(GRID_SIZE * (i+1), strumLine.y, i % EK.keys(_song.mania), 0);
 			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 			note.updateHitbox();
@@ -1521,6 +1526,7 @@ class ChartingState extends MusicBeatState
 
 				case 'song_mania':
 					_song.mania = Std.int(nums.value);
+					PlayState.songMania = _song.mania;
 					reloadGridLayer();
 
 				case 'song_bpm':
@@ -2296,7 +2302,7 @@ class ChartingState extends MusicBeatState
 		if (strumLineNotes != null)
 		{
 			strumLineNotes.clear();
-			for (i in 0...EK.strums(_song.mania)){
+			for (i in 0...EK.strums(_song.mania) + 1){
 				var note:StrumNote = new StrumNote(GRID_SIZE * (i+1), strumLine.y, i % EK.keys(_song.mania), 0);
 				note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 				note.updateHitbox();

@@ -40,6 +40,10 @@ class NotesSubState extends MusicBeatSubstate
 	var alphabetB:Alphabet;
 	var alphabetHex:Alphabet;
 
+	var arrowLeft:Alphabet;
+	var arrowRight:Alphabet;
+	var noteAnimArray:Array<String> = [];
+
 	var modeBG:FlxSprite;
 	var notesBG:FlxSprite;
 
@@ -50,6 +54,8 @@ class NotesSubState extends MusicBeatSubstate
 
 	public function new() {
 		super();
+
+		noteAnimArray = EK.data.get(17).get('notes');
 		
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFEA71FD;
@@ -159,6 +165,12 @@ class NotesSubState extends MusicBeatSubstate
 		controllerPointer.screenCenter();
 		controllerPointer.alpha = 0.6;
 		add(controllerPointer);
+
+		arrowLeft = new Alphabet(175, 217, '<', true);
+		add(arrowLeft);
+
+		arrowRight = new Alphabet(555, 217, '>', true);
+		add(arrowRight);
 		
 		FlxG.mouse.visible = !controls.controllerMode;
 		controllerPointer.visible = controls.controllerMode;
@@ -187,6 +199,43 @@ class NotesSubState extends MusicBeatSubstate
 		}
 
 		super.update(elapsed);
+
+		for (note in myNotes) {
+			var lerp = elapsed * 10;
+
+			if (note.ID == curSelectedNote) {
+				if (onPixel) {
+					note.scale.x = FlxMath.lerp(note.scale.x, 7, lerp);
+					note.scale.y = FlxMath.lerp(note.scale.y, 7, lerp);
+				} else {
+					note.scale.x = FlxMath.lerp(note.scale.x, 0.7, lerp);
+					note.scale.y = FlxMath.lerp(note.scale.y, 0.7, lerp);
+				}
+				note.x = FlxMath.lerp(note.x, 380 - (note.width / 2), lerp);
+				//note.scale.set(0.7, 0.7);
+				//note.x = 380 - (note.width / 2);
+			} else if (note.ID == (curSelectedNote-1) || note.ID == (curSelectedNote+1)){
+				if (onPixel) {
+					note.scale.x = FlxMath.lerp(note.scale.x, 4, lerp);
+					note.scale.y = FlxMath.lerp(note.scale.y, 4, lerp);
+				} else {
+					note.scale.x = FlxMath.lerp(note.scale.x, 0.5, lerp);
+					note.scale.y = FlxMath.lerp(note.scale.y, 0.5, lerp);
+				}
+				if (note.ID == (curSelectedNote-1))
+					note.x = FlxMath.lerp(note.x, 270 - (note.width / 2), lerp);
+					//note.x = 270 - (note.width / 2);
+				if (note.ID == (curSelectedNote+1))
+					note.x = FlxMath.lerp(note.x, 490 - (note.width / 2), lerp);
+					//note.x = 490 - (note.width / 2);
+			} else {
+				note.scale.x = FlxMath.lerp(note.scale.x, 0, lerp);
+				note.scale.y = FlxMath.lerp(note.scale.y, 0, lerp);
+			}
+		}
+
+		if (FlxG.mouse.overlaps(arrowLeft) && FlxG.mouse.justPressed) changeSelectionNote(-1);
+		if (FlxG.mouse.overlaps(arrowRight) && FlxG.mouse.justPressed) changeSelectionNote(1);
 
 		// Early controller checking
 		if(FlxG.gamepads.anyJustPressed(ANY)) controls.controllerMode = true;
@@ -627,7 +676,7 @@ class NotesSubState extends MusicBeatSubstate
 		for (i in 0...dataArray.length)
 		{
 			Note.initializeGlobalRGBShader(i);
-			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0);
+			var newNote:StrumNoteNoteMenu = new StrumNoteNoteMenu(150 + (480 / dataArray.length * i), 200, i, 0);
 			newNote.useRGBShader = true;
 			newNote.setGraphicSize(102);
 			newNote.updateHitbox();
@@ -641,9 +690,10 @@ class NotesSubState extends MusicBeatSubstate
 		bigNote.updateHitbox();
 		bigNote.rgbShader.parent = Note.globalRgbShaders[curSelectedNote];
 		bigNote.shader = Note.globalRgbShaders[curSelectedNote].shader;
-		for (i in 0...Note.colArray.length)
+		for (i in 0...noteAnimArray.length)
 		{
-			if(!onPixel) bigNote.animation.addByPrefix('note$i', Note.colArray[i] + '0', 24, true);
+			trace(noteAnimArray[i] + '0');
+			if(!onPixel) bigNote.animation.addByPrefix('note$i', noteAnimArray[i] + '0', 24, true);
 			else bigNote.animation.add('note$i', [i + 4], 24, true);
 		}
 		insert(members.indexOf(myNotes) + 1, bigNote);
@@ -661,7 +711,7 @@ class NotesSubState extends MusicBeatSubstate
 			var newAnim:String = curSelectedNote == note.ID ? 'confirm' : 'pressed';
 			note.alpha = (curSelectedNote == note.ID) ? 1 : 0.6;
 			if(note.animation.curAnim == null || note.animation.curAnim.name != newAnim) note.playAnim(newAnim, true);
-			if(instant) note.animation.curAnim.finish();
+			if(note.animation.curAnim != null && instant) note.animation.curAnim.finish();
 		}
 		bigNote.animation.play('note$curSelectedNote', true);
 		updateColors();
