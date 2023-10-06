@@ -1453,7 +1453,7 @@ class PlayState extends MusicBeatState
 		for (i in 0...EK.keys(mania))
 		{
 			var twnDuration:Float = 4 / mania;
-			var twnStart:Float = 0.5 + ((0.8 / mania) * i);
+			var twnDelay:Float = 0.5 + ((0.8 / mania) * i);
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
 			if (player < 1)
@@ -1470,7 +1470,7 @@ class PlayState extends MusicBeatState
 			{
 				//babyArrow.y -= 10;
 				babyArrow.alpha = 0;
-				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, twnDuration, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, twnDuration, {ease: FlxEase.circOut, startDelay: twnDelay});
 			}
 			else
 				babyArrow.alpha = targetAlpha;
@@ -1493,7 +1493,7 @@ class PlayState extends MusicBeatState
 			babyArrow.postAddedToGroup();
 
 			if (player == 1) { // TODO ADD THE CLIENTPREFS OPTION
-				for (j in 0...1) {
+				for (j in 0...2) {
 					var inputKey = backend.InputFormatter.getKeyName(ClientPrefs.keyBinds.get(keysArray[i])[j]);
 					var daKeyTxt:FlxText = new FlxText(babyArrow.x, babyArrow.y - 10, 0, inputKey, 32);
 					daKeyTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -1508,13 +1508,13 @@ class PlayState extends MusicBeatState
 					daKeyTxt.y = textY;
 
 					if (mania > 1 && !skipArrowStartTween) {
-						FlxTween.tween(daKeyTxt, {y: textY + 32, alpha: 1}, twnDuration, {ease: FlxEase.circOut, startDelay: twnStart});
+						FlxTween.tween(daKeyTxt, {y: textY + 32, alpha: 1}, twnDuration, {ease: FlxEase.circOut, startDelay: twnDelay});
 					} else {
 						daKeyTxt.y += 16;
 						daKeyTxt.alpha = 1;
 					}
 					new FlxTimer().start(Conductor.crochet * 0.001 * 12, function(_) {
-						FlxTween.tween(daKeyTxt, {y: daKeyTxt.y + 32, alpha: 0}, twnDuration, {ease: FlxEase.circIn, startDelay: twnStart, onComplete:
+						FlxTween.tween(daKeyTxt, {y: daKeyTxt.y + 32, alpha: 0}, twnDuration, {ease: FlxEase.circIn, startDelay: twnDelay, onComplete:
 						function(t) {
 							remove(daKeyTxt);
 						}});
@@ -1539,7 +1539,7 @@ class PlayState extends MusicBeatState
 		if (isPixelStage) {
 			if (note.isSustainNote) 
 				note.originalHeight = note.height;
-			note.setGraphicSize(Std.int(note.width * daPixelZoom * EK.pixelScales[mania]));
+			note.setGraphicSize(Std.int(note.width * daPixelZoom * EK.scales[mania]));
 		} else {
 			// ----------------- Like loadNoteAnims()
 			note.setGraphicSize(Std.int(note.width * EK.scales[mania]));
@@ -1576,7 +1576,7 @@ class PlayState extends MusicBeatState
 			}
 			
 			if (isPixelStage){
-				prevNote.scale.y *= daPixelZoom * (EK.pixelScales[mania]);
+				prevNote.scale.y *= daPixelZoom * (EK.scales[mania]);
 				prevNote.updateHitbox();
 			}
 		} else if (!note.isSustainNote && noteData > - 1 && noteData < tMania) {
@@ -3465,6 +3465,7 @@ class PlayState extends MusicBeatState
             modifiedArray.push("sing" + elem);
         }
 		singAnimations = modifiedArray;
+
 		keysArray = EK.fillKeybinds()[mania + 1];
 		//trace(keysArray);
 

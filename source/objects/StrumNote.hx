@@ -27,10 +27,10 @@ class StrumNote extends FlxSprite
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
 		
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[leData];
+		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[EK.data.get(PlayState.songMania).get('rgbIndex')[leData]];
+		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[EK.data.get(PlayState.songMania).get('rgbIndex')[leData]];
 		
-		if(leData <= arr.length)
+		if(/*leData <= arr.length*/ true)
 		{
 			@:bypassAccessor
 			{
@@ -124,7 +124,7 @@ class StrumNote extends FlxSprite
 
 	public function postAddedToGroup() {
 		playAnim('static');
-		x += Note.swagWidth * noteData;
+		x += (Note.swagWidth * EK.scales[PlayState.songMania]) * noteData;
 		x += 50;
 		x += ((FlxG.width / 2) * player);
 		ID = noteData;

@@ -21,26 +21,6 @@ class EK {
         0.26, //17k
         0.22 //18k
     ];
-	public static var pixelScales:Array<Float> = [
-        1.2, //1k
-        1.15, //2k
-        1.1, //3k
-        1, //4k
-        0.9, //5k
-        0.83, //6k
-        0.8, //7k
-        0.74, //8k
-        0.7, //9k
-        0.6, //10k
-        0.55,//11k
-        0.5, //12k
-        0.48, //13k
-        0.48, //14k
-        0.42, //15k
-        0.38, //16k
-        0.38, //17k
-        0.32 //18k
-    ];
 
 	public static var defaultMania:Int = 3;
 	public static var minMania:Int = 0;
@@ -54,7 +34,7 @@ class EK {
 
 	public static function fillKeybinds() {
 		var arrayToFill = [];
-		for (i in 0...maxMania + 1) {
+		for (i in 0...maxMania + 2) {
 			var keybindArray = [];
 			for (k in 0...i) {
 				var keyID = '${i}_key_${k}';
@@ -304,9 +284,9 @@ class EK {
 			"rgbIndex" => [0, 1, 2, 3]
 		],
 		4 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowROMBUS", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "green", "red"],
+			"notes" => ["purple", "blue", "rombus", "green", "red"],
 			"rgbIndex" => [0, 1, 4, 2, 3]
 		],
 		5 => [
@@ -316,69 +296,69 @@ class EK {
 			"rgbIndex" => [0, 2, 3, 5, 1, 8]
 		],
 		6 => [
-			"strums" => ["arrowLEFT", "arrowUP", "arrowRIGHT", "arrowUP", "arrowLEFT", "arrowDOWN", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowUP", "arrowRIGHT", "arrowROMBUS", "arrowLEFT", "arrowDOWN", "arrowRIGHT"],
 			"anims" => ["LEFT", "UP", "RIGHT", "UP", "LEFT", "DOWN", "RIGHT"],
-			"notes" => ["purple", "green", "red", "up", "purple", "blue", "red"],
+			"notes" => ["purple", "green", "red", "rombus", "purple", "blue", "red"],
 			"rgbIndex" => [0, 2, 3, 4, 5, 1, 8]
 		],
 		7 => [
 			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "up", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 5, 6, 7, 8]
 		],
 		8 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowUP", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowROMBUS", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "UP", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "up", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "rombus", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 4, 5, 6, 7, 8]
 		],
 		9 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowUP", "arrowUP", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowROMBUS", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "UP", "UP", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "up", "up", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "rombus", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 4, 13, 5, 6, 7, 8]
 		],
 		10 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowROMBUS", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "purple", "up", "red", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "circle", "rombus", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 9, 4, 12, 5, 6, 7, 8]
 		],
 		11 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "purple", "blue", "green", "red", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "circle", "circle", "circle", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 9, 10, 11, 12, 5, 6, 7, 8]
 		],
 		12 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "purple", "blue", "green", "green", "red", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "circle", "circle", "circle", "circle", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 9, 10, 13, 11, 12, 5, 6, 7, 8]
 		],
 		13 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowUP", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowCIRCLE", "arrowROMBUS", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "UP", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "purple", "blue", "green", "green", "green", "red", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "circle", "circle", "rombus", "circle", "circle", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 9, 10, 4, 13, 11, 12, 5, 6, 7, 8]
 		],
 		14 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowUP", "arrowUP", "arrowUP", "arrowRIGHT"],
-			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "UP", "UP", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "purple", "blue", "green", "green", "green", "green", "red"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowCIRCLE", "arrowROMBUS", "arrowCIRCLE", "arrowROMBUS", "arrowCIRCLE", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "UP", "UP", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
+			"notes" => ["purple", "blue", "green", "red", "circle", "circle", "rombus", "circle", "rombus", "circle", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 9, 10, 4, 13, 4, 11, 12, 5, 6, 7, 8]
 		],
 		15 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "CIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
 			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "purple", "blue", "green", "red", "circle", "circle", "circle", "circle", "circle", "purple", "blue", "green", "red"],
+			"notes" => ["purple", "blue", "green", "red", "circle", "circle", "circle", "circle", "circle", "circle", "circle", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 9, 10, 11, 12, 14, 15, 16, 17, 5, 6, 7, 8]
 		],
 		16 => [
-			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
-			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
-			"notes" => ["purple", "blue", "green", "red", "purple", "blue", "green", "green", "green", "purple", "blue", "green", "red", "purple", "blue", "green", "red"],
+			"strums" => ["arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowCIRCLE", "arrowLEFT", "arrowDOWN", "arrowUP", "arrowRIGHT"],
+			"anims" => ["LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT", "UP", "LEFT", "DOWN", "UP", "RIGHT", "LEFT", "DOWN", "UP", "RIGHT"],
+			"notes" => ["purple", "blue", "green", "red", "circle", "circle", "circle", "circle", "circle", "circle", "circle", "circle", "circle", "purple", "blue", "green", "red"],
 			"rgbIndex" => [0, 1, 2, 3, 9, 10, 11, 12, 13, 14, 15, 16, 17, 5, 6, 7, 8]
 		],
 		17 => [

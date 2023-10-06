@@ -73,7 +73,7 @@ class Note extends FlxSprite
 	public var lowPriority:Bool = false;
 
 	public static var SUSTAIN_SIZE:Int = 44;
-	public static var swagWidth:Float = 160 * 0.7;
+	public static var swagWidth:Float = 160 /** 0.7*/;
 	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
 
@@ -145,7 +145,7 @@ class Note extends FlxSprite
 		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]];
 		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]];
 
-		if (noteData > -1 && noteData <= arr.length)
+		if (noteData > -1)
 		{
 			rgbShader.r = arr[0];
 			rgbShader.g = arr[1];
@@ -295,7 +295,7 @@ class Note extends FlxSprite
 			globalRgbShaders[noteData] = newRGB;
 
 			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]] : ClientPrefs.data.arrowRGBPixel[EK.data.get(PlayState.songMania).get('rgbIndex')[noteData]];
-			if (noteData > -1 && noteData <= arr.length)
+			if (noteData > -1 /*&& noteData <= arr.length*/)
 			{
 				newRGB.r = arr[0];
 				newRGB.g = arr[1];
@@ -397,7 +397,7 @@ class Note extends FlxSprite
 		if (!isSustainNote)
 			setGraphicSize(Std.int(defaultWidth * EK.scales[PlayState.songMania]));
 		else
-			setGraphicSize(Std.int(defaultWidth * EK.scales[PlayState.songMania]), Std.int(defaultHeight * EK.scales[0]));
+			setGraphicSize(Std.int(defaultWidth * EK.scales[PlayState.songMania]), Std.int(defaultHeight));
 		updateHitbox();
 	}
 
