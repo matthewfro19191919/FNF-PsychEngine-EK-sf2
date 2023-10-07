@@ -1452,8 +1452,10 @@ class PlayState extends MusicBeatState
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
 		for (i in 0...EK.keys(mania))
 		{
-			var twnDuration:Float = 4 / mania;
-			var twnDelay:Float = 0.5 + ((0.8 / mania) * i);
+			var tempMania:Int = mania;
+			if (tempMania == 0) tempMania = 1;
+			var twnDuration:Float = 4 / tempMania;
+			var twnDelay:Float = 0.5 + ((0.8 / tempMania) * i);
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
 			if (player < 1)

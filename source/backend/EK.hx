@@ -22,6 +22,48 @@ class EK {
         0.22 //18k
     ];
 
+	public static var restPosition:Array<Float> = [
+        0, //1k
+        -5, //2k
+        0, //3k
+        0, //4k
+        16, //5k
+        23,//6k
+        25, //7k
+        25, //8k
+        24, //9k
+        17, //10k
+        16, //11k
+        12, //12k
+        15, //13k
+        18,// 14k
+        19, //15k
+        13, // 16k
+        14, //17k
+        10 //18k
+    ];
+
+	public static var offsetX:Array<Float> = [
+        150, //1k
+        89,//2k
+        45, //3k
+        0, //4k
+        0, //5k
+        0, //6k
+        0, //7k
+        0, //8k
+        0, //9k
+        0, //10k
+        0, //11k
+        0, //12k
+        0, //13k
+        0, //14k
+        0, //15k
+        0, //16k
+        0, //17k
+        0 //18k
+    ];
+
 	public static var defaultMania:Int = 3;
 	public static var minMania:Int = 0;
 	public static var maxMania:Int = 17;

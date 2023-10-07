@@ -125,6 +125,8 @@ class StrumNote extends FlxSprite
 	public function postAddedToGroup() {
 		playAnim('static');
 		x += (Note.swagWidth * EK.scales[PlayState.songMania]) * noteData;
+		x += EK.offsetX[PlayState.songMania];
+		x -= (EK.restPosition[PlayState.songMania]) * noteData;
 		x += 50;
 		x += ((FlxG.width / 2) * player);
 		ID = noteData;
