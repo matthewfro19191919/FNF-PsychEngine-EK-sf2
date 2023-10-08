@@ -8,10 +8,12 @@ import flixel.addons.ui.FlxUINumericStepper;
 
 class NoteSplashDebugState extends MusicBeatState
 {
+	public static var maniaUsed:Int = EK.defaultMania;
+
 	var config:NoteSplashConfig;
 	var forceFrame:Int = -1;
 	var curSelected:Int = 0;
-	var maxNotes:Int = 4;
+	var maxNotes:Int = NoteSplashDebugState.maniaUsed + 1;
 
 	var selection:FlxSprite;
 	var notes:FlxTypedGroup<StrumNote>;
@@ -29,6 +31,8 @@ class NoteSplashDebugState extends MusicBeatState
 
 	override function create()
 	{
+		Note.colArray = EK.data.get(NoteSplashDebugState.maniaUsed).get('notes');
+
 		FlxG.camera.bgColor = FlxColor.fromHSL(0, 0, 0.5);
 		selection = new FlxSprite(0, 270).makeGraphic(150, 150, FlxColor.BLACK);
 		selection.alpha = 0.4;
@@ -40,9 +44,10 @@ class NoteSplashDebugState extends MusicBeatState
 		splashes = new FlxTypedGroup<FlxSprite>();
 		add(splashes);
 
+		PlayState.songMania = NoteSplashDebugState.maniaUsed;
 		for (i in 0...maxNotes)
 		{
-			var x = i * 220 + 240;
+			var x = (((Note.swagWidth * EK.scales[PlayState.songMania]) + 8) * i) + 240;
 			var y = 290;
 			var note:StrumNote = new StrumNote(x, y, i, 0);
 			note.alpha = 0.75;
@@ -50,7 +55,8 @@ class NoteSplashDebugState extends MusicBeatState
 			notes.add(note);
 
 			var splash:FlxSprite = new FlxSprite(x, y);
-			splash.setPosition(splash.x - Note.swagWidth * 0.95, splash.y - Note.swagWidth);
+			var swagWidth:Float = (Note.swagWidth * EK.scales[PlayState.songMania]);
+			splash.setPosition(splash.x - swagWidth * 0.95, splash.y - swagWidth);
 			splash.shader = note.rgbShader.parent.shader;
 			splash.antialiasing = ClientPrefs.data.antialiasing;
 			splashes.add(splash);
@@ -148,6 +154,9 @@ class NoteSplashDebugState extends MusicBeatState
 		
 		if (FlxG.keys.justPressed.A) changeSelection(-1);
 		else if (FlxG.keys.justPressed.D) changeSelection(1);
+
+		if (FlxG.keys.justPressed.J) changeMania(-1);
+		else if (FlxG.keys.justPressed.K) changeMania(1);
 
 		if(maxAnims < 1) return;
 
@@ -344,6 +353,7 @@ class NoteSplashDebugState extends MusicBeatState
 					}
 					spr.animation.play(animName, true);
 				}
+				spr.setGraphicSize(Std.int(spr.width * (EK.scales[PlayState.songMania] + 0.3)));
 			});
 			if(loopContinue) maxAnims++;
 		}
@@ -393,8 +403,17 @@ class NoteSplashDebugState extends MusicBeatState
 		if(curSelected < 0) curSelected = max - 1;
 		else if(curSelected >= max) curSelected = 0;
 
-		selection.x = curSelected * 220 + 220;
+		selection.x = (((Note.swagWidth * EK.scales[PlayState.songMania]) + 8) * curSelected) + 240;
 		updateOffsetText();
+	}
+
+	function changeMania(change:Int = 0) {
+		if (NoteSplashDebugState.maniaUsed <= EK.maxMania && NoteSplashDebugState.maniaUsed >- 0) {
+			NoteSplashDebugState.maniaUsed += change;
+			MusicBeatState.resetState();
+		} else {
+			trace('no');
+		}
 	}
 
 	function selectedArray(sel:Int = -1)

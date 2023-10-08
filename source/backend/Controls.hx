@@ -87,7 +87,7 @@ class Controls
 	public var gamepadBinds:Map<String, Array<FlxGamepadInputID>>;
 	public function justPressed(key:String)
 	{
-		var result:Bool = (FlxG.keys.anyJustPressed(keyboardBinds[key]) == true);
+		var result:Bool = (FlxG.keys.anyJustPressed(excludeNONEFromKeyChecks(keyboardBinds[key])) == true);
 		if(result) controllerMode = false;
 
 		return result || _myGamepadJustPressed(gamepadBinds[key]) == true;
@@ -95,7 +95,7 @@ class Controls
 
 	public function pressed(key:String)
 	{
-		var result:Bool = (FlxG.keys.anyPressed(keyboardBinds[key]) == true);
+		var result:Bool = (FlxG.keys.anyPressed(excludeNONEFromKeyChecks(keyboardBinds[key])) == true);
 		if(result) controllerMode = false;
 
 		return result || _myGamepadPressed(gamepadBinds[key]) == true;
@@ -103,10 +103,18 @@ class Controls
 
 	public function justReleased(key:String)
 	{
-		var result:Bool = (FlxG.keys.anyJustReleased(keyboardBinds[key]) == true);
+		var result:Bool = (FlxG.keys.anyJustReleased(excludeNONEFromKeyChecks(keyboardBinds[key])) == true);
 		if(result) controllerMode = false;
 
 		return result || _myGamepadJustReleased(gamepadBinds[key]) == true;
+	}
+
+	private function excludeNONEFromKeyChecks(array:Array<FlxKey>):Array<FlxKey> {
+		var newArray:Array<FlxKey> = [];
+		for (key in array) {
+			if (key != NONE) newArray.push(key);
+		}
+		return newArray;
 	}
 
 	public var controllerMode:Bool = false;
