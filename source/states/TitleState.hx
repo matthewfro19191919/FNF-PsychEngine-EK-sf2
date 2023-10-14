@@ -72,6 +72,7 @@ class TitleState extends MusicBeatState
 	var titleJSON:TitleData;
 
 	public static var updateVersion:String = '';
+	public static var updateType:String = 'psych-engine';
 
 	override public function create():Void
 	{
@@ -97,9 +98,11 @@ class TitleState extends MusicBeatState
 
 		#if CHECK_FOR_UPDATES
 		if(ClientPrefs.data.checkForUpdates && !closedState) {
+			var bothNeedUpdate:Bool = false;
+			// incase psych engine and extra keys need updates.
+
 			trace('checking for update');
 			var http = new haxe.Http("https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt");
-
 			http.onData = function (data:String)
 			{
 				updateVersion = data.split('\n')[0].trim();
@@ -110,12 +113,31 @@ class TitleState extends MusicBeatState
 					mustUpdate = true;
 				}
 			}
-
 			http.onError = function (error) {
 				trace('error: $error');
 			}
-
 			http.request();
+
+			//  extra keys updates
+			trace('checking for ek update');
+			var extraKeysRequest = new haxe.Http("https://raw.githubusercontent.com/tposejank/FNF-PsychEngine/extra-keys-reimagined/ekVersion.txt");
+			extraKeysRequest.onData = function (data:String)
+			{
+				updateVersion = data.split('\n')[0].trim();
+				var curVersion:String = MainMenuState.extraKeysVersion.trim();
+				trace('ek version online: ' + updateVersion + ', your ek version: ' + curVersion);
+				if(updateVersion != curVersion) {
+					trace('ek versions arent matching!');
+					if (mustUpdate) bothNeedUpdate = true;
+					mustUpdate = true;
+					updateType = 'extra-keys';
+					if (bothNeedUpdate) updateType = 'both-softwares';
+				}
+			}
+			extraKeysRequest.onError = function (error) {
+				trace('error: $error');
+			}
+			extraKeysRequest.request();
 		}
 		#end
 

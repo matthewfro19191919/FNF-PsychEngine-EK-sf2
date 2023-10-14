@@ -88,6 +88,12 @@ class FPS extends TextField
 			memoryMegas = Math.abs(FlxMath.roundDecimal(System.totalMemory / 1000000, 1));
 			text += "\nMemory: " + memoryMegas + " MB";
 			#end
+			text += "\nEK v" + states.MainMenuState.extraKeysVersion;
+			#if CHECK_FOR_UPDATES
+			if (states.MainMenuState.extraKeysVersion != states.TitleState.updateVersion) {
+				text += " •";
+			}
+			#end
 
 			textColor = 0xFFFFFFFF;
 			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.data.framerate / 2)
