@@ -28,6 +28,9 @@ import lime.graphics.Image;
 	#define GAMEMODE_AUTO
 ')
 #end
+
+import backend.ExtraKeysHandler;
+
 class Main extends Sprite
 {
 	var game = {
@@ -125,6 +128,8 @@ class Main extends Sprite
 	
 		#if LUA_ALLOWED llua.Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 		Controls.instance = new Controls();
+
+		ExtraKeysHandler.instance = new ExtraKeysHandler();
 		ClientPrefs.loadDefaultKeys();
 
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end

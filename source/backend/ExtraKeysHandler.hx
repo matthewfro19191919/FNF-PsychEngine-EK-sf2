@@ -31,6 +31,7 @@ class ExtraKeysData {
     public var maxKeys:Int;
 
     // these are used to set your keybinds into your save data!
+    // also used when you click the Default Reset button
     public var keybinds:Array<Array<Array<Int>>>;
 }
 

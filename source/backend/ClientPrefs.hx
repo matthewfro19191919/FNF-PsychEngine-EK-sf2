@@ -182,6 +182,19 @@ class ClientPrefs {
 	public static function loadDefaultKeys()
 	{
 		defaultKeys = keyBinds.copy();
+		var saveDataKeybinds = ExtraKeysHandler.instance.data.keybinds;
+
+		// if resetting keybinds to default doesnt work, hmu
+		for (i in 0...saveDataKeybinds.length) {
+			var maniaKeybinds = saveDataKeybinds[i];
+			var maniaID = '${i}_key';
+			for (j in 0...maniaKeybinds.length) {
+				var keybindID = '${maniaID}_$j';
+				var codes = maniaKeybinds[j];
+				defaultKeys.set(keybindID, codes);
+			}
+		}
+
 		defaultButtons = gamepadBinds.copy();
 		defaultMobileBinds = mobileBinds.copy();
 	}
