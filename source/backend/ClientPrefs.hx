@@ -1,5 +1,6 @@
 package backend;
 
+import backend.ExtraKeysHandler.EKNoteColor;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
@@ -34,6 +35,8 @@ import states.TitleState;
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
 	public var noteOffset:Int = 0;
+
+	// Warning: These aren't used!! Modify data/extrakeys.json instead!
 	public var arrowRGB:Array<Array<FlxColor>> = [
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
 		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
@@ -185,7 +188,14 @@ class ClientPrefs {
 
 	public static function saveSettings() {
 		for (key in Reflect.fields(data))
-			Reflect.setField(FlxG.save.data, key, Reflect.field(data, key));
+			if (key != 'arrowRGB' && key != 'arrowRGBPixel') {
+				Reflect.setField(FlxG.save.data, key, Reflect.field(data, key));
+			} #if sys 
+			else if (key == 'arrowRGB')
+				saveArrowRGBData('arrowRGB.json', data.arrowRGB);
+			else if (key == 'arrowRGBPixel')
+				saveArrowRGBData('arrowRGBPixel.json', data.arrowRGBPixel);
+			#end
 
 		#if ACHIEVEMENTS_ALLOWED Achievements.save(); #end
 		FlxG.save.flush();
@@ -200,12 +210,70 @@ class ClientPrefs {
 		FlxG.log.add("Settings saved!");
 	}
 
+	#if sys
+	public static function saveArrowRGBData(path:String, rgbArray:Array<Array<FlxColor>>) {
+		var saveArrowRGB:ArrowRGBSavedData;
+		var colors:Array<EKNoteColor> = [];
+		for (color in rgbArray) {
+			var inner = color[0];
+			var border = color[1];
+			var outline = color[2];
+
+			var resultColor = new EKNoteColor();
+			resultColor.inner = inner.toHexString(false, false);
+			resultColor.border = border.toHexString(false, false);
+			resultColor.outline = outline.toHexString(false, false);
+
+			colors.push(resultColor);
+
+			trace('Saved color ${resultColor.inner} ${resultColor.border} ${resultColor.outline}');
+		}
+
+		saveArrowRGB = new ArrowRGBSavedData(colors);
+		var writer = new json2object.JsonWriter<ArrowRGBSavedData>();
+		var content = writer.write(saveArrowRGB, '    ');
+		File.saveContent(path, content);
+
+		trace('Wrote to $path');
+	}
+	#end
+
+	public static function loadArrowRGBData(path:String, pixel:Bool = false, defaultColors) {
+		var savedColors:CoolUtil.ArrowRGBSavedData = CoolUtil.getArrowRGB(path, defaultColors);
+		if (pixel)
+			ClientPrefs.data.arrowRGBPixel = [];
+		else
+			ClientPrefs.data.arrowRGB = [];
+
+		for (color in savedColors.colors) {
+			var thisNote = [
+				CoolUtil.colorFromString(color.inner), 
+				CoolUtil.colorFromString(color.border), 
+				CoolUtil.colorFromString(color.outline)
+			];
+
+			trace('Loaded color into save: $thisNote, pixel? $pixel');
+
+			if (pixel)
+				ClientPrefs.data.arrowRGBPixel.push(thisNote);
+			else
+				ClientPrefs.data.arrowRGB.push(thisNote);
+		}
+	}
+
 	public static function loadPrefs() {
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 
 		for (key in Reflect.fields(data))
-			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key))
+			if (key != 'gameplaySettings' && 
+				key != 'arrowRGB' &&
+				key != 'arrowRGBPixel' && Reflect.hasField(FlxG.save.data, key))
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
+			else if (key == 'arrowRGB') {
+				loadArrowRGBData('arrowRGB.json', false, ExtraKeysHandler.instance.data.colors);
+			} else if (key == 'arrowRGBPixel') {
+				loadArrowRGBData('arrowRGBPixel.json', true, ExtraKeysHandler.instance.data.pixelNoteColors);
+			}
 		
 		if(Main.fpsVar != null)
 			Main.fpsVar.visible = data.showFPS;
