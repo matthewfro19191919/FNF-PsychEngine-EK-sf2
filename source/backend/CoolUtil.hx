@@ -196,7 +196,7 @@ class CoolUtil
 		#if sys
 		if(FileSystem.exists(path)) {
 			content = File.getContent(path);
-			trace('Keybind file $path $content');
+			//trace('Keybind file $path $content');
 		} 
 		else {
 			var defaultKeybindSave:EKKeybindSavedData = new EKKeybindSavedData(defaultKeybinds);
