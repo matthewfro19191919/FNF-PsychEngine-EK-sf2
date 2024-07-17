@@ -1,3 +1,6 @@
+# warning
+This branch is made specifically for the latest version of PE at the time (0.7.3)! The reason I'm not doing this in main is because when all the commits from experimental get merged into main its going to cause a lot of trouble as experimental will house EK PE 1.0 which will then be merged into main when it is released.
+
 # Friday Night Funkin' - Psych Engine
 Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
 
