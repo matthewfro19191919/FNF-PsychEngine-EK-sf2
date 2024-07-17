@@ -1,5 +1,6 @@
 package backend;
 
+import backend.ExtraKeysHandler.EKNoteColor;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
 
@@ -156,5 +157,45 @@ class CoolUtil
 			default:
 				text.borderStyle = NONE;
 		}
+	}
+
+	public static function getArrowRGB(path:String = 'arrowRGB.json', defaultArrowRGB:Array<EKNoteColor>):ArrowRGBSavedData {
+		var result:ArrowRGBSavedData;
+		var content:String = '';
+		#if sys
+		if(FileSystem.exists(path)) content = File.getContent(path);
+		else {
+			// create a default ArrowRGBSavedData
+			var colorsToUse = [];
+			for (color in defaultArrowRGB) {
+				colorsToUse.push(color);
+			}
+
+			var defaultSaveARGB:ArrowRGBSavedData = new ArrowRGBSavedData(colorsToUse);
+
+			// write it
+			var writer = new json2object.JsonWriter<ArrowRGBSavedData>();
+			content = writer.write(defaultSaveARGB, '    ');
+			File.saveContent(path, content);
+
+			trace(path + ' (Color save) didn\'t exist. Written.');
+		}
+		#else
+		if(Assets.exists(path)) content = Assets.getText(path);
+		#end
+
+		var parser = new json2object.JsonParser<ArrowRGBSavedData>();
+		parser.fromJson(content);
+		result = parser.value;
+
+		return result;
+	}
+}
+
+class ArrowRGBSavedData {
+	public var colors:Array<EKNoteColor>;
+
+	public function new(colors){
+		this.colors = colors;
 	}
 }
