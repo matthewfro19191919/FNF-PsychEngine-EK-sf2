@@ -190,6 +190,33 @@ class CoolUtil
 
 		return result;
 	}
+
+	public static function getKeybinds(path:String = 'ekkeybinds.json', defaultKeybinds:Array<Array<Array<Int>>>):EKKeybindSavedData {
+		var result:EKKeybindSavedData;
+		var content:String = '';
+		#if sys
+		if(FileSystem.exists(path)) {
+			content = File.getContent(path);
+			trace('Keybind file $path $content');
+		} 
+		else {
+			var defaultKeybindSave:EKKeybindSavedData = new EKKeybindSavedData(defaultKeybinds);
+			// write it
+			var writer = new json2object.JsonWriter<EKKeybindSavedData>();
+			content = writer.write(defaultKeybindSave, '  ');
+			File.saveContent(path, content);
+			trace(path + ' (Keybind save) didn\'t exist. Written.');
+		}
+		#else
+		if(Assets.exists(path)) content = Assets.getText(path);
+		#end
+
+		var parser = new json2object.JsonParser<EKKeybindSavedData>();
+		parser.fromJson(content);
+		result = parser.value;
+
+		return result;
+	}
 }
 
 class ArrowRGBSavedData {
@@ -197,5 +224,13 @@ class ArrowRGBSavedData {
 
 	public function new(colors){
 		this.colors = colors;
+	}
+}
+
+class EKKeybindSavedData {
+	public var keybinds:Array<Array<Array<Int>>>;
+
+	public function new(keybinds){
+		this.keybinds = keybinds;
 	}
 }

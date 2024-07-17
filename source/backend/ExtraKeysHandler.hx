@@ -1,5 +1,7 @@
 package backend;
 
+import flixel.input.keyboard.FlxKey;
+
 class ExtraKeysHandler {
     public static var instance:ExtraKeysHandler;
 
@@ -27,6 +29,9 @@ class ExtraKeysData {
 
     public var animations:Array<EKAnimation>;
     public var maxKeys:Int;
+
+    // these are used to set your keybinds into your save data!
+    public var keybinds:Array<Array<Array<Int>>>;
 }
 
 class EKManiaMode {
