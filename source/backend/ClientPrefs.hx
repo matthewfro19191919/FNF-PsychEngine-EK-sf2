@@ -204,6 +204,39 @@ class ClientPrefs {
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v3', CoolUtil.getSavePath());
 		save.data.keyboard = keyBinds;
+
+		// this was NOT that easy
+		var saveDataKeybinds:Array<Array<Array<Int>>> = [
+			[], [], [], [], [], [], [], [], []
+		];
+
+		// if you encounter issues with this system please.
+		// at me @tposejank in Psych Ward!! Dont break the rules tho
+		for (k in keyBinds.keys()) {
+			if (k.contains('key')) {
+				//trace('EK Keybind detected: $k');
+				var storeNum = Std.parseInt(k.split('_')[0]);
+				
+				var convertKeycodes = keyBinds.get(k);
+				var newKeycodes:Array<Int> = [];
+				for (key in convertKeycodes) { newKeycodes.push(key); }
+				
+				var index = Std.parseInt(k.split('_')[2]);
+
+				saveDataKeybinds[storeNum].insert(index, newKeycodes);
+
+				//trace('$k saved to $storeNum with codes ${keyBinds.get(k)} and index $index');
+			}
+		}
+
+		var saveKeybindData:EKKeybindSavedData = new EKKeybindSavedData(saveDataKeybinds);
+		var writer = new json2object.JsonWriter<EKKeybindSavedData>();
+		var content = writer.write(saveKeybindData, '  ');
+		#if sys
+		trace('Saved ekkeybinds.json');
+		File.saveContent('ekkeybinds.json', content);
+		#end
+
 		save.data.gamepad = gamepadBinds;
 		save.data.mobile = mobileBinds;
 		save.flush();
@@ -326,6 +359,23 @@ class ClientPrefs {
 				for (control => keys in loadedControls)
 					if(keyBinds.exists(control)) keyBinds.set(control, keys);
 			}
+
+			var savedKeybindJson = CoolUtil.getKeybinds('ekkeybinds.json', ExtraKeysHandler.instance.data.keybinds);
+			//trace(savedKeybindJson.keybinds);
+			var saveDataKeybinds = savedKeybindJson.keybinds;
+
+			for (i in 0...saveDataKeybinds.length) {
+				var maniaKeybinds = saveDataKeybinds[i];
+				var maniaID = '${i}_key';
+				for (j in 0...maniaKeybinds.length) {
+					var keybindID = '${maniaID}_$j';
+					var codes = maniaKeybinds[j];
+					//trace('Set $keybindID to $codes');
+
+					keyBinds.set(keybindID, codes);
+				}
+			}
+
 			if(save.data.gamepad != null)
 			{
 				var loadedControls:Map<String, Array<FlxGamepadInputID>> = save.data.gamepad;
