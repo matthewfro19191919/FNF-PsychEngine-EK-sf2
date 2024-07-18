@@ -192,16 +192,10 @@ class StrumBoundaries {
 	public static var maxBoundaryOpponent:FlxPoint = new FlxPoint(630, 160);
 
 	public static function getMiddlePoint():FlxPoint {
-		return new FlxPoint(
-			Std.int(getBoundaryWidth().x/2),
-			Std.int(getBoundaryWidth().y/2),
-		);
+		return new FlxPoint(Std.int(getBoundaryWidth().x/2),Std.int(getBoundaryWidth().y/2));
 	}
 
 	public static function getBoundaryWidth():FlxPoint {
-		return new FlxPoint(
-			Std.int((maxBoundaryOpponent.x - minBoundaryOpponent.x)),
-			Std.int((maxBoundaryOpponent.y - minBoundaryOpponent.y)),
-		);
+		return new FlxPoint(Std.int((maxBoundaryOpponent.x - minBoundaryOpponent.x)),Std.int((maxBoundaryOpponent.y - minBoundaryOpponent.y)));
 	}
 }
