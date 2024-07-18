@@ -29,10 +29,14 @@ class ExtraKeysData {
 
     public var animations:Array<EKAnimation>;
     public var maxKeys:Int;
+    public var minKeys:Int;
 
     // these are used to set your keybinds into your save data!
     // also used when you click the Default Reset button
     public var keybinds:Array<Array<Array<Int>>>;
+
+    // I said i wouldnt, but here it is! Anyway...
+    public var scales:Array<Float>;
 }
 
 class EKManiaMode {
