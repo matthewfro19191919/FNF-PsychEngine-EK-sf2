@@ -1319,7 +1319,6 @@ class PlayState extends MusicBeatState
 			{
 				var daStrumTime:Float = songNotes[0];
 				var daNoteData:Int = Std.int(songNotes[1] % (SONG.mania + 1));
-				//trace(daNoteData);
 				var gottaHitNote:Bool = section.mustHitSection;
 
 				if (songNotes[1] > SONG.mania)
