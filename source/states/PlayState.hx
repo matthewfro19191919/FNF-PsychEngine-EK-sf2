@@ -1,5 +1,6 @@
 package states;
 
+import objects.StrumNote.StrumBoundaries;
 import backend.Highscore;
 import backend.StageData;
 import backend.WeekData;
@@ -1583,7 +1584,7 @@ class PlayState extends MusicBeatState
 	{
 		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
-		for (i in 0...4)
+		for (i in 0...PlayState.SONG.mania + 4)
 		{
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
@@ -1620,6 +1621,26 @@ class PlayState extends MusicBeatState
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
+		}
+		adaptStrumline(opponentStrums);
+		adaptStrumline(playerStrums);
+	}
+
+	public function adaptStrumline(strumline:FlxTypedGroup<StrumNote>) {
+		var strumLineWidth:Float = 0;
+		var strumLineIsBig:Bool = false;
+
+		for (note in strumline.members) strumLineWidth += note.width;
+		strumLineIsBig = strumLineWidth > StrumBoundaries.getBoundaryWidth().x;
+
+		while (strumLineIsBig) {
+			strumLineWidth = 0;
+			for (note in strumline.members) {
+				note.retryBound();
+				strumLineWidth += note.width;
+			}
+			trace('Strumline is too big! Shrinking and retrying.');
+			strumLineIsBig = strumLineWidth > StrumBoundaries.getBoundaryWidth().x;
 		}
 	}
 
