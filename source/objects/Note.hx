@@ -1,5 +1,6 @@
 package objects;
 
+import backend.ExtraKeysHandler;
 import backend.animation.PsychAnimationController;
 import backend.NoteTypesConfig;
 
@@ -152,10 +153,10 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
+		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[getIndex(PlayState.SONG.mania, noteData)];
+		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[getIndex(PlayState.SONG.mania, noteData)];
 
-		if (noteData > -1 && noteData <= arr.length)
+		if (noteData > -1 /*&& noteData <= arr.length*/)
 		{
 			rgbShader.r = arr[0];
 			rgbShader.g = arr[1];
@@ -206,6 +207,14 @@ class Note extends FlxSprite
 		return value;
 	}
 
+	public function getIndex(mania:Int, note:Int) {
+		return ExtraKeysHandler.instance.data.keys[mania].notes[note];
+	}
+
+	public function getAnimSet(index:Int) {
+		return ExtraKeysHandler.instance.data.animations[index];
+	}
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null)
 	{
 		super();
@@ -237,9 +246,9 @@ class Note extends FlxSprite
 			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
 
 			x += swagWidth * (noteData);
-			if(!isSustainNote && noteData < colArray.length) { //Doing this 'if' check to fix the warnings on Senpai songs
+			if(!isSustainNote/* && noteData < colArray.length*/) { //Doing this 'if' check to fix the warnings on Senpai songs
 				var animToPlay:String = '';
-				animToPlay = colArray[noteData % colArray.length];
+				animToPlay = getAnimSet(getIndex(PlayState.SONG.mania, noteData)).note;
 				animation.play(animToPlay + 'Scroll');
 			}
 		}
@@ -259,7 +268,8 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
-			animation.play(colArray[noteData % colArray.length] + 'holdend');
+			var animToPlay = getAnimSet(getIndex(PlayState.SONG.mania, noteData)).note;
+			animation.play(animToPlay + 'holdend');
 
 			updateHitbox();
 
@@ -270,7 +280,7 @@ class Note extends FlxSprite
 
 			if (prevNote.isSustainNote)
 			{
-				prevNote.animation.play(colArray[prevNote.noteData % colArray.length] + 'hold');
+				prevNote.animation.play(animToPlay + 'hold');
 
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
 				if(createdFrom != null && createdFrom.songSpeed != null) prevNote.scale.y *= createdFrom.songSpeed;
@@ -305,8 +315,8 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
-			if (noteData > -1 && noteData <= arr.length)
+			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[ExtraKeysHandler.instance.data.keys[PlayState.SONG.mania].notes[noteData]] : ClientPrefs.data.arrowRGBPixel[ExtraKeysHandler.instance.data.keys[PlayState.SONG.mania].notes[noteData]];
+			if (noteData > -1 /*&& noteData <= arr.length*/)
 			{
 				newRGB.r = arr[0];
 				newRGB.g = arr[1];
@@ -394,15 +404,17 @@ class Note extends FlxSprite
 	}
 
 	function loadNoteAnims() {
+		var noteAnim = getAnimSet(getIndex(PlayState.SONG.mania, noteData)).note;
+
 		if (isSustainNote)
 		{
 			attemptToAddAnimationByPrefix('purpleholdend', 'pruple end hold', 24, true); // this fixes some retarded typo from the original note .FLA
-			animation.addByPrefix(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end', 24, true);
-			animation.addByPrefix(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece', 24, true);
+			animation.addByPrefix(noteAnim + 'holdend', noteAnim + ' hold end', 24, true);
+			animation.addByPrefix(noteAnim + 'hold', noteAnim + ' hold piece', 24, true);
 		}
-		else animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
+		else animation.addByPrefix(noteAnim + 'Scroll', noteAnim + '0');
 
-		setGraphicSize(Std.int(width * 0.7));
+		setGraphicSize(Std.int(width * ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania]));
 		updateHitbox();
 	}
 
