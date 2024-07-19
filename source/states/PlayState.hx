@@ -3023,7 +3023,8 @@ class PlayState extends MusicBeatState
 		vocals.volume = 0;
 	}
 
-	function singAnimation(noteData:Int):String {
+	// OVERRIDE THIS IN HXSCRIPT OR SMTH
+	public dynamic function singAnimation(noteData:Int):String {
 		return 'sing' + ExtraKeysHandler.instance.data.animations[ExtraKeysHandler.instance.data.keys[SONG.mania].notes[noteData]].sing;
 	}
 
