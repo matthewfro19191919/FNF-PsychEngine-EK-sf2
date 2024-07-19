@@ -1,5 +1,6 @@
 package states;
 
+import objects.StrumNote.KeybindShowcase;
 import backend.ExtraKeysHandler;
 import objects.StrumNote.StrumBoundaries;
 import backend.Highscore;
@@ -1509,22 +1510,27 @@ class PlayState extends MusicBeatState
 			if (player == 1)
 				playerStrums.add(babyArrow);
 			else
-			{
-				if(ClientPrefs.data.middleScroll)
-				{
-					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
-						babyArrow.x += FlxG.width / 2 + 25;
-					}
-				}
 				opponentStrums.add(babyArrow);
-			}
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.postAddedToGroup();
 		}
 		adaptStrumline(opponentStrums);
 		adaptStrumline(playerStrums);
+
+		for (i in 0...playerStrums.members.length) {
+			var keyShowcase = new KeybindShowcase(
+				playerStrums.members[i].x, 
+				ClientPrefs.data.downScroll ? playerStrums.members[i].y - 30 : playerStrums.members[i].y + playerStrums.members[i].height + 5, 
+				ClientPrefs.keyBinds.get(keysArray[i]), 
+				camHUD, 
+				playerStrums.members[i].width / 2, 
+				SONG.mania);
+			keyShowcase.onComplete = function() {
+				remove(keyShowcase);
+			}
+			add(keyShowcase);
+		}
 	}
 
 	public function adaptStrumline(strumline:FlxTypedGroup<StrumNote>) {
@@ -2891,6 +2897,10 @@ class PlayState extends MusicBeatState
 	}
 
 	// OVERRIDE THIS IN HXSCRIPT OR SMTH
+	// you can use it to handle extra animations like this
+	// PlayState.instance.singAnimation = function (data:Int) {
+	// 	return 'sing' + ['LEFT', 'DOWN', 'UP', 'RIGHT', 'FRONT', 'LEFT2', 'DOWN2', 'UP2', 'RIGHT2'][data];
+	// }
 	public dynamic function singAnimation(noteData:Int):String {
 		return 'sing' + ExtraKeysHandler.instance.data.animations[ExtraKeysHandler.instance.data.keys[SONG.mania].notes[noteData]].sing;
 	}

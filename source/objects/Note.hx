@@ -153,8 +153,11 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[getIndex(PlayState.SONG.mania, noteData)];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[getIndex(PlayState.SONG.mania, noteData)];
+		var mania = 3;
+		if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+
+		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[getIndex(mania, noteData)];
+		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[getIndex(mania, noteData)];
 
 		if (noteData > -1 /*&& noteData <= arr.length*/)
 		{
@@ -248,7 +251,9 @@ class Note extends FlxSprite
 			x += swagWidth * (noteData);
 			if(!isSustainNote/* && noteData < colArray.length*/) { //Doing this 'if' check to fix the warnings on Senpai songs
 				var animToPlay:String = '';
-				animToPlay = getAnimSet(getIndex(PlayState.SONG.mania, noteData)).note;
+				var mania = 3;
+				if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+				animToPlay = getAnimSet(getIndex(mania, noteData)).note;
 				animation.play(animToPlay + 'Scroll');
 			}
 		}
@@ -268,7 +273,9 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
-			var animToPlay = getAnimSet(getIndex(PlayState.SONG.mania, noteData)).note;
+			var mania = 3;
+			if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+			var animToPlay = getAnimSet(getIndex(mania, noteData)).note;
 			animation.play(animToPlay + 'holdend');
 
 			updateHitbox();
@@ -315,7 +322,10 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			globalRgbShaders[noteData] = newRGB;
 
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[ExtraKeysHandler.instance.data.keys[PlayState.SONG.mania].notes[noteData]] : ClientPrefs.data.arrowRGBPixel[ExtraKeysHandler.instance.data.keys[PlayState.SONG.mania].notes[noteData]];
+			var mania = 3;
+			if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+
+			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[ExtraKeysHandler.instance.data.keys[mania].notes[noteData]] : ClientPrefs.data.arrowRGBPixel[ExtraKeysHandler.instance.data.keys[mania].notes[noteData]];
 			if (noteData > -1 /*&& noteData <= arr.length*/)
 			{
 				newRGB.r = arr[0];

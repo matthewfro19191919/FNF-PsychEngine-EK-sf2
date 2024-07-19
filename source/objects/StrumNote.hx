@@ -1,5 +1,7 @@
 package objects;
 
+import backend.InputFormatter;
+import flixel.FlxBasic;
 import backend.ExtraKeysHandler;
 import backend.animation.PsychAnimationController;
 
@@ -34,8 +36,11 @@ class StrumNote extends FlxSprite
 		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
+
+		var mania = 3;
+		if (PlayState.SONG != null) mania = PlayState.SONG.mania;
 		
-		var arrowRGBIndex = getIndex(PlayState.SONG.mania, leData);
+		var arrowRGBIndex = getIndex(mania, leData);
 
 		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[arrowRGBIndex];
 
@@ -117,9 +122,12 @@ class StrumNote extends FlxSprite
 			antialiasing = ClientPrefs.data.antialiasing;
 			setGraphicSize(Std.int(width * trackedScale));
 
-			animation.addByPrefix('static', 'arrow${getAnimSet(getIndex(PlayState.SONG.mania, noteData)).strum}');
-			animation.addByPrefix('pressed', '${getAnimSet(getIndex(PlayState.SONG.mania, noteData)).anim} press', 24, false);
-			animation.addByPrefix('confirm', '${getAnimSet(getIndex(PlayState.SONG.mania, noteData)).anim} confirm', 24, false);
+			var mania = 3;
+			if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+
+			animation.addByPrefix('static', 'arrow${getAnimSet(getIndex(mania, noteData)).strum}');
+			animation.addByPrefix('pressed', '${getAnimSet(getIndex(mania, noteData)).anim} press', 24, false);
+			animation.addByPrefix('confirm', '${getAnimSet(getIndex(mania, noteData)).anim} confirm', 24, false);
 		}
 		updateHitbox();
 
@@ -153,8 +161,16 @@ class StrumNote extends FlxSprite
 	}
 
 	public function centerStrum(padding) {
-		x = player == 0 ? 320 : 960;
-		x += ((Note.swagWidthUnscaled * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);
+		if (!ClientPrefs.data.middleScroll) {
+			x = player == 0 ? 320 : 960;
+			x += ((Note.swagWidthUnscaled * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);
+		} else {
+			x = player == 0 ? 320 : 640;
+			if (player == 0) {
+				if (noteData > Math.floor((PlayState.SONG.mania / 2))) x = 960;
+			}
+			x += ((Note.swagWidthUnscaled * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);
+		}
 	}
 
 	override function update(elapsed:Float) {
@@ -197,5 +213,62 @@ class StrumBoundaries {
 
 	public static function getBoundaryWidth():FlxPoint {
 		return new FlxPoint(Std.int((maxBoundaryOpponent.x - minBoundaryOpponent.x)),Std.int((maxBoundaryOpponent.y - minBoundaryOpponent.y)));
+	}
+}
+
+class KeybindShowcase extends FlxTypedGroup<FlxBasic> {
+	public var background:FlxSprite;
+	public var keyText:FlxText;
+	public var keyCodes:Array<Int>;
+	public dynamic function onComplete():Void {}
+
+	public function new(x:Float,y:Float,keyCodes:Array<Int>, camera:FlxCamera, strumHalved:Float, mania:Int) {
+		super();
+
+		this.keyCodes = keyCodes;
+
+		var xOffset = x + strumHalved;
+		
+		var size = 20 - (mania - 3);
+
+		keyText = new FlxText(xOffset + 4,y + 4, InputFormatter.getKeyName(keyCodes[0]));
+		keyText.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		keyText.x -= keyText.width / 2;
+		xOffset = keyText.x;
+
+		background = new FlxSprite(xOffset-4,y);
+		background.makeGraphic(Std.int(keyText.width + 8), Std.int(keyText.height + 8), 0xFF000000);
+		background.alpha = 0.5;
+
+		add(background);
+		add(keyText);
+
+		background.cameras = [camera];
+		keyText.cameras = [camera];
+
+		new FlxTimer().start(2, function(tmr:FlxTimer) {
+			FlxTween.tween(keyText, {alpha: 0}, 0.5, {ease: FlxEase.linear, onComplete: function(t) {
+				if (keyCodes.length > 1) {
+					keyText.text = InputFormatter.getKeyName(keyCodes[1]);
+				} else {
+					var size = 14 - (mania - 3);
+					keyText.size = size;
+					keyText.text = 'Unbound';
+				}
+
+				FlxTween.tween(keyText, {alpha: 1}, 0.5);
+	
+				keyText.x = x + strumHalved + 4;
+				keyText.x -= keyText.width / 2;
+				xOffset = keyText.x;
+				background.x = xOffset - 4;
+				background.makeGraphic(Std.int(keyText.width + 8), Std.int(keyText.height + 8), 0xFF000000);
+				new FlxTimer().start(2.5, function(tmr:FlxTimer) {
+					FlxTween.tween(keyText, {alpha: 0}, 0.5, {ease: FlxEase.linear, onComplete: function(t) {
+						onComplete();
+					}});
+				});
+			}});
+		});
 	}
 }
