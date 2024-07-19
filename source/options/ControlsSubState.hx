@@ -14,7 +14,7 @@ import flixel.input.gamepad.FlxGamepadManager;
 class ControlsSubState extends MusicBeatSubstate
 {
 	var curSelected:Int = 0;
-	var curEKPage:Int = 0;
+	var curEKPage:Int = 3;
 	var curAlt:Bool = false;
 
 	static var defaultKey:String = 'Reset to Default Keys';
