@@ -414,7 +414,9 @@ class Note extends FlxSprite
 	}
 
 	function loadNoteAnims() {
-		var noteAnim = getAnimSet(getIndex(PlayState.SONG.mania, noteData)).note;
+		var mania = 3;
+		if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+		var noteAnim = getAnimSet(getIndex(mania, noteData)).note;
 
 		if (isSustainNote)
 		{
@@ -424,7 +426,7 @@ class Note extends FlxSprite
 		}
 		else animation.addByPrefix(noteAnim + 'Scroll', noteAnim + '0');
 
-		setGraphicSize(Std.int(width * ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania]));
+		setGraphicSize(Std.int(width * ExtraKeysHandler.instance.data.scales[mania]));
 		updateHitbox();
 	}
 
