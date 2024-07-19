@@ -284,8 +284,26 @@ class ClientPrefs {
 	}
 	#end
 
-	public static function loadArrowRGBData(path:String, pixel:Bool = false, defaultColors) {
+	public static function loadArrowRGBData(path:String, pixel:Bool = false, defaultColors:Array<EKNoteColor>) {
 		var savedColors:CoolUtil.ArrowRGBSavedData = CoolUtil.getArrowRGB(path, defaultColors);
+
+		if (pixel)
+			ClientPrefs.defaultData.arrowRGBPixel = [];
+		else
+			ClientPrefs.defaultData.arrowRGB = [];
+
+		for (defaultColor in defaultColors) {
+			var thisNote = [
+				CoolUtil.colorFromString(defaultColor.inner), 
+				CoolUtil.colorFromString(defaultColor.border), 
+				CoolUtil.colorFromString(defaultColor.outline)
+			];
+			if (pixel)
+				ClientPrefs.defaultData.arrowRGBPixel.push(thisNote);
+			else
+				ClientPrefs.defaultData.arrowRGB.push(thisNote);
+		}
+
 		if (pixel)
 			ClientPrefs.data.arrowRGBPixel = [];
 		else
