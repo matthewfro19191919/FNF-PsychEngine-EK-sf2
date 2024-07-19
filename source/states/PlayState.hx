@@ -631,6 +631,8 @@ class PlayState extends MusicBeatState
 
 		resetRPC();
 
+		setOnScripts('mania', SONG.mania);
+
 		callOnScripts('onCreatePost');
 
 		cacheCountdown();

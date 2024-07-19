@@ -563,13 +563,9 @@ class TitleState extends MusicBeatState
 				case 5:
 					deleteCoolText();
 				case 6:
-					#if PSYCH_WATERMARKS
-					createCoolText(['Not associated', 'with'], -40);
-					#else
-					createCoolText(['In association', 'with'], -40);
-					#end
+					createCoolText(['Extra Keys', 'by'], -40);
 				case 8:
-					addMoreText('newgrounds', -40);
+					addMoreText('tposejank', -40);
 					ngSpr.visible = true;
 				case 9:
 					deleteCoolText();

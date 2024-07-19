@@ -39,6 +39,10 @@ class CreditsState extends MusicBeatState
 		#end
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
+			['Extra Keys Team'],
+			['tposejank', 			'tposejank',		'EK Programmer',			 								'https://twitter.com/tposejank', 		'B9AF27'],	//mensajes subliminales
+			['srPerez', 			'perez', 			'1-9 keys art', 											'https://twitter.com/NewSrPerez', 		'FF9E00'],
+			[''],
 			['Psych Engine Team'],
 			['Shadow Mario',		'shadowmario',		'Main Programmer and Head of Psych Engine',					 'https://ko-fi.com/shadowmario',		'444444'],
 			['Riveren',				'riveren',			'Main Artist/Animator of Psych Engine',						 'https://twitter.com/riverennn',		'14967B'],
