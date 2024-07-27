@@ -37,6 +37,9 @@ class ExtraKeysData {
 
     // I said i wouldnt, but here it is! Anyway...
     public var scales:Array<Float>;
+
+    // I also said this wouldnt be here
+    public var pixelScales:Array<Float>;
 }
 
 class EKManiaMode {

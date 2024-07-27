@@ -82,9 +82,11 @@ class StrumNote extends FlxSprite
 			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 
 			initialWidth = width;
+			trace(initialWidth);
+
+			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 
 			animation.add('green', [6]);
 			animation.add('red', [7]);
@@ -139,16 +141,19 @@ class StrumNote extends FlxSprite
 
 	public function retryBound() {
 		trackedScale = trackedScale * 0.85;
-		setGraphicSize(Std.int(initialWidth * trackedScale));
+		setGraphicSize(Std.int(initialWidth * (trackedScale * (PlayState.isPixelStage ? (PlayState.daPixelZoom * (1/ExtraKeysHandler.instance.data.pixelScales[PlayState.SONG.mania])) : 1))));
+		trace(trackedScale);
 		updateHitbox();
 		postAddedToGroup();
 	}
 
 	public function postAddedToGroup() {
 		playAnim('static');
-		var padding:Int = 0;
-		if (PlayState.SONG.mania > 4) {
-			padding = 4 * (PlayState.SONG.mania - 4);
+		var padding:Float = 0;
+		var minPaddingStartThresh:Int = 4;
+		if (PlayState.isPixelStage) minPaddingStartThresh = 6;
+		if (PlayState.SONG.mania > minPaddingStartThresh) {
+			padding = (PlayState.isPixelStage ? 0.5 : 4) * (PlayState.SONG.mania - minPaddingStartThresh);
 		}
 
 		// x = StrumBoundaries.getMiddlePoint().x;
@@ -160,7 +165,7 @@ class StrumNote extends FlxSprite
 		centerStrum(padding);
 	}
 
-	public function centerStrum(padding) {
+	public function centerStrum(padding:Float) {
 		if (!ClientPrefs.data.middleScroll) {
 			x = player == 0 ? 320 : 960;
 			x += ((Note.swagWidthUnscaled * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);

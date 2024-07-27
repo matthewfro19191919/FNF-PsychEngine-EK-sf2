@@ -208,8 +208,12 @@ class NotesSubState extends MusicBeatSubstate
 			var note = myNotes.members[i];
 			var targetY = i - curSelectedNote;
 			var lerpVal:Float = Math.exp(-elapsed * 9.6);
-			note.x = FlxMath.lerp((targetY * 100) + (notesBG.x + ((notesBG.width / 2) - (note.width / 2))), note.x, lerpVal);
-			note.y = FlxMath.lerp((targetY * 1.3 * 200) + (notesBG.y + ((notesBG.height / 2) - (note.height / 2))), note.y, lerpVal);
+			var diffX:Float = 225;
+			var diffY:Float = 200;
+			if (targetY < 0) diffY = -200;
+
+			note.x = FlxMath.lerp((targetY * diffX) + (notesBG.x + ((notesBG.width / 2) - (note.width / 2))), note.x, lerpVal);
+			note.y = FlxMath.lerp((targetY * 1.3 * diffY) + (notesBG.y + ((notesBG.height / 2) - (note.height / 2))), note.y, lerpVal);
 		}
 
 		super.update(elapsed);
@@ -667,9 +671,9 @@ class NotesSubState extends MusicBeatSubstate
 		bigNote.updateHitbox();
 		bigNote.rgbShader.parent = Note.globalRgbShaders[curSelectedNote];
 		bigNote.shader = Note.globalRgbShaders[curSelectedNote].shader;
-		for (i in 0...Note.colArray.length)
+		for (i in 0...PlayState.SONG.mania+1)
 		{
-			if(!onPixel) bigNote.animation.addByPrefix('note$i', Note.colArray[i] + '0', 24, true);
+			if(!onPixel) bigNote.animation.addByPrefix('note$i', ExtraKeysHandler.instance.data.animations[ExtraKeysHandler.instance.data.keys[PlayState.SONG.mania].notes[i]].note + '0', 24, true);
 			else bigNote.animation.add('note$i', [i + 4], 24, true);
 		}
 		insert(members.indexOf(myNotes) + 1, bigNote);
