@@ -132,7 +132,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		
 		#if CHECK_FOR_UPDATES
 		var option:Option = new Option('Check for Updates',
-			'On Release builds, turn this on to check for updates when you start the game.',
+			'On Release builds, turn this on to check for EK updates when you start the game.',
 			'checkForUpdates',
 			'bool');
 		addOption(option);
