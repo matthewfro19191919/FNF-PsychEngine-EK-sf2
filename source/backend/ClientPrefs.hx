@@ -316,7 +316,7 @@ class ClientPrefs {
 				CoolUtil.colorFromString(color.outline)
 			];
 
-			trace('Loaded color into save: $thisNote, pixel? $pixel');
+			//trace('Loaded color into save: $thisNote, pixel? $pixel');
 
 			if (pixel)
 				ClientPrefs.data.arrowRGBPixel.push(thisNote);
