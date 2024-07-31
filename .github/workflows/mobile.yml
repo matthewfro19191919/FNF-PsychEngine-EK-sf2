@@ -1,11 +1,15 @@
-name: Mobile
-on: workflow_dispatch
+name: Build Mobile
+on: 
+  push:
+    branches: [ek-mobile]
+  workflow_dispatch:
+
 jobs:
   Android:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        storage-type: [EXTERNAL, OBB, DATA, MEDIA]
+        storage-type: [EXTERNAL] # , OBB, DATA, MEDIA
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -25,7 +29,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: latest
+          haxe-version: 4.3.4
 
       - name: Install Libraries
         run: |

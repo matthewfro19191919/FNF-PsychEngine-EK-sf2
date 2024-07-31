@@ -4,7 +4,7 @@
       "name": "lime",
       "type": "git",
       "dir": null,
-      "ref": "main",
+      "ref": "develop",
       "url": "https://github.com/mcagabe19-stuff/lime"
     },
     {
@@ -41,17 +41,15 @@
     },
     {
       "name": "hxCodec",
-      "type": "git",
-      "dir": null,
-      "ref": "main",
-      "url": "https://github.com/mcagabe19-stuff/hxCodec"
+      "type": "haxelib",
+      "version": null
     },
     {
       "name": "hxvlc",
       "type": "git",
       "dir": null,
-      "ref": "main",
-      "url": "https://github.com/mcagabe19-stuff/hxvlc"
+      "ref": "9ad403a3d9567b25b97048add9f68c7f278dcccd",
+      "url": "https://github.com/MAJigsaw77/hxvlc/"
     },
     {
       "name": "SScript",
@@ -89,8 +87,10 @@
     },
     {
       "name": "extension-androidtools",
-      "type": "haxelib",
-      "version": null
+      "type": "git",
+      "dir": null,
+      "ref": "d09bf759efdf2c93cee9303e62d907ab2d0e88f3",
+      "url": "https://github.com/MAJigsaw77/extension-androidtools/"
     }
   ]
 }
