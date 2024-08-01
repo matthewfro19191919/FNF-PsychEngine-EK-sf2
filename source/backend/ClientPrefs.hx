@@ -240,7 +240,7 @@ class ClientPrefs {
 
 			colors.push(resultColor);
 
-			trace('Saved color ${resultColor.inner} ${resultColor.border} ${resultColor.outline}');
+			//trace('Saved color ${resultColor.inner} ${resultColor.border} ${resultColor.outline}');
 		}
 
 		saveArrowRGB = new ArrowRGBSavedData(colors);
