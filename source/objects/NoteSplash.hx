@@ -1,5 +1,6 @@
 package objects;
 
+import backend.ExtraKeysHandler;
 import backend.animation.PsychAnimationController;
 
 import shaders.RGBPalette;
@@ -51,6 +52,9 @@ class NoteSplash extends FlxSprite
 	public function setupNoteSplash(x:Float, y:Float, direction:Int = 0, ?note:Note = null) {
 		setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
 		aliveTime = 0;
+
+		setGraphicSize(width * ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3);
+		updateHitbox();
 
 		var texture:String = null;
 		if(note != null && note.noteSplashData.texture != null) texture = note.noteSplashData.texture;
@@ -143,8 +147,8 @@ class NoteSplash extends FlxSprite
 
 		while(true) {
 			var animID:Int = maxAnims + 1;
-			for (i in 0...Note.colArray.length) {
-				if (!addAnimAndCheck('note$i-$animID', '$animName ${Note.colArray[i]} $animID', 24, false)) {
+			for (i in 0...ExtraKeysHandler.instance.data.maxKeys + 1) {
+				if (!addAnimAndCheck('note$i-$animID', '$animName ${ExtraKeysHandler.instance.data.animations[i].note} $animID', 24, false)) {
 					//trace('maxAnims: $maxAnims');
 					return config;
 				}
