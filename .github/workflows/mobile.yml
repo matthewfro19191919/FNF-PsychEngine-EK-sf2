@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        storage-type: [EXTERNAL] # , OBB, DATA, MEDIA
+        storage-type: [EXTERNAL, OBB, DATA, MEDIA] # EXTERNAL, OBB, DATA, MEDIA
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -41,10 +41,7 @@ jobs:
           haxelib run lime config ANDROID_SETUP true
 
       - name: Compile
-        run: haxelib run lime build android -D ${{ matrix.storage-type }} -final
-        env:
-          cert_pass: nullfunni
-          cert_alias_pass: nullfunni
+        run: haxelib run lime build android -D ${{ matrix.storage-type }}
 
       - name: Upload Artifact
         if: ${{ success() }}
