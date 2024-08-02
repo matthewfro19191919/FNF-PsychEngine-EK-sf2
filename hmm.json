@@ -4,93 +4,95 @@
       "name": "lime",
       "type": "git",
       "dir": null,
-      "ref": "develop",
-      "url": "https://github.com/mcagabe19-stuff/lime"
+      "ref": "814ad1d08c25ef175bbcd6b894f7e8d6d8f617f1",
+      "url": "https://github.com/FunkinExtraKeys/lime"
     },
     {
       "name": "openfl",
       "type": "haxelib",
-      "version": null
+      "version": "9.3.4"
     },
     {
       "name": "flixel",
       "type": "haxelib",
-      "version": null
+      "version": "5.8.0"
     },
     {
       "name": "flixel-addons",
       "type": "haxelib",
-      "version": null
+      "version": "3.2.3"
     },
     {
       "name": "flixel-tools",
       "type": "haxelib",
-      "version": null
+      "version": "1.5.1"
     },
     {
       "name": "flixel-ui",
       "type": "haxelib",
-      "version": null
+      "version": "2.6.1"
     },
     {
       "name": "hxcpp",
       "type": "git",
       "dir": null,
-      "ref": "master",
-      "url": "https://github.com/mcagabe19-stuff/hxcpp"
+      "ref": "4660ca12f1e8ea5e0ca82d81739ebf292e304f1a",
+      "url": "https://github.com/FunkinExtraKeys/hxcpp"
     },
     {
       "name": "hxCodec",
       "type": "haxelib",
-      "version": null
+      "version": "3.0.2"
     },
     {
       "name": "hxvlc",
       "type": "git",
       "dir": null,
       "ref": "9ad403a3d9567b25b97048add9f68c7f278dcccd",
-      "url": "https://github.com/MAJigsaw77/hxvlc/"
+      "url": "https://github.com/FunkinExtraKeys/hxvlc/"
     },
     {
       "name": "SScript",
       "type": "haxelib",
-      "version": null
+      "version": "21.0.0"
     },
     {
       "name": "hxcpp-debug-server",
       "type": "haxelib",
-      "version": null
+      "version": "1.2.4"
     },
     {
       "name": "tjson",
       "type": "haxelib",
-      "version": null
+      "version": "1.4.0"
     },
     {
       "name": "hxdiscord_rpc",
-      "type": "haxelib",
-      "version": null
+      "type": "git",
+      "dir": null,
+      "ref": "3538a1c2bb07b04208cd014220207f8173acdb21",
+      "url": "https://github.com/FunkinExtraKeys/hxdiscord_rpc/"
     },
     {
       "name": "linc_luajit",
       "type": "git",
       "dir": null,
-      "ref": "master",
-      "url": "https://github.com/superpowers04/linc_luajit.git"
+      "ref": "1906c4a96f6bb6df66562b3f24c62f4c5bba14a7",
+      "url": "https://github.com/FunkinExtraKeys/linc_luajit.git"
     },
     {
       "name": "flxanimate",
       "type": "git",
       "dir": null,
-      "ref": "dev",
-      "url": "https://github.com/ShadowMario/flxanimate.git"
+      "ref": "6d11b11f65f822a2a2ad01018fa8bcea0437bf5a",
+      "url": "https://github.com/FunkinExtraKeys/flxanimate.git"
     },
     {
       "name": "extension-androidtools",
       "type": "git",
       "dir": null,
-      "ref": "SAF",
-      "url": "https://github.com/MobilePorting/extension-androidtools-Base"
+      "ref": "13a34ec1686a7cd8598cc2e8cf55ec648c5cd733",
+      "url": "https://github.com/FunkinExtraKeys/extension-androidtools-Base"
     }
   ]
 }
