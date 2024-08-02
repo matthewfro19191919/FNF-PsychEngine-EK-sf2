@@ -1,3 +1,6 @@
+-- PLACE THIS IN yourmod/scripts/!!
+-- ONLY FOR EXTRA KEYS
+
 local needsExtraKeys = false
 function onStartCountdown()
     if getPropertyFromClass('states.MainMenuState', 'extraKeysVersion') == nil then
