@@ -1,6 +1,7 @@
 package mobile.backend;
 
 #if android
+import android.Settings;
 import android.content.Context;
 import android.widget.Toast;
 import android.os.Environment;
@@ -180,7 +181,24 @@ class SUtil
 		{
 			if (!Permissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')) Permissions.requestPermission('android.permission.READ_EXTERNAL_STORAGE');
 			if (!Permissions.getGrantedPermissions().contains('android.permission.WRITE_EXTERNAL_STORAGE')) Permissions.requestPermission('android.permission.WRITE_EXTERNAL_STORAGE');
-			showPopUp('Please Make Sure You Accepted The Permissions To Be Able To Run The Game', 'Notice!');
+			showPopUp('Please make sure you accept the permissions to run the game.', 'Warning');
+			#if EXTERNAL
+			if (!Environment.isExternalStorageManager())
+				Settings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
+			#end
+		}
+
+		try {
+			if (!FileSystem.exists(getStorageDirectory()))
+				FileSystem.createDirectory(getStorageDirectory());
+		} catch(e:Dynamic) {
+			showPopUp("Please create folder to\n" + 
+			#if EXTERNAL "/storage/emulated/0/." + lime.app.Application.current.meta.get('file') 
+			#elseif MEDIA "/storage/emulated/0/Android/media/" + lime.app.Application.current.meta.get('packageName') 
+			#else SUtil.getStorageDirectory() 
+			#end + 
+			"\nError: " + e + "\nPress OK to close the game", "Error!");
+			LimeSystem.exit(1);
 		}
 	}
 	#end
