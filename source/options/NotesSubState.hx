@@ -708,7 +708,7 @@ class NotesSubState extends MusicBeatSubstate
 		for (i in 0...PlayState.SONG.mania+1)
 		{
 			if(!onPixel) bigNote.animation.addByPrefix('note$i', ExtraKeysHandler.instance.data.animations[ExtraKeysHandler.instance.data.keys[PlayState.SONG.mania].notes[i]].note + '0', 24, true);
-			else bigNote.animation.add('note$i', [i + 4], 24, true);
+			else bigNote.animation.add('note$i', [ExtraKeysHandler.instance.data.animations[ExtraKeysHandler.instance.data.keys[PlayState.SONG.mania].notes[i]].pixel + 6], 24, true);
 		}
 		insert(members.indexOf(myNotes) + 1, bigNote);
 		_storedColor = getShaderColor();
