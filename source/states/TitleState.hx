@@ -56,7 +56,7 @@ class TitleState extends MusicBeatState
 
 	#if TITLE_SCREEN_EASTER_EGG
 	var easterEggKeys:Array<String> = [
-		'SHADOW', 'RIVER', 'BBPANZU'
+		'SHADOW', 'RIVER', 'BBPANZU', 'TPOSE'
 	];
 	var allowedKeys:String = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	var easterEggKeysBuffer:String = '';
@@ -131,6 +131,8 @@ class TitleState extends MusicBeatState
 			case 'BBPANZU':
 				titleJSON.gfx += 45;
 				titleJSON.gfy += 100;
+			case 'TPOSE':
+				titleJSON.gfx += 115;
 		}
 		#end
 
@@ -238,6 +240,10 @@ class TitleState extends MusicBeatState
 				gfDance.frames = Paths.getSparrowAtlas('BBBump');
 				gfDance.animation.addByIndices('danceLeft', 'BB Title Bump', [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], "", 24, false);
 				gfDance.animation.addByIndices('danceRight', 'BB Title Bump', [27, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "", 24, false);
+			case 'TPOSE':
+				gfDance.frames = Paths.getSparrowAtlas('Highwire');
+				gfDance.animation.addByPrefix('danceLeft', 'Highwire TPose', 24);
+				gfDance.animation.addByPrefix('danceRight', 'Highwire TPose', 24);
 			#end
 
 			default:
@@ -610,6 +616,8 @@ class TitleState extends MusicBeatState
 						FlxG.sound.play(Paths.sound('JingleShadow'));
 					case 'BBPANZU':
 						sound = FlxG.sound.play(Paths.sound('JingleBB'));
+					case 'TPOSE':
+						FlxG.sound.play(Paths.sound('TPose'));
 
 					default: //Go back to normal ugly ass boring GF
 						remove(ngSpr);
@@ -633,6 +641,11 @@ class TitleState extends MusicBeatState
 						FlxG.camera.flash(FlxColor.WHITE, 0.6);
 						transitioning = false;
 					});
+				} else if (easteregg == 'TPOSE') {
+					remove(ngSpr);
+					remove(credGroup);
+					FlxG.camera.flash(FlxColor.WHITE, 0.6);
+					transitioning = false;
 				}
 				else
 				{
