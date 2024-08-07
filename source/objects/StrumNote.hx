@@ -257,9 +257,7 @@ class KeybindShowcase extends FlxTypedGroup<FlxBasic> {
 				if (keyCodes.length > 1) {
 					keyText.text = InputFormatter.getKeyName(keyCodes[1]);
 				} else {
-					var size = 14 - (mania - 3);
-					keyText.size = size;
-					keyText.text = 'Unbound';
+					keyText.text = '---';
 				}
 
 				FlxTween.tween(keyText, {alpha: 1}, 0.5);
