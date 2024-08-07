@@ -39,15 +39,15 @@
     ],
 
     "animations": [
-        { "strum": "LEFT", "anim": "left", "note": "purple", "sing": "LEFT" },
-        { "strum": "DOWN", "anim": "down", "note": "blue", "sing": "DOWN" },
-        { "strum": "UP", "anim": "up", "note": "green", "sing": "UP" },
-        { "strum": "RIGHT", "anim": "right", "note": "red", "sing": "RIGHT" },
-        { "strum": "ROMBUS", "anim": "rombus", "note": "rombus", "sing": "UP" },
-        { "strum": "LEFT", "anim": "left", "note": "purple", "sing": "LEFT" },
-        { "strum": "DOWN", "anim": "down", "note": "blue", "sing": "DOWN" },
-        { "strum": "UP", "anim": "up", "note": "green", "sing": "UP" },
-        { "strum": "RIGHT", "anim": "right", "note": "red", "sing": "RIGHT" }
+        { "strum": "LEFT", "anim": "left", "note": "purple", "sing": "LEFT", "pixel": 0 },
+        { "strum": "DOWN", "anim": "down", "note": "blue", "sing": "DOWN", "pixel": 1 },
+        { "strum": "UP", "anim": "up", "note": "green", "sing": "UP", "pixel": 2 },
+        { "strum": "RIGHT", "anim": "right", "note": "red", "sing": "RIGHT", "pixel": 3 },
+        { "strum": "ROMBUS", "anim": "rombus", "note": "rombus", "sing": "UP", "pixel": 4 },
+        { "strum": "LEFT", "anim": "left", "note": "purple", "sing": "LEFT", "pixel": 0 },
+        { "strum": "DOWN", "anim": "down", "note": "blue", "sing": "DOWN", "pixel": 1 },
+        { "strum": "UP", "anim": "up", "note": "green", "sing": "UP", "pixel": 2 },
+        { "strum": "RIGHT", "anim": "right", "note": "red", "sing": "RIGHT", "pixel": 3 }
     ],
 
     "keybinds": [

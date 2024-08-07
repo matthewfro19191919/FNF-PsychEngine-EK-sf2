@@ -210,11 +210,11 @@ class Note extends FlxSprite
 		return value;
 	}
 
-	public function getIndex(mania:Int, note:Int) {
+	public function getIndex(mania:Int, note:Int):Int {
 		return ExtraKeysHandler.instance.data.keys[mania].notes[note];
 	}
 
-	public function getAnimSet(index:Int) {
+	public function getAnimSet(index:Int):EKAnimation {
 		return ExtraKeysHandler.instance.data.animations[index];
 	}
 
@@ -371,11 +371,11 @@ class Note extends FlxSprite
 		if(PlayState.isPixelStage) {
 			if(isSustainNote) {
 				var graphic = Paths.image('pixelUI/' + skinPixel + 'ENDS' + skinPostfix);
-				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 2));
+				loadGraphic(graphic, true, Math.floor(graphic.width / 6), Math.floor(graphic.height / 2));
 				originalHeight = graphic.height / 2;
 			} else {
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
-				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
+				loadGraphic(graphic, true, Math.floor(graphic.width / 6), Math.floor(graphic.height / 5));
 			}
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			loadPixelNoteAnims();
@@ -431,11 +431,16 @@ class Note extends FlxSprite
 	}
 
 	function loadPixelNoteAnims() {
+		var mania = 3;
+		if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+		var noteAnimStr = getAnimSet(getIndex(mania, noteData)).note;
+		var noteAnimInt = getAnimSet(getIndex(mania, noteData)).pixel;
+
 		if(isSustainNote)
 		{
-			animation.add(colArray[noteData] + 'holdend', [noteData + 4], 24, true);
-			animation.add(colArray[noteData] + 'hold', [noteData], 24, true);
-		} else animation.add(colArray[noteData] + 'Scroll', [noteData + 4], 24, true);
+			animation.add(noteAnimStr + 'holdend', [noteAnimInt + 6], 24, true);
+			animation.add(noteAnimStr + 'hold', [noteAnimInt], 24, true);
+		} else animation.add(noteAnimStr + 'Scroll', [noteAnimInt + 6], 24, true);
 	}
 
 	function attemptToAddAnimationByPrefix(name:String, prefix:String, framerate:Float = 24, doLoop:Bool = true)
