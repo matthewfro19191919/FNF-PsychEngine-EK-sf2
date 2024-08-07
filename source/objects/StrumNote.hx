@@ -77,48 +77,42 @@ class StrumNote extends FlxSprite
 		if(PlayState.isPixelStage)
 		{
 			loadGraphic(Paths.image('pixelUI/' + texture));
-			width = width / 4;
+			width = width / 6;
 			height = height / 5;
 			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 
 			initialWidth = width;
-			trace(initialWidth);
+			//trace(initialWidth);
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 
-			animation.add('green', [6]);
-			animation.add('red', [7]);
-			animation.add('blue', [5]);
-			animation.add('purple', [4]);
-			switch (Math.abs(noteData) % 4)
-			{
-				case 0:
-					animation.add('static', [0]);
-					animation.add('pressed', [4, 8], 12, false);
-					animation.add('confirm', [12, 16], 24, false);
-				case 1:
-					animation.add('static', [1]);
-					animation.add('pressed', [5, 9], 12, false);
-					animation.add('confirm', [13, 17], 24, false);
-				case 2:
-					animation.add('static', [2]);
-					animation.add('pressed', [6, 10], 12, false);
-					animation.add('confirm', [14, 18], 12, false);
-				case 3:
-					animation.add('static', [3]);
-					animation.add('pressed', [7, 11], 12, false);
-					animation.add('confirm', [15, 19], 24, false);
-			}
+			var mania = 3;
+			if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+
+			var noteAnimInt = getAnimSet(getIndex(mania, noteData)).pixel;
+
+			animation.add('circle', [11]);
+			animation.add('rombus', [10]);
+			animation.add('red', [9]);
+			animation.add('green', [8]);
+			animation.add('blue', [7]);
+			animation.add('purple', [6]);
+
+			animation.add('static', [noteAnimInt]);
+			animation.add('pressed', [noteAnimInt + 6, noteAnimInt + 12], 12, false);
+			animation.add('confirm', [noteAnimInt + 18, noteAnimInt + 24], 24, false);
 		}
 		else
 		{
 			frames = Paths.getSparrowAtlas(texture);
-			// animation.addByPrefix('green', 'arrowUP');
-			// animation.addByPrefix('blue', 'arrowDOWN');
-			// animation.addByPrefix('purple', 'arrowLEFT');
-			// animation.addByPrefix('red', 'arrowRIGHT');
+			animation.addByPrefix('green', 'arrowUP');
+			animation.addByPrefix('blue', 'arrowDOWN');
+			animation.addByPrefix('purple', 'arrowLEFT');
+			animation.addByPrefix('red', 'arrowRIGHT');
+			animation.addByPrefix('rombus', 'arrowROMBUS');
+			animation.addByPrefix('circle', 'arrowCIRCLE');
 			initialWidth = width;
 
 			antialiasing = ClientPrefs.data.antialiasing;

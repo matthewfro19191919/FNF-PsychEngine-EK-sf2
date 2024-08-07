@@ -59,4 +59,5 @@ class EKAnimation {
     public var anim:String;
     public var note:String;
     public var sing:String;
+    public var pixel:Int;
 }
