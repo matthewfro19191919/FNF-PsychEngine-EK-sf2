@@ -50,9 +50,11 @@ class NoteSplash extends FlxSprite
 
 	var maxAnims:Int = 2;
 	public function setupNoteSplash(x:Float, y:Float, direction:Int = 0, ?note:Note = null) {
+		var scale = 1/(ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3);
+		//setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
 		setPosition(
-			x - (Note.swagWidthUnscaled * (ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3)) * 0.95, 
-			y - (Note.swagWidthUnscaled * (ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3))
+			x - (Note.swagWidth * scale) * 0.95, 
+			y - (Note.swagWidth * scale)
 		);
 		aliveTime = 0;
 
