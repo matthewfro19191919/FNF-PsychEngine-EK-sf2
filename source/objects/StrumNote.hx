@@ -145,10 +145,11 @@ class StrumNote extends FlxSprite
 		playAnim('static');
 		var padding:Float = 0;
 		var minPaddingStartThresh:Int = 4;
-		if (PlayState.isPixelStage) minPaddingStartThresh = 6;
+		//if (PlayState.isPixelStage) minPaddingStartThresh = 3;
 		if (PlayState.SONG.mania > minPaddingStartThresh) {
-			padding = (PlayState.isPixelStage ? 0.5 : 4) * (PlayState.SONG.mania - minPaddingStartThresh);
+			padding = (PlayState.isPixelStage ? 0.001 : 4) * (PlayState.SONG.mania - minPaddingStartThresh);
 		}
+		//trace(padding);
 
 		// x = StrumBoundaries.getMiddlePoint().x;
 		// x += ((Note.swagWidthUnscaled * trackedScale) - padding) * (-((PlayState.SONG.mania + 1) / 2) + noteData);
@@ -156,19 +157,25 @@ class StrumNote extends FlxSprite
 		// x += ((FlxG.width / 2) * player);
 		ID = noteData;
 
-		centerStrum(padding);
+		centerStrum(minPaddingStartThresh, padding);
 	}
 
-	public function centerStrum(padding:Float) {
+	/**
+	 * Please refrain from asking me what happens here
+	 * @param maniaThresh I don't know
+	 * @param padding I don't know
+	 */
+	public function centerStrum(maniaThresh:Int, padding:Float) {
+		var sWidth = (PlayState.isPixelStage && PlayState.SONG.mania > maniaThresh) ? (180 + ((10 + (5 * (PlayState.SONG.mania - maniaThresh))) * (PlayState.SONG.mania - maniaThresh))) : Note.swagWidthUnscaled;
 		if (!ClientPrefs.data.middleScroll) {
 			x = player == 0 ? 320 : 960;
-			x += ((Note.swagWidthUnscaled * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);
+			x += ((sWidth * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);
 		} else {
 			x = player == 0 ? 320 : 640;
 			if (player == 0) {
 				if (noteData > Math.floor((PlayState.SONG.mania / 2))) x = 960;
 			}
-			x += ((Note.swagWidthUnscaled * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);
+			x += ((sWidth * trackedScale) - padding) * (-((PlayState.SONG.mania+1) / 2) + noteData);
 		}
 	}
 

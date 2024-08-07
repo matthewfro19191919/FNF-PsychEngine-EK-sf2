@@ -377,7 +377,9 @@ class Note extends FlxSprite
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
 				loadGraphic(graphic, true, Math.floor(graphic.width / 6), Math.floor(graphic.height / 5));
 			}
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+			var mania = 3;
+			if (PlayState.SONG != null) mania = PlayState.SONG.mania;
+			setGraphicSize(Std.int((width * (ExtraKeysHandler.instance.data.pixelScales[mania] + 0.3)) * PlayState.daPixelZoom));
 			loadPixelNoteAnims();
 			antialiasing = false;
 
