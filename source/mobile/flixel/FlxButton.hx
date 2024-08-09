@@ -9,6 +9,9 @@ import flixel.input.IFlxInput;
 import flixel.input.touch.FlxTouch;
 import flixel.math.FlxPoint;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
+#if EKTEST
+import flixel.input.mouse.FlxMouseButton;
+#end
 
 /**
  * A simple button class that calls a function when clicked by the touch.
@@ -194,6 +197,13 @@ class FlxTypedButton<T:FlxSprite> extends FlxSprite implements IFlxInput
 	 */
 	var currentInput:IFlxInput;
 
+	#if EKTEST
+	/**
+	* Which mouse buttons can trigger the button - by default only the left mouse button.
+	*/
+	public var mouseButtons:Array<FlxMouseButtonID> = [FlxMouseButtonID.LEFT];
+	#end
+
 	var lastStatus = -1;
 
 	/**
@@ -360,7 +370,13 @@ class FlxTypedButton<T:FlxSprite> extends FlxSprite implements IFlxInput
 	 */
 	function updateButton():Void
 	{
+		#if EKTEST
+		var overlapFound = checkMouseOverlap();
+		if (!overlapFound)
+			overlapFound = checkTouchOverlap();
+		#else
 		var overlapFound = checkTouchOverlap();
+		#end
 
 		if (currentInput != null && currentInput.justReleased && overlapFound)
 			onUpHandler();
@@ -368,6 +384,27 @@ class FlxTypedButton<T:FlxSprite> extends FlxSprite implements IFlxInput
 		if (status != FlxButton.NORMAL && (!overlapFound || (currentInput != null && currentInput.justReleased)))
 			onOutHandler();
 	}
+
+	#if EKTEST
+	function checkMouseOverlap():Bool
+	{
+		var overlap = false;
+		#if FLX_MOUSE
+		for (camera in cameras)
+		{
+			for (buttonID in mouseButtons)
+			{
+				var button = FlxMouseButton.getByID(buttonID);
+				if (button != null && checkInput(FlxG.mouse, button, button.justPressedPosition, camera))
+				{
+					overlap = true;
+				}
+			}
+		}
+		#end
+		return overlap;
+	}
+	#end
 
 	function checkTouchOverlap():Bool
 	{

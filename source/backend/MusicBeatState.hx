@@ -121,6 +121,10 @@ class MusicBeatState extends FlxUIState
 	public static var timePassedOnState:Float = 0;
 	override function update(elapsed:Float)
 	{
+		#if EKTEST
+		FlxG.mouse.visible = true;
+		#end
+		
 		//everyStep();
 		var oldStep:Int = curStep;
 		timePassedOnState += elapsed;

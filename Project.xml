@@ -34,6 +34,8 @@
 		<define name="CHECK_FOR_UPDATES"/>
 	</section>
 
+	<define name="EKTEST" if="debug"/>
+
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
