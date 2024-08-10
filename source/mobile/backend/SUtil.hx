@@ -163,25 +163,30 @@ class SUtil
 	#end
 
 	#if android
-	public static function doPermissionsShit():Void
+	public static function requestPermissions():Void
 	{
-		if (!Permissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE') || !Permissions.getGrantedPermissions().contains('android.permission.WRITE_EXTERNAL_STORAGE'))
+		if (!Permissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')
+			&& !Permissions.getGrantedPermissions().contains('android.permission.WRITE_EXTERNAL_STORAGE'))
 		{
-			if (!Permissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')) Permissions.requestPermission('android.permission.READ_EXTERNAL_STORAGE');
-			if (!Permissions.getGrantedPermissions().contains('android.permission.WRITE_EXTERNAL_STORAGE')) Permissions.requestPermission('android.permission.WRITE_EXTERNAL_STORAGE');
-			showPopUp('Please make sure you accept the permissions to run the game.', 'Warning');
+			Permissions.requestPermission('READ_EXTERNAL_STORAGE');
+			Permissions.requestPermission('WRITE_EXTERNAL_STORAGE');
+			showPopUp('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash' + '\nPress Ok to see what happens',
+				'Notice!');
 			if (!Environment.isExternalStorageManager())
 				Settings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
 		}
-
-		try {
-			if (!FileSystem.exists(getStorageDirectory()))
-				FileSystem.createDirectory(getStorageDirectory());
-		} catch(e:Dynamic) {
-			showPopUp("Please create folder to\n" + 
-			SUtil.getStorageDirectory(true) + 
-			"\nError: " + e + "\nPress OK to close the game", "Error!");
-			LimeSystem.exit(1);
+		else
+		{
+			try
+			{
+				if (!FileSystem.exists(SUtil.getStorageDirectory()))
+					FileSystem.createDirectory(SUtil.getStorageDirectory());
+			}
+			catch (e:Dynamic)
+			{
+				showPopUp('Please create directory to\n' + SUtil.getStorageDirectory(true) + '\nPress OK to close the game', 'Error!');
+				LimeSystem.exit(1);
+			}
 		}
 	}
 
@@ -200,6 +205,7 @@ class SUtil
 		daPath = haxe.io.Path.addTrailingSlash(daPath.endsWith("\n") ? daPath.substr(0, daPath.length - 1) : daPath);
 		return daPath;
 	}
+	#end
 	#end
 
 	public static function showPopUp(message:String, title:String):Void
@@ -238,7 +244,7 @@ enum abstract StorageType(String) from String to String
 			case "EXTERNAL_OBB": EXTERNAL_OBB;
 			case "EXTERNAL_MEDIA": EXTERNAL_MEDIA;
 			case "EXTERNAL": EXTERNAL;
-			default: StorageUtil.getExternalDirectory(str) + '.' + fileLocal;
+			default: SUtil.getExternalDirectory(str) + '.' + fileLocal;
 		}
 	}
 
@@ -255,7 +261,7 @@ enum abstract StorageType(String) from String to String
 			case "EXTERNAL_OBB": EXTERNAL_OBB;
 			case "EXTERNAL_MEDIA": EXTERNAL_MEDIA;
 			case "EXTERNAL": EXTERNAL;
-			default: StorageUtil.getExternalDirectory(str) + '.' + fileLocal;
+			default: SUtil.getExternalDirectory(str) + '.' + fileLocal;
 		}
 	}
 }
