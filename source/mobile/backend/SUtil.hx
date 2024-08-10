@@ -262,3 +262,4 @@ enum abstract StorageType(String) from String to String
 		}
 	}
 }
+#end
