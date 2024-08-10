@@ -32,13 +32,12 @@ jobs:
           haxelib run lime config ANDROID_SETUP true
 
       - name: Compile
-        run: haxelib run lime build android -D ${{ matrix.storage-type }}
+        run: haxelib run lime build android
 
       - name: Upload Artifact
-        if: ${{ success() }}
         uses: actions/upload-artifact@main
         with:
-          name: androidBuild-${{ matrix.storage-type }}
+          name: androidBuild
           path: export/release/android/bin/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
   iOS:
