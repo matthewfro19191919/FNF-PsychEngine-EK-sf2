@@ -12,8 +12,11 @@ import states.TitleState;
 	public var extraButtons:String = "NONE"; // mobile extra button option
 	public var hitbox2:Bool = true; // hitbox extra button position option
 	public var dynamicColors:Bool = true; // yes cause its cool -Karim
-	public var controlsAlpha:Float = #if (mobile || mobileC) 0.6 #else 0.001 #end;
+	public var controlsAlpha:Float = FlxG.onMobile ? 0.6 : 0;
 	public var screensaver:Bool = false;
+	#if android
+	public var storageType:String = "EXTERNAL_DATA";
+	#end
         public var hideHitboxHints:Bool = false;
         // end of Mobile Controls Releated
 	public var popUpRating:Bool = true;
@@ -161,7 +164,9 @@ class ClientPrefs {
 		if(controller != true)
 			for (key in keyBinds.keys())
 				if(defaultKeys.exists(key))
-					keyBinds.set(key, defaultKeys.get(key).copy());
+					keyBinds.set(key, defaultKeys.get(key).copy());#if android
+	public var storageType:String = "EXTERNAL_DATA";
+	#end
 
 		if(controller != false)
 			for (button in gamepadBinds.keys())
@@ -183,17 +188,7 @@ class ClientPrefs {
 	{
 		defaultKeys = keyBinds.copy();
 		var saveDataKeybinds = ExtraKeysHandler.instance.data.keybinds;
-
-		// if resetting keybinds to default doesnt work, hmu
-		for (i in 0...saveDataKeybinds.length) {
-			var maniaKeybinds = saveDataKeybinds[i];
-			var maniaID = '${i}_key';
-			for (j in 0...maniaKeybinds.length) {
-				var keybindID = '${maniaID}_$j';
-				var codes = maniaKeybinds[j];
-				defaultKeys.set(keybindID, codes);
-			}
-		}
+…		}
 
 		defaultButtons = gamepadBinds.copy();
 		defaultMobileBinds = mobileBinds.copy();
