@@ -1619,7 +1619,7 @@ class PlayState extends MusicBeatState
 		adaptStrumline(opponentStrums);
 		adaptStrumline(playerStrums);
 
-		if (controls.mobileC) {
+		if (!controls.mobileC) {
 			for (i in 0...playerStrums.members.length) {
 				var keyShowcase = new KeybindShowcase(
 					playerStrums.members[i].x, 
