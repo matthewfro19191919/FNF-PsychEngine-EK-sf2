@@ -164,9 +164,7 @@ class ClientPrefs {
 		if(controller != true)
 			for (key in keyBinds.keys())
 				if(defaultKeys.exists(key))
-					keyBinds.set(key, defaultKeys.get(key).copy());#if android
-	public var storageType:String = "EXTERNAL_DATA";
-	#end
+					keyBinds.set(key, defaultKeys.get(key).copy());
 
 		if(controller != false)
 			for (button in gamepadBinds.keys())
