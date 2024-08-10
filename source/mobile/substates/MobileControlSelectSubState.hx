@@ -11,7 +11,7 @@ import flixel.ui.FlxButton as UIButton;
 
 class MobileControlSelectSubState extends MusicBeatSubstate
 {
-	var options:Array<String> = ['Pad-Right', 'Pad-Left', 'Pad-Custom', 'Pad-Duo', 'Hitbox', 'Keyboard'];
+	var options:Array<String> = [#if ALL_CONTROLS 'Pad-Right', 'Pad-Left', 'Pad-Custom', 'Pad-Duo', #end 'Hitbox', 'Keyboard'];
 	var control:MobileControls;
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
@@ -26,16 +26,19 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 	var reset:UIButton;
 	var tweenieShit:Float = 0;
 	var keyboardText:FlxText;
+	var warningText:FlxText;
 
 	public function new()
 	{
 		super();
+		#if ALL_CONTROLS
 		if (ClientPrefs.data.extraButtons != 'NONE')
 			options.push('Pad-Extra');
+		#end
 
 		bg = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 160, 160, true,
-			FlxColor.fromRGB(FlxG.random.int(0, 255), FlxG.random.int(0, 255), FlxG.random.int(0, 255)),
-			FlxColor.fromRGB(FlxG.random.int(0, 255), FlxG.random.int(0, 255), FlxG.random.int(0, 255))));
+			FlxColor.fromRGB(255, 255, 0),
+			FlxColor.fromRGB(139, 74, 255)));
 		bg.velocity.set(40, 40);
 		bg.alpha = 0;
 		bg.antialiasing = ClientPrefs.data.antialiasing;
@@ -75,6 +78,11 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 		rightArrow.cameras = [ui];
 		add(rightArrow);
 
+		warningText = new FlxText(leftArrow.x, itemText.y + itemText.height + 100, 0, #if !ALL_CONTROLS 'Only Hitbox and Keyboard can be used in Extra Keys.' #else 'Define ALL_CONTROLS is active, some controls may not work properly.' #end, 16);
+		warningText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		warningText.borderSize = 2;
+		add(warningText);
+
 		positionText = new FlxText(0, FlxG.height, FlxG.width / 4, '');
 		positionText.setFormat(Paths.font("vcr.ttf"), 18, FlxColor.WHITE, FlxTextAlign.LEFT);
 		positionText.visible = false;
@@ -96,6 +104,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 
 		var exit = new UIButton(0, itemText.y - 25, "Exit & Save", () ->
 		{
+			#if ALL_CONTROLS
 			if (options[curOption] == 'Pad-Extra')
 			{
 				var nuhuh = new FlxText(0, 0, FlxG.width / 2, 'Pad-Extra Is Just A Binding Option\nPlease Select A Different Option To Exit.');
@@ -114,9 +123,12 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 				control.virtualPad.setExtrasDefaultPos();
 				return;
 			}
+			#end
 			MobileControls.mode = curOption;
+			#if ALL_CONTROLS
 			if (options[curOption] == 'Pad-Custom')
 				MobileControls.setCustomMode(control.virtualPad);
+			#end
 			controls.isInSubstate = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			close();
@@ -161,6 +173,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 			changeOption(1);
 		});
 
+		#if ALL_CONTROLS
 		if (options[curOption] == 'Pad-Custom' || options[curOption] == 'Pad-Extra')
 		{
 			if (buttonBinded)
@@ -182,6 +195,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 				});
 			}
 		}
+		#end
 
 		tweenieShit += 180 * elapsed;
 		keyboardText.alpha = 1 - Math.sin((Math.PI * tweenieShit) / 180);
@@ -197,7 +211,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 			control.destroy();
 		if (members.contains(control))
 			remove(control);
-		control = new MobileControls(type, extraMode);
+		control = new MobileControls(type #if !ALL_CONTROLS + 4 #end , extraMode);
 		add(control);
 		control.cameras = [ui];
 	}
@@ -213,6 +227,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 
 		switch (curOption)
 		{
+			#if ALL_CONTROLS
 			case 0 | 1 | 3:
 				reset.visible = false;
 				keyboardText.kill();
@@ -221,14 +236,16 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 				reset.visible = true;
 				keyboardText.kill();
 				changeControls();
-			case 4:
+			#end
+			case #if ALL_CONTROLS 4 #else 0 #end :
 				reset.visible = false;
 				keyboardText.kill();
 				changeControls();
-			case 5:
+			case #if ALL_CONTROLS 5 #else 1 #end :
 				reset.visible = false;
 				keyboardText.revive();
 				changeControls();
+			#if ALL_CONTROLS
 			case 6:
 				reset.visible = true;
 				keyboardText.kill();
@@ -239,6 +256,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 					if (!ignore.contains(button.tag.toUpperCase()))
 						button.visible = button.active = false;
 				});
+			#end
 		}
 		updatePosText();
 		setOptionText();
@@ -254,6 +272,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 
 	function updatePosText()
 	{
+		#if ALL_CONTROLS
 		var optionName = options[curOption];
 		if (optionName == 'Pad-Custom' || optionName == 'Pad-Extra')
 		{
@@ -268,7 +287,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 			}
 			positionText.setPosition(0, (((positionTextBg.height - positionText.height) / 2) + positionTextBg.y));
 		}
-		else
+		else #end
 			positionText.visible = positionTextBg.visible = false;
 	}
 
@@ -280,8 +299,10 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 				button.animation.play('press');
 			if (TouchFunctions.touchJustPressed)
 			{
+				#if ALL_CONTROLS
 				if (options[curOption] == "Pad-Extra" && control.virtualPad != null)
 					control.virtualPad.setExtrasDefaultPos();
+				#end
 				func();
 			}
 		}

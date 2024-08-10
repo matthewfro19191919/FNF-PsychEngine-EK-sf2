@@ -1,5 +1,6 @@
 package mobile.flixel.input;
 
+import mobile.flixel.input.FlxMobileInputManager.ButtonsStates;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import mobile.flixel.input.FlxMobileInputID;
 import mobile.flixel.FlxButton;
@@ -7,13 +8,14 @@ import haxe.ds.Map;
 
 /**
  * A FlxButton group with functions for input handling 
+ * The same as FlxMobileInputManager but uses String instead (for ClientPrefs.)
  */
-class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
+class FlxMobileInputManagerByString extends FlxMobileInputManager
 {
 	/**
 	 * A map to keep track of all the buttons using it's ID
 	 */
-	public var trackedButtons:Map<FlxMobileInputID, FlxButton> = new Map<FlxMobileInputID, FlxButton>();
+	public var trackedButtonsTwo:Map<String, FlxButton> = new Map<String, FlxButton>();
 
 	public function new()
 	{
@@ -27,7 +29,7 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	button 	A button ID
 	 * @return	Whether at least one of the buttons passed was pressed.
 	 */
-	public function buttonPressed(button:FlxMobileInputID):Bool
+	override public function buttonPressed(button:Dynamic):Bool
 	{
 		return anyPressed([button]);
 	}
@@ -38,7 +40,7 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	button 	A button ID
 	 * @return	Whether at least one of the buttons passed was just pressed.
 	 */
-	public function buttonJustPressed(button:FlxMobileInputID):Bool
+	override public function buttonJustPressed(button:Dynamic):Bool
 	{
 		return anyJustPressed([button]);
 	}
@@ -49,7 +51,7 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	button 	A button ID
 	 * @return	Whether at least one of the buttons passed was just released.
 	 */
-	public function buttonJustReleased(button:FlxMobileInputID):Bool
+	override public function buttonJustReleased(button:Dynamic):Bool
 	{
 		return anyJustReleased([button]);
 	}
@@ -60,8 +62,9 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	buttonsArray 	An array of buttos names
 	 * @return	Whether at least one of the buttons passed in is pressed.
 	 */
-	public function anyPressed(buttonsArray:Array<Dynamic>):Bool
+	override public function anyPressed(buttonsArray:Array<Dynamic>):Bool
 	{
+        //trace(buttonsArray);
 		return checkButtonArrayState(buttonsArray, PRESSED);
 	}
 
@@ -71,8 +74,9 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	buttonsArray 	An array of buttons names
 	 * @return	Whether at least one of the buttons passed was just pressed.
 	 */
-	public function anyJustPressed(buttonsArray:Array<Dynamic>):Bool
+	override public function anyJustPressed(buttonsArray:Array<Dynamic>):Bool
 	{
+        //trace(buttonsArray);
 		return checkButtonArrayState(buttonsArray, JUST_PRESSED);
 	}
 
@@ -82,8 +86,9 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	buttonsArray 	An array of button names
 	 * @return	Whether at least one of the buttons passed was just released.
 	 */
-	public function anyJustReleased(buttonsArray:Array<Dynamic>):Bool
+	override public function anyJustReleased(buttonsArray:Array<Dynamic>):Bool
 	{
+        //trace(buttonsArray);
 		return checkButtonArrayState(buttonsArray, JUST_RELEASED);
 	}
 
@@ -94,21 +99,26 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	state		The button state to check for.
 	 * @return	Whether the provided key has the specified status.
 	 */
-	public function checkStatus(button:Dynamic, state:ButtonsStates = JUST_PRESSED):Bool
+	override public function checkStatus(button:Dynamic, state:ButtonsStates = JUST_PRESSED):Bool
 	{
 		switch (button)
 		{
-			case FlxMobileInputID.ANY:
-				for (button in trackedButtons.keys())
-				{
-					checkStatusUnsafe(button, state);
-				}
-			case FlxMobileInputID.NONE:
-				return false;
+			// case FlxMobileInputID.ANY:
+			// 	for (button in trackedButtons.keys())
+			// 	{
+			// 		checkStatusUnsafe(button, state);
+			// 	}
+			// case FlxMobileInputID.NONE:
+			// 	return false;
 
 			default:
-				if (trackedButtons.exists(button))
+                //trace(button, state);
+				if (trackedButtonsTwo.exists(button)) {
+                    //trace('exists');
 					return checkStatusUnsafe(button, state);
+                } //else {
+                    //trace('Nope!');
+                //}
 		}
 		return false;
 	}
@@ -120,7 +130,7 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 	 * @param	state		The button state to check for
 	 * @return	Whether at least one of the buttons has the specified status
 	 */
-	function checkButtonArrayState(Buttons:Array<Dynamic>, state:ButtonsStates = JUST_PRESSED):Bool
+	override function checkButtonArrayState(Buttons:Array<Dynamic>, state:ButtonsStates = JUST_PRESSED):Bool
 	{
 		if (Buttons == null)
 			return false;
@@ -132,38 +142,36 @@ class FlxMobileInputManager extends FlxTypedSpriteGroup<FlxButton>
 		return false;
 	}
 
-	function checkStatusUnsafe(button:Dynamic, state:ButtonsStates = JUST_PRESSED):Bool
+    override function checkStatusUnsafe(button:Dynamic, state:ButtonsStates = JUST_PRESSED):Bool
 	{
+        //trace(button);
 		return switch (state)
 		{
-			case JUST_RELEASED: trackedButtons.get(button).justReleased;
-			case PRESSED: trackedButtons.get(button).pressed;
-			case JUST_PRESSED: trackedButtons.get(button).justPressed;
+			case JUST_RELEASED: trackedButtonsTwo.get(button).justReleased;
+			case PRESSED: trackedButtonsTwo.get(button).pressed;
+			case JUST_PRESSED: trackedButtonsTwo.get(button).justPressed;
 		}
 	}
 
-	public function updateTrackedButtons()
+	override public function updateTrackedButtons()
 	{
-		trackedButtons.clear();
+		trackedButtonsTwo.clear();
 		forEachExists(function(button:FlxButton)
 		{
-			if (button.IDs != null)
+			if (button.stringIDs != null)
 			{
-				for (id in button.IDs)
+				for (id in button.stringIDs)
 				{
-					if (!trackedButtons.exists(id))
+					if (!trackedButtonsTwo.exists(id))
 					{
-						trackedButtons.set(id, button);
+						trackedButtonsTwo.set(id, button);
 					}
 				}
 			}
 		});
-	}
-}
 
-enum ButtonsStates
-{
-	PRESSED;
-	JUST_PRESSED;
-	JUST_RELEASED;
+        // for (k in trackedButtonsTwo.keys()) {
+        //     trace(k);
+        // }
+	}
 }

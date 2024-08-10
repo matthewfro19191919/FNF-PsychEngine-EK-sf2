@@ -22,6 +22,11 @@ class MobileControls extends FlxTypedSpriteGroup<FlxMobileInputManager>
 		forcedControl = mode;
 		if (forceType != null)
 			forcedControl = forceType;
+		#if !ALL_CONTROLS
+		if (forcedControl != 4 && forcedControl != 5) {
+			forcedControl = 4;
+		}
+		#end
 		switch (forcedControl)
 		{
 			case 0: // RIGHT_FULL
@@ -165,10 +170,12 @@ class MobileControls extends FlxTypedSpriteGroup<FlxMobileInputManager>
 			virtualPad.buttonUp2.color = buttonsColors[2];
 			virtualPad.buttonRight2.color = buttonsColors[3];
 		}
-		current.buttonLeft.color = buttonsColors[0];
-		current.buttonDown.color = buttonsColors[1];
-		current.buttonUp.color = buttonsColors[2];
-		current.buttonRight.color = buttonsColors[3];
+		if (mode != 4) {
+			current.buttonLeft.color = buttonsColors[0];
+			current.buttonDown.color = buttonsColors[1];
+			current.buttonUp.color = buttonsColors[2];
+			current.buttonRight.color = buttonsColors[3];
+		}
 		
 		/*if(mode == 4){
 			hitbox.buttonLeft.color = buttonsColors[0];
@@ -185,10 +192,13 @@ class MobileControls extends FlxTypedSpriteGroup<FlxMobileInputManager>
 }
 
 class CurrentManager {
+	//#if ALL_CONTROLS
+	// they still need to be there, everything else still uses them!
 	public var buttonLeft:FlxButton;
 	public var buttonDown:FlxButton;
 	public var buttonUp:FlxButton;
 	public var buttonRight:FlxButton;
+	//#end
 	public var buttonExtra:FlxButton;
 	public var buttonExtra2:FlxButton;
 	public var target:FlxMobileInputManager;
@@ -196,18 +206,22 @@ class CurrentManager {
 	public function new(control:MobileControls){
 		if(MobileControls.mode == 4) {
 			target = control.hitbox;
+			#if ALL_CONTROLS
 			buttonLeft = control.hitbox.buttonLeft;
 			buttonDown = control.hitbox.buttonDown;
 			buttonUp = control.hitbox.buttonUp;
 			buttonRight = control.hitbox.buttonRight;
+			#end
 			buttonExtra = control.hitbox.buttonExtra;
 			buttonExtra2 = control.hitbox.buttonExtra2;
 		} else {
 			target = control.virtualPad;
+			//#if ALL_CONTROLS
 			buttonLeft = control.virtualPad.buttonLeft;
 			buttonDown = control.virtualPad.buttonDown;
 			buttonUp = control.virtualPad.buttonUp;
 			buttonRight = control.virtualPad.buttonRight;
+			//#end
 			buttonExtra = control.virtualPad.buttonExtra;
 			buttonExtra2 = control.virtualPad.buttonExtra2;
 		}

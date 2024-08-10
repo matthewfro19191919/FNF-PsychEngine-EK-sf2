@@ -1619,18 +1619,20 @@ class PlayState extends MusicBeatState
 		adaptStrumline(opponentStrums);
 		adaptStrumline(playerStrums);
 
-		for (i in 0...playerStrums.members.length) {
-			var keyShowcase = new KeybindShowcase(
-				playerStrums.members[i].x, 
-				ClientPrefs.data.downScroll ? playerStrums.members[i].y - 30 : playerStrums.members[i].y + playerStrums.members[i].height + 5, 
-				ClientPrefs.keyBinds.get(keysArray[i]), 
-				camHUD, 
-				playerStrums.members[i].width / 2, 
-				SONG.mania);
-			keyShowcase.onComplete = function() {
-				remove(keyShowcase);
+		if (controls.mobileC) {
+			for (i in 0...playerStrums.members.length) {
+				var keyShowcase = new KeybindShowcase(
+					playerStrums.members[i].x, 
+					ClientPrefs.data.downScroll ? playerStrums.members[i].y - 30 : playerStrums.members[i].y + playerStrums.members[i].height + 5, 
+					ClientPrefs.keyBinds.get(keysArray[i]), 
+					camHUD, 
+					playerStrums.members[i].width / 2, 
+					SONG.mania);
+				keyShowcase.onComplete = function() {
+					remove(keyShowcase);
+				}
+				add(keyShowcase);
 			}
-			add(keyShowcase);
 		}
 	}
 

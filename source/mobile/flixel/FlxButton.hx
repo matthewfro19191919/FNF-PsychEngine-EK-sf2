@@ -41,6 +41,10 @@ class FlxButton extends FlxTypedButton<FlxText>
 	public var tag:String;
 	public var IDs:Array<FlxMobileInputID> = [];
 
+	#if !ALL_CONTROLS
+	public var stringIDs:Array<String> = [];
+	#end
+
 	/**
 	 * Creates a new `FlxButton` object with a gray background
 	 * and a callback function on the UI thread.

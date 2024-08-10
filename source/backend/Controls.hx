@@ -145,9 +145,11 @@ class Controls
 		if (result)
 			controllerMode = false;
 
+		//trace(key);
+
 		return result
 			|| _myGamepadJustPressed(gamepadBinds[key]) == true
-			|| mobileCJustPressed(mobileBinds[key]) == true
+			|| mobileCJustPressed(#if ALL_CONTROLS mobileBinds[key] #else [key] #end) == true
 			|| virtualPadJustPressed(mobileBinds[key]) == true;
 	}
 
@@ -157,9 +159,11 @@ class Controls
 		if (result)
 			controllerMode = false;
 
+		//trace(key);
+
 		return result
 			|| _myGamepadPressed(gamepadBinds[key]) == true
-			|| mobileCPressed(mobileBinds[key]) == true
+			|| mobileCPressed(#if ALL_CONTROLS mobileBinds[key] #else [key] #end) == true
 			|| virtualPadPressed(mobileBinds[key]) == true;
 	}
 
@@ -169,9 +173,11 @@ class Controls
 		if (result)
 			controllerMode = false;
 
+		//trace(key);
+
 		return result
 			|| _myGamepadJustReleased(gamepadBinds[key]) == true
-			|| mobileCJustReleased(mobileBinds[key]) == true
+			|| mobileCJustReleased(#if ALL_CONTROLS mobileBinds[key] #else [key] #end) == true
 			|| virtualPadJustReleased(mobileBinds[key]) == true;
 	}
 
@@ -269,8 +275,9 @@ class Controls
 		return false;
 	}
 
-	private function mobileCPressed(keys:Array<FlxMobileInputID>):Bool
+	private function mobileCPressed(keys:Array<#if !ALL_CONTROLS String #else FlxMobileInputID #end>):Bool
 	{
+		//trace(keys);
 		if (keys != null && requested.mobileControls != null && gameplayRequest != null)
 		{
 			if (gameplayRequest.anyPressed(keys))
@@ -282,8 +289,9 @@ class Controls
 		return false;
 	}
 
-	private function mobileCJustPressed(keys:Array<FlxMobileInputID>):Bool
+	private function mobileCJustPressed(keys:Array< #if !ALL_CONTROLS String #else FlxMobileInputID #end>):Bool
 	{
+		//trace(keys);
 		if (keys != null && requested.mobileControls != null && gameplayRequest != null)
 		{
 			if (gameplayRequest.anyJustPressed(keys))
@@ -295,8 +303,9 @@ class Controls
 		return false;
 	}
 
-	private function mobileCJustReleased(keys:Array<FlxMobileInputID>):Bool
+	private function mobileCJustReleased(keys:Array<#if !ALL_CONTROLS String #else FlxMobileInputID #end>):Bool
 	{
+		//trace(keys);
 		if (keys != null && requested.mobileControls != null && gameplayRequest != null)
 		{
 			if (gameplayRequest.anyJustReleased(keys))
