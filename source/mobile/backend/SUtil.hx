@@ -115,7 +115,6 @@ class SUtil
 	/**
 	 * This is mostly a fork of https://github.com/openfl/hxp/blob/master/src/hxp/System.hx#L595
 	 */
-	#if sys
 	public static function mkDirs(directory:String):Void
 	{
 		var total:String = '';
@@ -160,7 +159,6 @@ class SUtil
 			#end
 		}
 	}
-	#end
 
 	#if android
 	public static function requestPermissions():Void
@@ -205,7 +203,6 @@ class SUtil
 		daPath = haxe.io.Path.addTrailingSlash(daPath.endsWith("\n") ? daPath.substr(0, daPath.length - 1) : daPath);
 		return daPath;
 	}
-	#end
 	#end
 
 	public static function showPopUp(message:String, title:String):Void
