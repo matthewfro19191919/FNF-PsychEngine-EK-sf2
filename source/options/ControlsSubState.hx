@@ -116,12 +116,23 @@ class ControlsSubState extends MusicBeatSubstate
 
 		// this approach is also null safe. you wont run to NORs with this way
 		options = [[false, 'NOTES']];
+		var uhhh:Array<Array<Dynamic>> = [];
+
 		for (k in ClientPrefs.keyBinds.keys()) {
 			var idxPage = Std.parseInt(k.split('_')[0]);
 			var nteIdx = Std.parseInt(k.split('_')[2]);
 			if (idxPage == curEKPage) {
-				options.push([false, '${idxPage + 1}K ${nteIdx + 1}', k, '${idxPage + 1} Keys Note ${nteIdx + 1}']);
+				uhhh.push([idxPage, nteIdx, k]);
 			}
+		}
+
+		uhhh.sort(function(a, b) {
+			return Std.parseInt(a[1]) - Std.parseInt(b[1]);
+		});
+
+		for (what in uhhh) {
+			//trace(what);
+			options.push([false, '${what[0] + 1}K ${what[1] + 1}', what[2], '${what[0] + 1} Keys Note ${what[1] + 1}']);
 		}
 
 		var optionsTemplate:Array<Dynamic> = [
@@ -149,6 +160,8 @@ class ControlsSubState extends MusicBeatSubstate
 			[true],
 			[true, defaultKey]
 		];
+
+		// end of template making
 
 		for (thing in optionsTemplate) {
 			options.push(thing);
