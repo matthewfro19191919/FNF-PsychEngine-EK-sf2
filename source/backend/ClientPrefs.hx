@@ -189,8 +189,12 @@ class ClientPrefs {
 
 		// this was NOT that easy
 		var saveDataKeybinds:Array<Array<Array<Int>>> = [
-			[], [], [], [], [], [], [], [], []
+			//[], [], [], [], [], [], [], [], []
 		];
+
+		for (i in 0...ExtraKeysHandler.instance.data.maxKeys+1) {
+			saveDataKeybinds.push([]);
+		}
 
 		// if you encounter issues with this system please.
 		// at me @tposejank in Psych Ward!! Dont break the rules tho

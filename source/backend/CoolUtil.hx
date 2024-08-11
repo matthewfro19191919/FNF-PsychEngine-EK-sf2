@@ -215,6 +215,14 @@ class CoolUtil
 		parser.fromJson(content);
 		result = parser.value;
 
+		// automatically (?) sets keybinds of #keys that have no keybinds
+		for (i in 0...ExtraKeysHandler.instance.data.maxKeys+1) {
+			// keybinds dont exist, keybinds are not enough
+			if (result.keybinds[i] == null || result.keybinds[i].length != (i + 1)) {
+				result.keybinds[i] = defaultKeybinds[i];
+			}
+		}
+
 		return result;
 	}
 }

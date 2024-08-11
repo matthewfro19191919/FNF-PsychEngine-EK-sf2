@@ -21,6 +21,7 @@ class ExtraKeysHandler {
 }
 
 class ExtraKeysData {
+    // indexing
     public var keys:Array<EKManiaMode>;
 
     // these are only used to set the colors into your save data!
@@ -43,6 +44,7 @@ class ExtraKeysData {
 }
 
 class EKManiaMode {
+    // 4k = 0,1,2,3
     public var notes:Array<Int>;
 }
 
@@ -55,9 +57,18 @@ class EKNoteColor {
 }
 
 class EKAnimation {
+    // arrowLEFT
     public var strum:String;
+
+    // left confirm
     public var anim:String;
+
+    // purple hold end
     public var note:String;
+
+    // singLEFT
     public var sing:String;
+
+    // 0
     public var pixel:Int;
 }
