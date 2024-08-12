@@ -188,16 +188,15 @@ class ClientPrefs {
 		save.data.keyboard = keyBinds;
 
 		// this was NOT that easy
-		var saveDataKeybinds:Array<Array<Array<Int>>> = [
+		var saveDataKeybinds:Array<Array<Array<Int>>> = [];
 			//[], [], [], [], [], [], [], [], []
-		];
 
 		for (i in 0...ExtraKeysHandler.instance.data.maxKeys+1) {
 			saveDataKeybinds.push([]);
 		}
 
-		// if you encounter issues with this system please.
-		// at me @tposejank in Psych Ward!! Dont break the rules tho
+		// loads keybinds in a very specific way
+		// do NOT put "*key*" in the map or it will die
 		for (k in keyBinds.keys()) {
 			if (k.contains('key')) {
 				//trace('EK Keybind detected: $k');
