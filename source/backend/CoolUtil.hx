@@ -187,6 +187,17 @@ class CoolUtil
 		parser.fromJson(content);
 		result = parser.value;
 
+		// automatically (?) sets colors of notes that have no colors
+		for (i in 0...ExtraKeysHandler.instance.data.maxKeys+1) {
+			// colors dont exist
+			
+			// cannot take the previous approach since 
+			// this is indexed and not per mania
+			if (result.colors[i] == null) {
+				result.colors[i] = defaultArrowRGB[i];
+			}
+		}
+
 		return result;
 	}
 
