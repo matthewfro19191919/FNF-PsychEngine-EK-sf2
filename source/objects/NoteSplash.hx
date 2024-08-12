@@ -50,12 +50,7 @@ class NoteSplash extends FlxSprite
 
 	var maxAnims:Int = 2;
 	public function setupNoteSplash(x:Float, y:Float, direction:Int = 0, ?note:Note = null) {
-		var scale = 1/(ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3);
-		//setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
-		setPosition(
-			x - (Note.swagWidth * scale) * 0.95, 
-			y - (Note.swagWidth * scale)
-		);
+		setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
 		aliveTime = 0;
 
 		var texture:String = null;
@@ -104,15 +99,15 @@ class NoteSplash extends FlxSprite
 			var animID:Int = direction + ((animNum - 1) * Note.colArray.length);
 			//trace('anim: ${animation.curAnim.name}, $animID');
 			var offs:Array<Float> = config.offsets[FlxMath.wrap(animID, 0, config.offsets.length-1)];
-			offset.x += offs[0];
-			offset.y += offs[1];
+			offset.x += offs[0] * (ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3);
+			offset.y += offs[1] * (ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3);
 			minFps = config.minFps;
 			maxFps = config.maxFps;
 		}
 		else
 		{
-			offset.x += -58;
-			offset.y += -55;
+			offset.x += -58 * (ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3);
+			offset.y += -55 * (ExtraKeysHandler.instance.data.scales[PlayState.SONG.mania] + 0.3);
 		}
 
 		if(animation.curAnim != null)
