@@ -5,7 +5,7 @@
       "type": "git",
       "dir": null,
       "ref": "develop",
-      "url": "https://github.com/mcagabe19-stuff/lime"
+      "url": "https://github.com/mcagabe19-stuff/lime.git"
     },
     {
       "name": "openfl",
@@ -37,7 +37,7 @@
       "type": "git",
       "dir": null,
       "ref": "master",
-      "url": "https://github.com/mcagabe19-stuff/hxcpp"
+      "url": "https://github.com/mcagabe19-stuff/hxcpp.git"
     },
     {
       "name": "hxCodec",
@@ -49,14 +49,14 @@
       "type": "git",
       "dir": null,
       "ref": "9ad403a3d9567b25b97048add9f68c7f278dcccd",
-      "url": "https://github.com/FunkinExtraKeys/hxvlc/"
+      "url": "https://github.com/FunkinExtraKeys/hxvlc.git"
     },
     {
       "name": "SScript",
       "type": "git",
       "dir": null,
       "ref": "main",
-      "url": "https://github.com/FunkinExtraKeys/SScript/"
+      "url": "https://github.com/FunkinExtraKeys/SScript.git"
     },
     {
       "name": "hxcpp-debug-server",
@@ -78,7 +78,7 @@
       "type": "git",
       "dir": null,
       "ref": "3538a1c2bb07b04208cd014220207f8173acdb21",
-      "url": "https://github.com/FunkinExtraKeys/hxdiscord_rpc/"
+      "url": "https://github.com/FunkinExtraKeys/hxdiscord_rpc"
     },
     {
       "name": "linc_luajit",
@@ -99,7 +99,7 @@
       "type": "git",
       "dir": null,
       "ref": "727693f0a76c6e396df675bb0ed95d7639a4db01",
-      "url": "https://github.com/MAJigsaw77/extension-androidtools"
+      "url": "https://github.com/MAJigsaw77/extension-androidtools.git"
     }
   ]
 }
