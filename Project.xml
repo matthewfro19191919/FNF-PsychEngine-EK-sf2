@@ -165,32 +165,26 @@
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
 
+	<haxedef name="message.reporting" value="pretty" />
+
 	<haxedef name='no-deprecation-warnings' />
 
 	<haxedef name='no-inline' if="html5"/>
 
-		<!--Always enable Null Object Reference check-->
+	<!--Always enable Null Object Reference check-->
+	<section if="cpp">
 		<haxedef name="HXCPP_CHECK_POINTER" />
 		<haxedef name="HXCPP_STACK_LINE" />
 		<haxedef name="HXCPP_STACK_TRACE" />
-	
-		<section if="android">
-			<!-- Do whatever you want I'm tired uninstall and install everytime -->
-			<certificate path="key.keystore" password="nullfunni" alias="null" alias-password="nullfunni" unless="debug" />
+		<haxedef name="HXCPP_CATCH_SEGV" />
+	</section>
 
-			<!--Target SDK-->
-			<!-- <android target-sdk-version="29" if="EXTERNAL || MEDIA"/> -->
-		</section>
-
-		<section if="ios">
-			<define name='objc' />
-			<ios linker-flags='-ObjC' />
-		</section>
-
+	<!-- Do whatever you want I'm tired uninstall and install everytime -->
+	<certificate path="key.keystore" password="nullfunni" alias="null" alias-password="nullfunni" if="android" unless="debug" />
 
 	<!--Avoid memory leaks with for loops in HScript-->
 	<haxedef name="loop_unroll_max_cost" value="25" />
-	<haxedef name="DISABLED_MACRO_SUPERLATIVE" if="mobile" />
+	<haxedef name="DISABLED_MACRO_SUPERLATIVE" if="android" />
 		
 	<!--Macro fixes-->
 	<haxeflag name="--macro" value="allowPackage('flash')" />
