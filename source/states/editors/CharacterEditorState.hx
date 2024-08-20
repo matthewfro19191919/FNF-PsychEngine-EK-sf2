@@ -866,6 +866,7 @@ class CharacterEditorState extends MusicBeatState
 	var holdingFrameTime:Float = 0;
 	var holdingFrameElapsed:Float = 0;
 	var undoOffsets:Array<Float> = null;
+	var cameraPosition:Array<Float> = [0, 0];
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -892,6 +893,21 @@ class CharacterEditorState extends MusicBeatState
 		if (FlxG.keys.pressed.K) FlxG.camera.scroll.y += elapsed * 500 * shiftMult * ctrlMult;
 		if (FlxG.keys.pressed.L) FlxG.camera.scroll.x += elapsed * 500 * shiftMult * ctrlMult;
 		if (FlxG.keys.pressed.I) FlxG.camera.scroll.y -= elapsed * 500 * shiftMult * ctrlMult;
+
+		if (controls.mobileC)
+		{
+			var mouse = FlxG.mouse.getScreenPosition(); // using FlxG.mouse cuz FlxTouch suck
+			if (FlxG.mouse.justPressed && !FlxG.mouse.overlaps(UI_characterbox))
+			{
+            			cameraPosition[0] = FlxG.camera.scroll.x + mouse.x;
+            			cameraPosition[1] = FlxG.camera.scroll.y + mouse.y;
+			}
+			else if (FlxG.mouse.pressed && !FlxG.mouse.overlaps(UI_characterbox))
+			{
+				FlxG.camera.scroll.x = cameraPosition[0] - mouse.x;
+            			FlxG.camera.scroll.y = cameraPosition[1] - mouse.y;
+			}
+		}
 
 		var lastZoom = FlxG.camera.zoom;
 		if(FlxG.keys.justPressed.R && !FlxG.keys.pressed.CONTROL || virtualPad.buttonZ.justPressed) FlxG.camera.zoom = 1;
