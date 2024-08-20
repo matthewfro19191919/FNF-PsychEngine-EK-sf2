@@ -42,8 +42,10 @@
     },
     {
       "name": "SScript",
-      "type": "haxelib",
-      "version": "21.0.0"
+      "type": "git",
+      "dir": null,
+      "ref": "19.0.618",
+      "url": "https://github.com/FunkinExtraKeys/SScript.git"
     },
     {
       "name": "hxcpp-debug-server",
