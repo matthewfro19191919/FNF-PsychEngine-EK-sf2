@@ -29,6 +29,8 @@ body:
         - "Linux"
         - "Mac"
         - "HTML5/Browser"
+        - "Android"
+        - "iOS"
         - "Flash/Air-based target"
         - "Neko, HashLink, or other build system"
     validations:
