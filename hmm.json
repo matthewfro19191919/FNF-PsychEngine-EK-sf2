@@ -48,8 +48,8 @@
       "name": "hxvlc",
       "type": "git",
       "dir": null,
-      "ref": "9ad403a3d9567b25b97048add9f68c7f278dcccd",
-      "url": "https://github.com/FunkinExtraKeys/hxvlc.git"
+      "ref": "70e7f5f3e76d526ac6fb8f0e6665efe7dfda589d",
+      "url": "https://github.com/MAJigsaw77/hxvlc.git"
     },
     {
       "name": "SScript",
@@ -84,14 +84,14 @@
       "name": "linc_luajit",
       "type": "git",
       "dir": null,
-      "ref": "1906c4a96f6bb6df66562b3f24c62f4c5bba14a7",
-      "url": "https://github.com/FunkinExtraKeys/linc_luajit.git"
+      "ref": "master",
+      "url": "https://github.com/superpowers04/linc_luajit.git"
     },
     {
       "name": "flxanimate",
       "type": "git",
       "dir": null,
-      "ref": "6d11b11f65f822a2a2ad01018fa8bcea0437bf5a",
+      "ref": "dev",
       "url": "https://github.com/FunkinExtraKeys/flxanimate.git"
     },
     {
