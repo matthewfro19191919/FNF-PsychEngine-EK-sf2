@@ -6,8 +6,7 @@ import openfl.utils.Assets;
 import objects.TypedAlphabet;
 import cutscenes.DialogueCharacter;
 
-// Gonna try to kind of make it compatible to Forever Engine,
-// love u Shubs no homo :flushedh4:
+// Gonna try to kind of make it compatible to Forever Engine
 typedef DialogueFile = {
 	var dialogue:Array<DialogueLine>;
 }
