@@ -44,7 +44,7 @@ class CreditsState extends MusicBeatState
 			['srPerez', 			'perez', 			'1-9 keys art', 											'https://twitter.com/NewSrPerez', 		'FF9E00'],
 			[''],
 			['Mobile Porting Team'],
-			['mcagabe19',			'lily',				'Head Porter of Psych Engine Mobile',						'https://www.youtube.com/@mcagabe19',   'FFE7C0'],
+			['mcagabe19',			'lily',				'Head Porter of Psych Engine Mobile and Author of linc_luajit-rewriten',						'https://www.youtube.com/@mcagabe19',   'FFE7C0'],
 			['Karim Akra',			'karim',			'Assistant Porter/Helper #1 of Psych Engine Mobile',    	'https://youtube.com/@Karim0690',		'FFB4F0'],
 			['Moxie',				'moxie',			'Helper #2 of Psych Engine Mobile',							'https://twitter.com/meme_hoovy',       'F592C4'],
 			[''],
