@@ -1,0 +1,1 @@
+Switches the scroll from up to down or down to up
