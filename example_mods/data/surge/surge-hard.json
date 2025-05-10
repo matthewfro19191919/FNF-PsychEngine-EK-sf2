@@ -4074,7 +4074,7 @@
 		"stage": "out",
 		"validScore": true,
 		"sections": 0,
-		"needsVoices": true,
+		"needsVoices": false,
 		"speed": 2.8,
 		"bpm": 150
 	}
